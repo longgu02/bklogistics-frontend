@@ -7,8 +7,8 @@ import {
 	Button,
 	Typography,
 	Grid,
+	StepButton,
 } from "@mui/material";
-
 // const steps = [
 // 	"Select campaign settings",
 // 	"Create an ad group",
@@ -22,9 +22,11 @@ interface StepperProps {
 	skipStep?: Array<Number>;
 	isMobile?: boolean;
 	children: React.ReactElement;
+	isNextDisabled?: boolean;
 	handleNext?: () => void;
 	handleBack?: () => void;
 	handleSkip?: () => void;
+	handleStepClick: (arg0: number) => void;
 }
 
 export default function CustomStepper(props: StepperProps) {
@@ -35,10 +37,16 @@ export default function CustomStepper(props: StepperProps) {
 		isMobile,
 		optionalStep,
 		skipStep,
+		isNextDisabled,
 		handleNext,
 		handleBack,
 		handleSkip,
+		handleStepClick,
 	} = props;
+	const [selectedStep, setSelectedStep] = React.useState<number>(activeStep);
+	const customStyle = {
+		fontSize: "30px",
+	};
 	const isStepOptional = (step: number) => {
 		if (optionalStep === undefined) return false;
 		return optionalStep.indexOf(step) !== -1;
@@ -47,6 +55,11 @@ export default function CustomStepper(props: StepperProps) {
 	const isStepSkipped = (step: number) => {
 		if (skipStep === undefined) return false;
 		return skipStep?.indexOf(step) !== -1;
+	};
+
+	const handleSelectStep = (step: number) => {
+		handleStepClick(step);
+		setSelectedStep(step);
 	};
 
 	// const handleNext = () => {
@@ -105,8 +118,28 @@ export default function CustomStepper(props: StepperProps) {
 									stepProps.completed = false;
 								}
 								return (
-									<Step key={label} {...stepProps}>
-										<StepLabel {...labelProps}>{label}</StepLabel>
+									<Step
+										key={label}
+										// sx={{ fontSize: "24px" }}
+										// onClick={}
+										sx={{ fontSize: 30 }}
+										{...stepProps}
+									>
+										<StepButton
+											color="inherit"
+											sx={{ width: "fit-content" }}
+											onClick={() => handleSelectStep(index + 1)}
+										>
+											<StepLabel
+												// sx={{ label: { fontSize: 30 } }}
+												classes={{ label: "30px" }}
+												{...labelProps}
+											>
+												<Typography variant="subtitle1" sx={{ fontSize: 16 }}>
+													{label}
+												</Typography>
+											</StepLabel>
+										</StepButton>
 									</Step>
 								);
 							})}
@@ -118,6 +151,17 @@ export default function CustomStepper(props: StepperProps) {
 				</Grid>
 			)}
 			<Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+				{handleBack && (
+					<Button
+						color="inherit"
+						disabled={activeStep === 0}
+						onClick={handleBack}
+						sx={{ mr: 1 }}
+					>
+						Back
+					</Button>
+				)}
+
 				<Box sx={{ flex: "1 1 auto" }} />
 				{isStepOptional(activeStep) && (
 					<Button
@@ -129,7 +173,11 @@ export default function CustomStepper(props: StepperProps) {
 						Skip
 					</Button>
 				)}
-				<Button variant="contained" onClick={handleNext}>
+				<Button
+					variant="contained"
+					onClick={handleNext}
+					disabled={selectedStep != activeStep + 1 || isNextDisabled}
+				>
 					{activeStep === steps.length - 1 ? "Finish" : "Next"}
 				</Button>
 			</Box>
