@@ -19,7 +19,6 @@ const CreateOrder = () => {
 	const { currentStep, finishedStep, selectedStep, isNextDisabled } =
 		useAppSelector((state) => state.orderCreate);
 	const dispatch = useAppDispatch();
-	console.log(currentStep);
 	const renderStep = (step: number) => {
 		switch (step) {
 			case 1:

@@ -1,1 +1,22 @@
-export const ROLES_CONTRACT = "0xEd76464E3652d99Dd24B2c2Dd745204FcFb8a44D";
+import { NETWORKS } from "./chain";
+
+export const ADDRESS = {
+	GOERLI_TESTNET: {
+		ROLES_CONTRACT_ADDRESS: "0xEd76464E3652d99Dd24B2c2Dd745204FcFb8a44D",
+		SUPPLY_CHAIN_CONTRACT_ADDRESS: "",
+		SHIPMENT_CONTRACT_ADDRESS: "",
+		PRODUCT_CONTRACT_ADDRESS: "",
+	},
+	BSC_TESTNET: {
+		ROLES_CONTRACT_ADDRESS: "",
+		SUPPLY_CHAIN_CONTRACT_ADDRESS: "",
+		SHIPMENT_CONTRACT_ADDRESS: "",
+		PRODUCT_CONTRACT_ADDRESS: "",
+	},
+};
+
+export const getNetworkAddress = (chainId: number) => {
+	if (chainId == NETWORKS.GOERLI_TESTNET.chainId) return ADDRESS.GOERLI_TESTNET;
+	else if (chainId == NETWORKS.BSC_TESTNET.chainId) return ADDRESS.BSC_TESTNET;
+	else throw Error("Invalid network");
+};

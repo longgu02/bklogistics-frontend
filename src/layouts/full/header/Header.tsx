@@ -12,8 +12,6 @@ import {
 import { BrowserProvider, ethers } from "ethers";
 import PropTypes from "prop-types";
 import { RolesContractABI } from "../../../contract/abis/RolesContractABI";
-import { ROLES_CONTRACT } from "../../../constants/address";
-// components
 import Profile from "./Profile";
 import { IconBellRinging, IconMenu } from "@tabler/icons-react";
 import { AnyAsyncThunk } from "@reduxjs/toolkit/dist/matchers";
@@ -28,9 +26,11 @@ interface ItemType {
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import {
 	updateAddress,
+	updateChain,
 	updateWallet,
 } from "../../../redux/connection/walletSlice";
 import { formatAddress } from "../../../utils";
+import { NETWORKS } from "../../../constants/chain";
 // import { useAppDispatch } from "../redux/hooks";
 // import { updateWallet } from "../redux/connection/walletSlice";
 
@@ -48,12 +48,12 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
 				const signer = await provider.getSigner();
 				const accounts = await provider.send("eth_requestAccounts", []);
 				const accountBalance = await provider.getBalance(accounts[0]);
-				// const chainId = await provider.getNetwork()["chainId"] | 5
-				const chainId = "5";
+				const network = await provider.getNetwork();
+				// const chainId = "5";
 				dispatch(
 					updateWallet({
 						address: accounts[0],
-						chainId: chainId,
+						chainId: Number(network.chainId),
 						provider: provider,
 						signer: signer,
 						balance: Number(ethers.formatEther(accountBalance)),
@@ -73,27 +73,33 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
 		successNotify(`Account changed to ${accountSwitched}`);
 	};
 
-	const _handleDisconnect = (account: Array<string>) => {
+	const _handleDisconnect = (res: any) => {
 		setConnected(false);
-		infoNotify(`Wallet disconnected`);
+		errorNotify(`Wallet disconnected`);
 	};
 
-	const _handleChainChanged = (account: Array<string>) => {
-		infoNotify(`Changed to chain`); // config chain information
+	const _handleChainChanged = (chainId: string) => {
+		dispatch(updateChain(Number(chainId)));
+		if (Number(chainId) == NETWORKS.GOERLI_TESTNET.chainId) {
+			infoNotify(`Switched to ${NETWORKS.GOERLI_TESTNET.metadata.chainName}`);
+		} else if (Number(chainId) == NETWORKS.BSC_TESTNET.chainId) {
+			infoNotify(`Switched to ${NETWORKS.BSC_TESTNET.metadata.chainName}`);
+		} else {
+			infoNotify(`Chain switched, ID:${chainId}`);
+		}
 	};
 
-	const _handleConnect = (account: Array<string>) => {
+	const _handleConnect = (res: any) => {
 		successNotify(`Wallet connected`);
 	};
 
 	React.useEffect(() => {
 		const pd = new ethers.BrowserProvider(window.ethereum);
+		setProvider(pd);
 		window.ethereum.on("connect", _handleConnect);
 		window.ethereum.on("accountsChanged", _handleAccountChanged);
 		window.ethereum.on("disconnect", _handleDisconnect);
 		window.ethereum.on("chainChanged", _handleChainChanged);
-		setProvider(pd);
-		console.log("rerender");
 		return () => {
 			window.ethereum.removeListener("connect", _handleConnect);
 			window.ethereum.removeListener("accountsChanged", _handleAccountChanged);
