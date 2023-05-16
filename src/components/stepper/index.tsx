@@ -176,7 +176,7 @@ export default function CustomStepper(props: StepperProps) {
 				<Button
 					variant="contained"
 					onClick={handleNext}
-					disabled={selectedStep != activeStep + 1 || isNextDisabled}
+					disabled={selectedStep != activeStep || isNextDisabled}
 				>
 					{activeStep === steps.length - 1 ? "Finish" : "Next"}
 				</Button>
