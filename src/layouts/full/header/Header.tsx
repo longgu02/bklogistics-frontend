@@ -27,6 +27,8 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import {
 	updateAddress,
 	updateChain,
+	updateProvider,
+	updateSigner,
 	updateWallet,
 } from "../../../redux/connection/walletSlice";
 import { formatAddress } from "../../../utils";
@@ -67,8 +69,11 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
 		}
 	};
 
-	const _handleAccountChanged = (account: Array<string>) => {
+	const _handleAccountChanged = async (account: Array<string>) => {
+		const pd = new ethers.BrowserProvider(window.ethereum);
 		const accountSwitched = account[0];
+		const signer = await pd.getSigner();
+		dispatch(updateSigner(signer));
 		dispatch(updateAddress(accountSwitched));
 		successNotify(`Account changed to ${accountSwitched}`);
 	};
@@ -95,6 +100,7 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
 
 	React.useEffect(() => {
 		const pd = new ethers.BrowserProvider(window.ethereum);
+		dispatch(updateProvider(pd));
 		setProvider(pd);
 		window.ethereum.on("connect", _handleConnect);
 		window.ethereum.on("accountsChanged", _handleAccountChanged);

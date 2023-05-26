@@ -1,6 +1,7 @@
 import { JsonRpcSigner, ethers } from "ethers";
 import { getNetworkAddress } from "../constants/address";
 import { RolesContractABI } from "../contract/abis/RolesContractABI";
+import { ErrorProps } from "next/error";
 
 export default function useRolesContract(
 	signer: JsonRpcSigner,
@@ -14,24 +15,8 @@ export default function useRolesContract(
 	);
 
 	const addMember = async (account: string) => {
-		contract
-			.addMember(account)
-			.then((receipt) => {
-				contract.on(
-					"MemberAdded",
-					(_account: string, _addedDate: any, event) => {
-						console.log({
-							account: _account,
-							addedDate: _addedDate,
-						});
-						event.removeListener();
-					}
-				);
-				console.log(receipt);
-			})
-			.catch((err) => {
-				console.log(err);
-			});
+		const _promise = await contract.addMember(account);
+		return _promise;
 	};
 	const hasRole = async (role: string, account: string) => {
 		const _promise = await contract.hasRole(role, account);
