@@ -152,14 +152,14 @@ const ProfileCover = (props: any) => {
 							<MoreHorizTwoToneIcon />
 						</IconButton>
 					</Box>
-					<Button
+					{/* <Button
 						sx={{ mt: { xs: 2, md: 0 } }}
 						size="small"
 						variant="text"
 						endIcon={<ArrowForwardTwoToneIcon />}
 					>
 						See all {user.followers} connections
-					</Button>
+					</Button> */}
 				</Box>
 			</Box>
 		</>
