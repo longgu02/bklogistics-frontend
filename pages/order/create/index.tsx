@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import FullLayout from "../../../src/layouts/full/FullLayout";
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import PageContainer from "../../../src/components/container/PageContainer";
 import DashboardCard from "../../../src/components/shared/DashboardCard";
 import CustomStepper from "../../../src/components/stepper";
@@ -24,7 +24,7 @@ const CreateOrder = () => {
 			case 1:
 				return <OrderFirstStep />;
 			case 2:
-				return <OrderSecondStep />;
+				return <OrderSecondStep/>;
 			case 3:
 				return <OrderThirdStep />;
 			case 4:
