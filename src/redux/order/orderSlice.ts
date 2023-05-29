@@ -13,7 +13,12 @@ export interface Product {
   material: string;
   unit: Unit[] | null; // Change the type to an array of Unit or null
 }
-
+export interface Supplier {
+  address: string;
+}
+export interface Manufacturer {
+  address: string;
+}
 export interface Order {
   product: {
     id: number | null;
@@ -48,17 +53,29 @@ const orderSlice = createSlice({
   reducers: {
     setProduct: (
       state,
-      action: PayloadAction<{ product: Product; unit: Unit }>
+      action: PayloadAction<{
+        product: Product;
+        unit: Unit;
+        notes: string;
+        quantity: number;
+      }>
     ) => {
       state.product.id = action.payload.product.id;
       state.product.name = action.payload.product.name;
       state.product.price = action.payload.product.price;
       state.product.material = action.payload.product.material;
       state.product.unit = action.payload.unit;
+      state.notes = action.payload.notes;
+      state.quantity = action.payload.quantity;
     },
-    getOrderData: (state) => state,
+    setSupplier: (state, action: PayloadAction<Supplier>) => {
+      state.supplierAddress = action.payload.address;
+    },
+    setManufacturer: (state, action: PayloadAction<Manufacturer>) => {
+      state.manufacturer = action.payload.address;
+    },
   },
 });
 
-export const { setProduct, getOrderData } = orderSlice.actions;
+export const { setProduct, setSupplier, setManufacturer} = orderSlice.actions;
 export default orderSlice.reducer;

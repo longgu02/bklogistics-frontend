@@ -1,10 +1,13 @@
 import { Box, TextField, Button } from "@mui/material";
-import Autocomplete, { AutocompleteChangeDetails, AutocompleteChangeReason } from "@mui/material/Autocomplete";
+import Autocomplete, {
+  AutocompleteChangeReason,
+  createFilterOptions,
+} from "@mui/material/Autocomplete";
 import * as React from "react";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { setNextDisabled } from "../../../redux/order/orderCreateSlice";
 import useNotify from "../../../hooks/useNotify";
-import {Unit, setProduct, getOrderData, Order, Product} from "../../../redux/order/orderSlice";
+import { Unit, setProduct, Product } from "../../../redux/order/orderSlice";
 
 const products: Product[] = [
   {
@@ -32,119 +35,124 @@ const products: Product[] = [
 
 export default function OrderSecondStep() {
   const dispatch = useAppDispatch();
-  const { finishedStep } = useAppSelector((state) => state.orderCreate);
-  const { successNotify } = useNotify();
+  const finishedStep = useAppSelector(
+    (state) => state.orderCreate.finishedStep
+  );
+  const { successNotify, errorNotify } = useNotify();
 
   const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(
     null
-    );
-    const [notes, setNotes] = React.useState("");
-    const [quantity, setQuantity] = React.useState<number | null>(null);
-    const [unit, setUnit] = React.useState<Unit>();
+  );
+  const [notes, setNotes] = React.useState("");
+  const [quantity, setQuantity] = React.useState<number | null>(null);
+  const [unit, setUnit] = React.useState<Unit | null>(null);
   const [availableUnits, setAvailableUnits] = React.useState<Unit[]>([]);
-  
-const handleProductSelected = (
-  event: React.SyntheticEvent<Element, Event>,
-  product: Product | null,
-  reason: AutocompleteChangeReason,
-  details?: AutocompleteChangeDetails<any> | undefined
+
+  const handleProductSelected = (
+    event: React.SyntheticEvent,
+    product: Product | null,
+    reason: AutocompleteChangeReason
+  ) => {
+    setSelectedProduct(product);
+    if (product !== null) {
+      setAvailableUnits(product.unit);
+      setUnit(product.unit[0]);
+    } else {
+      setAvailableUnits([]);
+      setUnit(null);
+    }
+  };
+
+const handleChange = (
+  event: React.ChangeEvent<HTMLInputElement | {}>,
+  value: string | null
 ) => {
-  setSelectedProduct(product);
-  console.log(selectedProduct);
-  if (product) {
-    setAvailableUnits(product.unit);
-    setUnit(product.unit[0]);
-  } else {
-    setAvailableUnits([]);
-    setUnit(undefined);
-  }
+  setUnit(value); // Update the state using value
 };
-  console.log(`finish step: ${finishedStep}`);
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
-    console.log(selectedProduct, unit);
     event.preventDefault();
     if (
       selectedProduct &&
       quantity !== null &&
-      unit && // check if `unit` itself is truthy, not its length
-      notes.length > 0
+      unit !== null
     ) {
       dispatch(setNextDisabled(false));
       successNotify("You have selected a product");
-      dispatch(setProduct(selectedProduct, unit));
+      dispatch(setProduct({ product: selectedProduct, unit: unit , notes: notes, quantity: quantity}));
       setNotes("");
       setQuantity(null);
+      setUnit(null);
     } else {
       dispatch(setNextDisabled(true));
     }
-    console.log("Submitted form values: ", dispatch(getOrderData())); // Use `getOrderData()` instead of `order.data`
   };
 
 
-  const renderResult = (): JSX.Element | null => {
-    if (finishedStep === 1) {
-      return (
-        <Box>
-          <form onSubmit={handleSubmit}>
-            <Autocomplete
-              options={products}
-              getOptionLabel={(product) =>
-                `${product.id} - ${product.name} (${product.price})`
-              }
-              value={selectedProduct}
-              onChange={handleProductSelected}
-              renderInput={(params) => (
-                <TextField {...params} label="Product" required />
-              )}
-            />
+  return (
+    <Box>
+      {finishedStep === 1 && (
+        <form onSubmit={handleSubmit}>
+          <Autocomplete
+            options={products}
+            getOptionLabel={(product) =>
+              `${product.id} - ${product.name} (${product.price})`
+            }
+            value={selectedProduct}
+            onChange={handleProductSelected}
+            renderInput={(params) => (
+              <TextField {...params} label="Product" required />
+            )}
+          />
+          <TextField
+            sx={{ marginTop: 2 }}
+            fullWidth
+            label="Notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+          <Box sx={{ display: "flex", marginTop: 2 }}>
             <TextField
-              sx={{ marginTop: 2 }}
-              fullWidth
-              label="Notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              label="Quantity"
+              type="number"
+              value={quantity ?? ""}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                if (val <= 0) {
+                  errorNotify("Quantity cannot be less than or equal to zero");
+                } else {
+                  setQuantity(val);
+                }
+              }}
               required
             />
-            <Box sx={{ display: "flex", marginTop: 2 }}>
-              <TextField
-                sx={{}}
-                label="Quantity"
-                type="number"
-                value={quantity ?? ""}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                required
-              />
-              <Autocomplete
-                sx={{ marginLeft: 2 }}
-                disableClearable
-                freeSolo={false}
-                disabled={!availableUnits.length}
-                options={availableUnits.flat()}
-                value={unit}
-                onChange={(value) => setUnit(value)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    disabled
-                    label="Unit"
-                    sx={{ color: "black" }}
-                  />
-                )}
-              />
-            </Box>
-            <Button
-              sx={{ marginTop: 2 }}
-              variant="contained"
-              color="primary"
-              type="submit"
-            >
-              Submit
-            </Button>
-          </form>
-        </Box>
-      );
-    }
-    return null;
-  };
-  return <Box>{renderResult()}</Box>;
+            <Autocomplete
+              sx={{ marginLeft: 2 }}
+              disableClearable
+              freeSolo={false}
+              disabled={!availableUnits.length}
+              options={availableUnits.flat()}
+              value={unit !== null ? unit : undefined} // Ensure that value is not null
+              onChange={handleChange} // pass the defined method
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  disabled
+                  label="Unit"
+                  sx={{ color: "black" }}
+                />
+              )}
+            />
+          </Box>
+          <Button
+            sx={{ marginTop: 2 }}
+            variant="contained"
+            color="primary"
+            type="submit"
+          >
+            Submit
+          </Button>
+        </form>
+      )}
+    </Box>
+  );
 }

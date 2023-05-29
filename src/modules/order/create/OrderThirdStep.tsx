@@ -4,10 +4,7 @@ import * as React from "react";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { setNextDisabled } from "../../../redux/order/orderCreateSlice";
 import useNotify from "../../../hooks/useNotify";
-
-interface Supplier {
-  address: string;
-}
+import { Supplier, Manufacturer, setSupplier, setManufacturer } from "../../../redux/order/orderSlice";
 
 const suppliers: Supplier[] = [
   {
@@ -21,9 +18,6 @@ const suppliers: Supplier[] = [
   },
 ];
 
-interface Manufacturer {
-  address: string;
-}
 
 const manufacturers: Manufacturer[] = [
   {
@@ -40,23 +34,15 @@ const manufacturers: Manufacturer[] = [
 export default function OrderThirdStep() {
   const dispatch = useAppDispatch();
   const { successNotify } = useNotify(); // using custom hook for notifications
-  const [selectedSupplier, setSelectedSupplier] = React.useState<Supplier>();
-  const [selectedManufacturer, setSelectedManufacturer] =
-    React.useState<Manufacturer>();
-  const handleNextClick = () => {
-    if (selectedSupplier && selectedManufacturer) {
-      dispatch(setNextDisabled(false));
-      successNotify("Third step details saved successfully!");
-    }
-  };
+  const {supplierAddress, manufacturer} = useAppSelector((state) => state.orderData);
+  console.log(supplierAddress, manufacturer);
   dispatch(setNextDisabled(false));
-  console.log(order.data);
   return (
-    <Box >
+    <Box>
       <Autocomplete
         options={suppliers}
         getOptionLabel={(option: Supplier) => option.address}
-        onChange={(event, value) => setSelectedSupplier(value)}
+        onChange={(event, value) => dispatch(setSupplier(value))}
         renderInput={(params) => (
           <TextField {...params} label="Supplier" required />
         )}
@@ -64,9 +50,14 @@ export default function OrderThirdStep() {
       <Autocomplete
         options={manufacturers}
         getOptionLabel={(option: Manufacturer) => option.address}
-        onChange={(event, value) => setSelectedManufacturer(value)}
+        onChange={(event, value) => dispatch(setManufacturer(value))}
         renderInput={(params) => (
-          <TextField {...params} sx={{marginTop: 2}} label="Manufacturer" required />
+          <TextField
+            {...params}
+            sx={{ marginTop: 2 }}
+            label="Manufacturer"
+            required
+          />
         )}
       />
     </Box>
