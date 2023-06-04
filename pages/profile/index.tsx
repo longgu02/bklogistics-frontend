@@ -13,7 +13,7 @@ import { MEMBER_ROLE } from "../../src/constants/role";
 import { errorNotify } from "../../src/hooks/useNotify";
 import { enqueueSnackbar } from "notistack";
 // import Wallet from "../../src/modules/profile/Wallets";
-import { Wallet } from "../../src/types/wallet";
+import { Wallet } from "../../src/types";
 const user = {
 	name: "Bracalente Manufacturing Co, Inc.",
 	coverImg:

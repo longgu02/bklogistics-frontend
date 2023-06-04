@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
 import AddTwoToneIcon from "@mui/icons-material/AddTwoTone";
-import { Wallet } from "../../types/wallet";
+import { Wallet } from "../../types";
 import { formatAddress } from "../../utils";
 import { useAppSelector } from "../../redux/hooks";
 import { enqueueSnackbar } from "notistack";
