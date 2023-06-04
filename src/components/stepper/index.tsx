@@ -173,13 +173,13 @@ export default function CustomStepper(props: StepperProps) {
 						Skip
 					</Button>
 				)}
-				<Button
+				{/* <Button
 					variant="contained"
 					onClick={handleNext}
 					disabled={selectedStep != activeStep || isNextDisabled}
 				>
 					{activeStep === steps.length - 1 ? "Finish" : "Next"}
-				</Button>
+				</Button> */}
 			</Box>
 		</Box>
 	);

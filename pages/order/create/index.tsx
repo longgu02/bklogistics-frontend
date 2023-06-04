@@ -24,7 +24,7 @@ const CreateOrder = () => {
 			case 1:
 				return <OrderFirstStep />;
 			case 2:
-				return <OrderSecondStep/>;
+				return <OrderSecondStep />;
 			case 3:
 				return <OrderThirdStep />;
 			case 4:
@@ -44,24 +44,24 @@ const CreateOrder = () => {
 
 	return (
 		<PageContainer title="Create Order" description="Create Order page">
-			<DashboardCard title="Create Order">
-				<Box>
-					<CustomStepper
-						steps={[
-							"Check wallet address validation",
-							"Choose product and order's note",
-							"Add Suppliers and Manufacturers",
-							"Deposit",
-						]}
-						activeStep={finishedStep}
-						handleNext={handleNext}
-						handleStepClick={handleStepClick}
-						isNextDisabled={isNextDisabled}
-					>
-						<Box>{renderStep(selectedStep)}</Box>
-					</CustomStepper>
-				</Box>
-			</DashboardCard>
+			{/* <DashboardCard title="Create Order"> */}
+			<Box>
+				<CustomStepper
+					steps={[
+						"Check wallet address validation",
+						"Choose product and order's note",
+						"Add Suppliers and Manufacturers",
+						"Deposit",
+					]}
+					activeStep={finishedStep}
+					handleNext={handleNext}
+					handleStepClick={handleStepClick}
+					isNextDisabled={isNextDisabled}
+				>
+					<Box>{renderStep(selectedStep)}</Box>
+				</CustomStepper>
+			</Box>
+			{/* </DashboardCard> */}
 		</PageContainer>
 	);
 };
