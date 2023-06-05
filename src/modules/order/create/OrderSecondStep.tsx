@@ -5,7 +5,7 @@ import Autocomplete, {
 } from "@mui/material/Autocomplete";
 import * as React from "react";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { setNextDisabled } from "../../../redux/order/orderCreateSlice";
+import { setNextDisabled, nextStep } from "../../../redux/order/orderCreateSlice";
 import useNotify from "../../../hooks/useNotify";
 import { Unit, setProduct, Product } from "../../../redux/order/orderSlice";
 
@@ -76,7 +76,7 @@ const handleChange = (
       quantity !== null &&
       unit !== null
     ) {
-      dispatch(setNextDisabled(false));
+      dispatch(nextStep());
       successNotify("You have selected a product");
       dispatch(setProduct({ product: selectedProduct, unit: unit , notes: notes, quantity: quantity}));
       setNotes("");
