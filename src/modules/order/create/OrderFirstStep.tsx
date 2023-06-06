@@ -33,13 +33,9 @@ export default function OrderFirstStep() {
 				// ||
 				// chainId == NETWORKS.BSC_TESTNET.chainId
 			) {
-				console.log("?");
 				if (signer && address) {
-					console.log(typeof signer);
 					const { hasRole } = useRolesContract(signer, chainId);
-					console.log("calling has role");
 					const _promise = hasRole(MEMBER_ROLE, address);
-					console.log(_promise);
 					_promise
 						.then((res) => {
 							setValid(res);
@@ -99,7 +95,6 @@ export default function OrderFirstStep() {
 			);
 		}
 	};
-	// console.log(isValid);
 	return (
 		<BaseStepper
 			handleConfirm={handleNext}

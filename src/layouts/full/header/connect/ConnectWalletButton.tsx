@@ -96,10 +96,10 @@ export default function ConnectWalletButton() {
 				setLoading(false);
 			}
 		}
+		successNotify(`Wallet connected`);
 	};
 
 	const chainCheck = (chainId: number) => {
-		console.log("checking");
 		if (
 			!Object.keys(NETWORKS).find(
 				(key) => NETWORKS[key].chainId == Number(chainId)
@@ -145,6 +145,7 @@ export default function ConnectWalletButton() {
 
 	const _handleDisconnect = (res: any) => {
 		setConnected(false);
+		removeSessionInfo();
 		errorNotify(`Wallet disconnected`);
 	};
 
@@ -161,6 +162,7 @@ export default function ConnectWalletButton() {
 
 	const _handleConnect = (res: any) => {
 		successNotify(`Wallet connected`);
+		dispatch(updateChain(Number(res.chainId)));
 	};
 
 	React.useEffect(() => {
@@ -171,7 +173,6 @@ export default function ConnectWalletButton() {
 		}
 		if (pd && window.ethereum.isConnected()) {
 			const { signer } = getSessionInfo(pd);
-			console.log("signer ", signer);
 			if (signer && pd) {
 				pd.getBalance(signer.address).then((balance) => {
 					dispatch(updateBalance(Number(ethers.formatEther(balance))));
