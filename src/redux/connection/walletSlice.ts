@@ -35,9 +35,21 @@ export const walletSlice = createSlice({
 		updateChain: (state, action: PayloadAction<number>) => {
 			state.chainId = action.payload;
 		},
+		updateProvider: (state, action: PayloadAction<BrowserProvider>) => {
+			state.provider = action.payload;
+		},
+		updateSigner: (state, action: PayloadAction<JsonRpcSigner>) => {
+			state.signer = action.payload;
+		},
 	},
 });
 
-export const { updateWallet, updateAddress, updateChain } = walletSlice.actions;
+export const {
+	updateWallet,
+	updateAddress,
+	updateChain,
+	updateProvider,
+	updateSigner,
+} = walletSlice.actions;
 
 export default walletSlice.reducer;

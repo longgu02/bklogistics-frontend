@@ -5,9 +5,13 @@ import Autocomplete, {
 } from "@mui/material/Autocomplete";
 import * as React from "react";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { setNextDisabled, nextStep } from "../../../redux/order/orderCreateSlice";
+import {
+  nextStep,
+  setNextDisabled,
+} from "../../../redux/order/orderCreateSlice";
 import useNotify from "../../../hooks/useNotify";
 import { Unit, setProduct, Product } from "../../../redux/order/orderSlice";
+import BaseStepper from "../../../components/stepper/BaseStepper";
 
 const products: Product[] = [
   {
@@ -63,22 +67,25 @@ export default function OrderSecondStep() {
     }
   };
 
-const handleChange = (
-  event: React.ChangeEvent<HTMLInputElement | {}>,
-  value: string | null
-) => {
-  setUnit(value); // Update the state using value
-};
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | {}>,
+    value: string | null
+  ) => {
+    setUnit(value); // Update the state using value
+  };
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    if (
-      selectedProduct &&
-      quantity !== null &&
-      unit !== null
-    ) {
-      dispatch(nextStep());
+    if (selectedProduct && quantity !== null && unit !== null) {
+      dispatch(setNextDisabled(false));
       successNotify("You have selected a product");
-      dispatch(setProduct({ product: selectedProduct, unit: unit , notes: notes, quantity: quantity}));
+      dispatch(
+        setProduct({
+          product: selectedProduct,
+          unit: unit,
+          notes: notes,
+          quantity: quantity,
+        })
+      );
       setNotes("");
       setQuantity(null);
       setUnit(null);
@@ -87,9 +94,13 @@ const handleChange = (
     }
   };
 
-
+  const handleNext = () => {
+    dispatch(nextStep());
+    // Logic...
+    dispatch(setNextDisabled(true));
+  };
   return (
-    <Box>
+    <BaseStepper handleConfirm={handleNext}>
       {finishedStep === 1 && (
         <form onSubmit={handleSubmit}>
           <Autocomplete
@@ -153,6 +164,6 @@ const handleChange = (
           </Button>
         </form>
       )}
-    </Box>
+    </BaseStepper>
   );
 }

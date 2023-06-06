@@ -6,7 +6,8 @@ export const NETWORKS = {
 		metadata: {
 			chainName: "Goerli Testnet",
 			shortName: "BSC",
-			// image: BSC,
+			image:
+				"https://assets-global.website-files.com/5f973c970bea5548ad4287ef/61e70d05f3c7146ab79e66bb_ethereum-eth.svg",
 		},
 		nativeCurrency: {
 			name: "ETH",
@@ -21,7 +22,7 @@ export const NETWORKS = {
 		metadata: {
 			chainName: "BSC Testnet",
 			shortName: "FTM",
-			// image: FTM,
+			image: "https://umbria.network/assets/images/icon/bsclogo.png?v1",
 		},
 		nativeCurrency: {
 			name: "BNB",

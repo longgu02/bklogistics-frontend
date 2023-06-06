@@ -8,6 +8,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  Paper,
 } from "@mui/material";
 import FullLayout from "../../../src/layouts/full/FullLayout";
 import type { ReactElement } from "react";
@@ -16,178 +17,40 @@ import DashboardCard from "../../../src/components/shared/DashboardCard";
 import orderSlice from "../../../src/redux/order/orderSlice";
 import OrderRow from "./component/OrderRow";
 import React from "react";
-
+import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
 interface Order {
   id: number;
-  name: string;
-  price: number;
+  product: string;
   quantity: number;
+  status: string;
+  date: string;
 }
 
 const orders: Order[] = [
   {
     id: 1,
-    name: "Product A",
-    price: 10.0,
+    product: "iPhone 12",
     quantity: 2,
+    status: "Shipped",
+    date: "2021-10-01",
   },
   {
     id: 2,
-    name: "Product B",
-    price: 15.0,
+    product: "MacBook Pro",
     quantity: 1,
+    status: "Processing",
+    date: "2021-09-28",
   },
   {
     id: 3,
-    name: "Product C",
-    price: 20.0,
+    product: "Nike Shoes",
     quantity: 3,
-  },
-  {
-    id: 1,
-    name: "Product A",
-    price: 10.0,
-    quantity: 2,
-  },
-  {
-    id: 2,
-    name: "Product B",
-    price: 15.0,
-    quantity: 1,
-  },
-  {
-    id: 3,
-    name: "Product C",
-    price: 20.0,
-    quantity: 3,
-  },
-  {
-    id: 1,
-    name: "Product A",
-    price: 10.0,
-    quantity: 2,
-  },
-  {
-    id: 2,
-    name: "Product B",
-    price: 15.0,
-    quantity: 1,
-  },
-  {
-    id: 3,
-    name: "Product C",
-    price: 20.0,
-    quantity: 3,
-  },
-  {
-    id: 1,
-    name: "Product A",
-    price: 10.0,
-    quantity: 2,
-  },
-  {
-    id: 2,
-    name: "Product B",
-    price: 15.0,
-    quantity: 1,
-  },
-  {
-    id: 3,
-    name: "Product C",
-    price: 20.0,
-    quantity: 3,
-  },
-  {
-    id: 1,
-    name: "Product A",
-    price: 10.0,
-    quantity: 2,
-  },
-  {
-    id: 2,
-    name: "Product B",
-    price: 15.0,
-    quantity: 1,
-  },
-  {
-    id: 3,
-    name: "Product C",
-    price: 20.0,
-    quantity: 3,
-  },
-  {
-    id: 1,
-    name: "Product A",
-    price: 10.0,
-    quantity: 2,
-  },
-  {
-    id: 2,
-    name: "Product B",
-    price: 15.0,
-    quantity: 1,
-  },
-  {
-    id: 3,
-    name: "Product C",
-    price: 20.0,
-    quantity: 3,
-  },
-  {
-    id: 1,
-    name: "Product A",
-    price: 10.0,
-    quantity: 2,
-  },
-  {
-    id: 2,
-    name: "Product B",
-    price: 15.0,
-    quantity: 1,
-  },
-  {
-    id: 3,
-    name: "Product C",
-    price: 20.0,
-    quantity: 3,
-  },
-  {
-    id: 1,
-    name: "Product A",
-    price: 10.0,
-    quantity: 2,
-  },
-  {
-    id: 2,
-    name: "Product B",
-    price: 15.0,
-    quantity: 1,
-  },
-  {
-    id: 3,
-    name: "Product C",
-    price: 20.0,
-    quantity: 3,
-  },
-  {
-    id: 1,
-    name: "Product A",
-    price: 10.0,
-    quantity: 2,
-  },
-  {
-    id: 2,
-    name: "Product B",
-    price: 15.0,
-    quantity: 1,
-  },
-  {
-    id: 3,
-    name: "Product C",
-    price: 20.0,
-    quantity: 3,
+    status: "Delivered",
+    date: "2021-10-05",
   },
 ];
+
+
 
 const DataTable = () => {
   return (
@@ -204,14 +67,14 @@ const ManageOrder = () => {
     <PageContainer title="Manage Order" description="this is Sample page">
       <DashboardCard title="Manage Order">
         <TableContainer>
-          <Table>
+          <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
-                <TableCell>Product ID</TableCell>
-                <TableCell>Product's Name</TableCell>
-                <TableCell>Product's price</TableCell>
-                <TableCell>Order's quantity</TableCell>
-                <TableCell>Action</TableCell>
+                <TableCell>ID</TableCell>
+                <TableCell>Product</TableCell>
+                <TableCell>Quantity</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

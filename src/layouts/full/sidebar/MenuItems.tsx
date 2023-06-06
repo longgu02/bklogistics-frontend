@@ -79,7 +79,7 @@ const Menuitems = [
     id: uniqueId(),
     title: "Profile",
     icon: IconUser,
-    href: "/authentication/profile",
+    href: "/profile",
   },
   {
     navlabel: true,
