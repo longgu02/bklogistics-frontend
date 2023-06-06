@@ -27,16 +27,15 @@ export default function OrderFirstStep() {
 	};
 
 	React.useEffect(() => {
-		if (finishedStep == 1) {
+		if (finishedStep == 0) {
 			if (
-				chainId == NETWORKS.GOERLI_TESTNET.chainId
+				chainId === NETWORKS.GOERLI_TESTNET.chainId
 				// ||
 				// chainId == NETWORKS.BSC_TESTNET.chainId
 			) {
 				if (signer && address) {
 					const { hasRole } = useRolesContract(signer, chainId);
 					const _promise = hasRole(MEMBER_ROLE, address);
-					console.log(_promise);
 					_promise
 						.then((res) => {
 							setValid(res);
@@ -52,7 +51,6 @@ export default function OrderFirstStep() {
 	}, [address, chainId]);
 
 	const renderResult = () => {
-		console.log("rendering");
 		if (finishedStep == 0) {
 			if (!address) {
 				dispatch(setNextDisabled(true));
@@ -97,7 +95,6 @@ export default function OrderFirstStep() {
 			);
 		}
 	};
-	console.log(isValid);
 	return (
 		<BaseStepper
 			handleConfirm={handleNext}
