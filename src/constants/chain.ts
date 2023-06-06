@@ -1,4 +1,22 @@
-export const NETWORKS = {
+export interface NetworksType {
+	[key: string]: {
+		chainId: number;
+		hexChainId: string;
+		blockExplorerUrls: Array<string>;
+		metadata: {
+			chainName: string;
+			shortName: string;
+			image: string;
+		};
+		nativeCurrency: {
+			name: string;
+			symbol: string;
+			decimals: number;
+		};
+	};
+}
+
+export const NETWORKS: NetworksType = {
 	GOERLI_TESTNET: {
 		chainId: 5,
 		hexChainId: "0x38",
@@ -36,5 +54,6 @@ export const getNetworkInfo = (chainId: number) => {
 	if (chainId == NETWORKS.GOERLI_TESTNET.chainId)
 		return NETWORKS.GOERLI_TESTNET;
 	else if (chainId == NETWORKS.BSC_TESTNET.chainId) return NETWORKS.BSC_TESTNET;
-	else throw Error("Invalid network");
+	// else throw Error("Invalid network");
+	return undefined;
 };
