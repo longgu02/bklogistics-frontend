@@ -12,7 +12,7 @@ export type WalletState = {
 
 const initialState: WalletState = {
 	address: "",
-	chainId: 5,
+	chainId: -1,
 	provider: undefined,
 	signer: undefined,
 	balance: undefined,
@@ -41,6 +41,16 @@ export const walletSlice = createSlice({
 		updateSigner: (state, action: PayloadAction<JsonRpcSigner>) => {
 			state.signer = action.payload;
 		},
+		updateBalance: (state, action: PayloadAction<number>) => {
+			state.balance = action.payload;
+		},
+		removeWallet: (state) => {
+			state.address = "";
+			state.chainId = -1;
+			state.provider = undefined;
+			state.signer = undefined;
+			state.balance = undefined;
+		},
 	},
 });
 
@@ -50,6 +60,8 @@ export const {
 	updateChain,
 	updateProvider,
 	updateSigner,
+	updateBalance,
+	removeWallet,
 } = walletSlice.actions;
 
 export default walletSlice.reducer;
