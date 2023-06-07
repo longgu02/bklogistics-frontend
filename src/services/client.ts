@@ -4,7 +4,7 @@ const responseBody = (res: AxiosResponse<any, any>) => res.data;
 
 export const createClient = (api_root: string, apiConfig = {}) => {
 	return {
-		get: (url: string, config: any) =>
+		get: (url: string, config: any ={}) =>
 			axios
 				.get(`${api_root}${url}`, { ...config, ...apiConfig })
 				.then(responseBody),
@@ -24,5 +24,5 @@ export const createClient = (api_root: string, apiConfig = {}) => {
 };
 
 // Client
-export const client = createClient("http://localhost:3001/api");
+export const client = createClient("https://smartcontract-api-node-js.glitch.me/api");
 // URL

@@ -29,8 +29,8 @@ export interface Order {
   };
   notes: string | null;
   quantity: number | null;
-  supplierAddress: string | null;
-  manufacturer: string | null;
+  supplierAddress: Supplier[] | null;
+  manufacturer: Manufacturer[] | null;
 }
 
 const initialState: Order = {
@@ -43,8 +43,8 @@ const initialState: Order = {
   },
   notes: "",
   quantity: null,
-  supplierAddress: null,
-  manufacturer: null,
+  supplierAddress: [],
+  manufacturer: [],
 };
 
 const orderSlice = createSlice({
@@ -68,11 +68,11 @@ const orderSlice = createSlice({
       state.notes = action.payload.notes;
       state.quantity = action.payload.quantity;
     },
-    setSupplier: (state, action: PayloadAction<Supplier>) => {
-      state.supplierAddress = action.payload.address;
+    setSupplier: (state, action: PayloadAction<Supplier[]>) => {
+      state.supplierAddress = action.payload;
     },
-    setManufacturer: (state, action: PayloadAction<Manufacturer>) => {
-      state.manufacturer = action.payload.address;
+    setManufacturer: (state, action: PayloadAction<Manufacturer[]>) => {
+      state.manufacturer = action.payload;
     },
   },
 });

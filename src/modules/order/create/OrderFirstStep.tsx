@@ -97,8 +97,7 @@ export default function OrderFirstStep() {
 	};
 	return (
 		<BaseStepper
-			handleConfirm={handleNext}
-			buttonDisabled={selectedStep != 1 || !isValid || finishedStep != 0}
+			isDisabled={selectedStep != 1 || !isValid || finishedStep != 0}
 		>
 			<Box>{renderResult()}</Box>
 		</BaseStepper>

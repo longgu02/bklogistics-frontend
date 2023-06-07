@@ -54,7 +54,7 @@ const CreateOrder = () => {
 						"Deposit",
 					]}
 					activeStep={finishedStep}
-					handleNext={handleNext}
+					handleNext={handleNext} 
 					handleStepClick={handleStepClick}
 					isNextDisabled={isNextDisabled}
 				>

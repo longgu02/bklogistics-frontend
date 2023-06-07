@@ -1,7 +1,6 @@
 import { Box, TextField, Button } from "@mui/material";
 import Autocomplete, {
   AutocompleteChangeReason,
-  createFilterOptions,
 } from "@mui/material/Autocomplete";
 import * as React from "react";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
@@ -59,8 +58,8 @@ export default function OrderSecondStep() {
   ) => {
     setSelectedProduct(product);
     if (product !== null) {
-      setAvailableUnits(product.unit);
-      setUnit(product.unit[0]);
+      setAvailableUnits(product?.unit);
+      setUnit(product?.unit[0]);
     } else {
       setAvailableUnits([]);
       setUnit(null);
@@ -73,97 +72,74 @@ export default function OrderSecondStep() {
   ) => {
     setUnit(value); // Update the state using value
   };
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
-    event.preventDefault();
-    if (selectedProduct && quantity !== null && unit !== null) {
-      dispatch(setNextDisabled(false));
-      successNotify("You have selected a product");
-      dispatch(
-        setProduct({
-          product: selectedProduct,
-          unit: unit,
-          notes: notes,
-          quantity: quantity,
-        })
-      );
-      setNotes("");
-      setQuantity(null);
-      setUnit(null);
-    } else {
-      dispatch(setNextDisabled(true));
-    }
-  };
+React.useEffect(() => {
+  if (selectedProduct && quantity !== null && unit !== null) {
+    successNotify("You have selected a product");
+    dispatch(
+      setProduct({
+        product: selectedProduct,
+        unit: unit,
+        notes: notes,
+        quantity: quantity,
+      })
+    );
+  }
+}, [selectedProduct, quantity, unit, notes]);
 
-  const handleNext = () => {
-    dispatch(nextStep());
-    // Logic...
-    dispatch(setNextDisabled(true));
-  };
   return (
-    <BaseStepper handleConfirm={handleNext}>
-      {finishedStep === 1 && (
-        <form onSubmit={handleSubmit}>
-          <Autocomplete
-            options={products}
-            getOptionLabel={(product) =>
-              `${product.id} - ${product.name} (${product.price})`
+    <BaseStepper
+      isDisabled={!selectedProduct || !quantity || !unit}
+    >
+      <Autocomplete
+        options={products}
+        getOptionLabel={(product) =>
+          `${product.id} - ${product.name} (${product.price})`
+        }
+        value={selectedProduct}
+        onChange={handleProductSelected}
+        renderInput={(params) => (
+          <TextField {...params} label="Product" required />
+        )}
+      />
+      <TextField
+        sx={{ marginTop: 2 }}
+        fullWidth
+        label="Notes"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+      />
+      <Box sx={{ display: "flex", marginTop: 2 }}>
+        <TextField
+          label="Quantity"
+          type="number"
+          value={quantity ?? ""}
+          onChange={(e) => {
+            const val = Number(e.target.value);
+            if (val <= 0) {
+              errorNotify("Quantity cannot be less than or equal to zero");
+            } else {
+              setQuantity(val);
             }
-            value={selectedProduct}
-            onChange={handleProductSelected}
-            renderInput={(params) => (
-              <TextField {...params} label="Product" required />
-            )}
-          />
-          <TextField
-            sx={{ marginTop: 2 }}
-            fullWidth
-            label="Notes"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-          <Box sx={{ display: "flex", marginTop: 2 }}>
+          }}
+          required
+        />
+        <Autocomplete
+          sx={{ marginLeft: 2 }}
+          disableClearable
+          freeSolo={false}
+          disabled={!availableUnits.length}
+          options={availableUnits.flat()}
+          value={unit} // Ensure that value is not null
+          onChange={handleChange} // pass the defined method
+          renderInput={(params) => (
             <TextField
-              label="Quantity"
-              type="number"
-              value={quantity ?? ""}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                if (val <= 0) {
-                  errorNotify("Quantity cannot be less than or equal to zero");
-                } else {
-                  setQuantity(val);
-                }
-              }}
-              required
+              {...params}
+              disabled
+              label="Unit"
             />
-            <Autocomplete
-              sx={{ marginLeft: 2 }}
-              disableClearable
-              freeSolo={false}
-              disabled={!availableUnits.length}
-              options={availableUnits.flat()}
-              value={unit !== null ? unit : undefined} // Ensure that value is not null
-              onChange={handleChange} // pass the defined method
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  disabled
-                  label="Unit"
-                  sx={{ color: "black" }}
-                />
-              )}
-            />
-          </Box>
-          <Button
-            sx={{ marginTop: 2 }}
-            variant="contained"
-            color="primary"
-            type="submit"
-          >
-            Submit
-          </Button>
-        </form>
-      )}
+          )}
+        />
+      </Box>
     </BaseStepper>
   );
 }
