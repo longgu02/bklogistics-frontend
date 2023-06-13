@@ -23,7 +23,7 @@ export const NETWORKS: NetworksType = {
 		blockExplorerUrls: ["https://goerli.etherscan.io/"],
 		metadata: {
 			chainName: "Goerli Testnet",
-			shortName: "BSC",
+			shortName: "GoerliETH",
 			image:
 				"https://assets-global.website-files.com/5f973c970bea5548ad4287ef/61e70d05f3c7146ab79e66bb_ethereum-eth.svg",
 		},
@@ -39,7 +39,7 @@ export const NETWORKS: NetworksType = {
 		blockExplorerUrls: ["https://bscscan.com/"],
 		metadata: {
 			chainName: "BSC Testnet",
-			shortName: "FTM",
+			shortName: "BSC",
 			image: "https://umbria.network/assets/images/icon/bsclogo.png?v1",
 		},
 		nativeCurrency: {
