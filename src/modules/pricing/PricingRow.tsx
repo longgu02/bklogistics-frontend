@@ -26,12 +26,17 @@ import {
 	TextField,
 	Stack,
 	CircularProgress,
+	Select,
+	MenuItem,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import React, { useEffect, useState } from "react";
-import usePricingContract, { Unit } from "../../hooks/usePricingContract";
+import usePricingContract, {
+	PricingType,
+	Unit,
+} from "../../hooks/usePricingContract";
 import { useAppSelector } from "../../redux/hooks";
 import { ethers } from "ethers";
 import useNotify from "../../hooks/useNotify";
@@ -39,7 +44,7 @@ interface PricingRowProps {
 	product: {
 		productId: Number;
 		name: String;
-		type: String;
+		type: PricingType;
 	};
 }
 
@@ -56,9 +61,10 @@ export default function PricingRow(props: PricingRowProps) {
 	const { product } = props;
 	const { chainId, signer, address } = useAppSelector((state) => state.wallet);
 	const [isOpen, setOpen] = useState<boolean>(false);
-	const [isManuListed, setManuListed] = useState<boolean>();
-	const [newPrice, setNewPrice] = useState<String>();
-	const [newUnit, setNewUnit] = useState<String>();
+	const [isListed, setListed] = useState<boolean>(false);
+	const [newListed, setNewListed] = useState<boolean>(false);
+	const [newPrice, setNewPrice] = useState<String>("0");
+	const [newUnit, setNewUnit] = useState<String>("0");
 	const [isLoading, setLoading] = useState<boolean>(false);
 	const { errorNotify, successNotify } = useNotify();
 	const [price, setPrice] = useState<{
@@ -74,14 +80,16 @@ export default function PricingRow(props: PricingRowProps) {
 		if (signer) {
 			const { getPrice } = usePricingContract(signer, chainId);
 			console.log("hihi");
-			const receipt = getPrice(address, product.productId, 1)
+			const receipt = getPrice(address, product.productId, product.type)
 				.then((res) => {
-					console.log("res", res[0]);
+					console.log("res", res);
 					setPrice({
 						id: Number(res[0]),
 						price: ethers.formatEther(res[1]),
 						unit: Number(res[2]),
 					});
+					setListed(res[3]);
+					setNewListed(res[3]);
 					setNewPrice(ethers.formatEther(res[1]));
 					setNewUnit(String(Number(res[2])));
 				})
@@ -98,17 +106,22 @@ export default function PricingRow(props: PricingRowProps) {
 		switch (price?.unit) {
 			case Unit.KILOGRAM:
 				return `Kilogram`;
-			case Unit.LITTER:
-				return `Litter`;
+			case Unit.LITRE:
+				return `Litre`;
 			case Unit.METER:
 				return `Meter`;
 			case Unit.NONE:
-				return `Unit`;
+				return `None`;
 		}
 	};
 
 	const updatedListener = () => {
-		setPrice({ id: product.productId, price: newPrice, unit: newUnit });
+		setPrice({
+			id: product.productId,
+			price: newPrice,
+			unit: Number(newUnit),
+		});
+		setListed(newListed);
 		successNotify(
 			`Price of ${product.name} (id: ${product.productId}) has been updated`
 		);
@@ -120,16 +133,11 @@ export default function PricingRow(props: PricingRowProps) {
 		if (signer && newPrice) {
 			setLoading(true);
 			const { modifyPrice, contract } = usePricingContract(signer, chainId);
-			console.log(
-				product.productId,
-				1,
-				ethers.parseUnits(String(newPrice), "ether"),
-				Number(newUnit)
-			);
 			const receipt = modifyPrice(
 				product.productId,
-				1,
 				ethers.parseUnits(String(newPrice), "ether"),
+				newListed,
+				product.type, // 1 as product , 0 as material
 				Number(newUnit)
 			)
 				.then((res) => {
@@ -149,14 +157,7 @@ export default function PricingRow(props: PricingRowProps) {
 
 	return (
 		<Paper sx={{ p: 2 }}>
-			<Box
-				onClick={handleClick}
-				sx={{
-					"&:hover": {
-						cursor: "pointer",
-					},
-				}}
-			>
+			<Box>
 				<Grid container>
 					<Grid item xs={2}>
 						<Typography sx={{ mt: 1 }}>{String(product.productId)}</Typography>
@@ -167,14 +168,16 @@ export default function PricingRow(props: PricingRowProps) {
 					<Grid item xs={2}>
 						{/* <Typography>0.1 ETH ($100)</Typography> */}
 						<Chip
-							label={product.type}
+							label={
+								product.type == PricingType.MATERIAL ? "Material" : "Product"
+							}
 							size="small"
 							sx={{
 								mt: 1,
 								px: "4px",
 								color: "#fff",
 								backgroundColor:
-									product.type == "Material" ? "#78A2CC" : "#77DD77",
+									product.type == PricingType.MATERIAL ? "#78A2CC" : "#6ECCAF",
 							}}
 						/>
 					</Grid>
@@ -183,74 +186,70 @@ export default function PricingRow(props: PricingRowProps) {
 						<Typography sx={{ mt: 1 }}>{String(price?.price)} ETH</Typography>
 					</Grid>
 					<Grid item xs={1}>
-						<Typography sx={{ mt: 1 }}>None</Typography>
+						<Typography sx={{ mt: 1 }}>{renderUnit()}</Typography>
 					</Grid>
 					<Grid item xs={2}>
-						<FormControlLabel
-							control={
-								<Switch
-									checked={isManuListed}
-									onChange={(e) => {
-										e.preventDefault();
-										setManuListed((prev) => !prev);
-									}}
-								/>
-							}
-							label="Listed"
-						/>
+						<Typography
+							sx={{
+								mt: 1,
+								color: isListed ? "#7AA874" : "#ff6961",
+								fontWeight: 500,
+							}}
+						>
+							{isListed ? "Listed" : "Not Listed"}
+						</Typography>
 					</Grid>
 					<Grid item xs={1}>
-						{/* <IconButton sx={{ m: 0, p: 0 }}>
-							<ExpandMoreIcon
-								sx={
-									isOpen
-										? {
-												transform: "rotate(-180deg)",
-												transition: "0.5s",
-										  }
-										: {
-												transform: "rotate(0deg)",
-												transition: "0.5s",
-										  }
-								}
-							/>
-						</IconButton> */}
-						<Button variant="contained">Update</Button>
+						<Button variant="contained" onClick={handleClick}>
+							Update
+						</Button>
 					</Grid>
 				</Grid>
 			</Box>
 			<Dialog onClose={handleClose} open={isOpen}>
-				<DialogTitle sx={{ textAlign: "center" }}>
+				<DialogTitle
+					sx={{ textAlign: "center", mb: 2, backgroundColor: "#EBECEC" }}
+				>
 					Update {product.name} Price
 				</DialogTitle>
-				<DialogContent>
+				<DialogContent sx={{ width: 500 }}>
 					<Stack spacing={2}>
 						<TextField
 							id="outlined-basic"
 							label="Price"
 							value={newPrice}
+							sx={{ mt: 1 }}
 							onChange={(e) => setNewPrice(e.target.value)}
 							fullWidth
 						/>
-						<TextField
-							id="outlined-basic"
-							label="Unit"
+						<Select
 							value={newUnit}
+							label="Unit"
 							onChange={(e) => setNewUnit(e.target.value)}
-							fullWidth
+						>
+							<MenuItem value={Unit.NONE}>None</MenuItem>
+							<MenuItem value={Unit.KILOGRAM}>per Kilogram</MenuItem>
+							<MenuItem value={Unit.METER}>per Metre</MenuItem>
+							<MenuItem value={Unit.LITRE}>per Litre</MenuItem>
+						</Select>
+						<FormControlLabel
+							control={
+								<Switch
+									checked={newListed}
+									onChange={(e) => {
+										e.preventDefault();
+										setNewListed((prev) => !prev);
+									}}
+								/>
+							}
+							label="Listed"
 						/>
-						{/* <TextField
-							id="outlined-basic"
-							label="Outlined"
-							variant="outlined"
-							fullWidth
-						/> */}
-						<Button variant="contained" onClick={handleUpdate}>
-							{isLoading ? (
-								<CircularProgress size={25} sx={{ color: "white" }} />
-							) : (
-								"Confirm"
-							)}
+						<Button
+							variant="contained"
+							disabled={isLoading}
+							onClick={handleUpdate}
+						>
+							{isLoading ? <CircularProgress size={25} /> : "Confirm"}
 						</Button>
 					</Stack>
 				</DialogContent>

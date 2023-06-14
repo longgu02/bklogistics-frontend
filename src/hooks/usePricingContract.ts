@@ -4,15 +4,15 @@ import { RolesContractABI } from "../contract/abis/RolesContractABI";
 import { PricingContractABI } from "../contract/abis/PricingABI";
 
 export enum PricingType {
-	SUPPLY = 0,
-	MANUFACTURE = 1,
+	MATERIAL = 0,
+	PRODUCT = 1,
 }
 
 export enum Unit {
 	NONE = 0,
 	KILOGRAM = 1,
 	METER = 2,
-	LITTER = 3,
+	LITRE = 3,
 }
 
 export default function usePricingContract(
@@ -28,11 +28,18 @@ export default function usePricingContract(
 
 	const modifyPrice = async (
 		productId: Number,
-		type: PricingType,
 		price: BigInt,
+		isListed: boolean,
+		type: PricingType,
 		unit: Unit
 	) => {
-		const _promise = await contract.modifyPrice(productId, price, type, unit);
+		const _promise = await contract.modifyPrice(
+			productId,
+			price,
+			isListed,
+			type,
+			unit
+		);
 		return _promise;
 	};
 

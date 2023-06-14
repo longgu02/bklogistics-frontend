@@ -14,6 +14,7 @@ import {
 	selectStep,
 	setNextDisabled,
 } from "../../../src/redux/order/orderCreateSlice";
+import WalletRequired from "../../../src/layouts/full/auth/WalletRequired";
 
 const CreateOrder = () => {
 	const { currentStep, finishedStep, selectedStep, isNextDisabled } =
@@ -54,7 +55,7 @@ const CreateOrder = () => {
 						"Deposit",
 					]}
 					activeStep={finishedStep}
-					handleNext={handleNext} 
+					handleNext={handleNext}
 					handleStepClick={handleStepClick}
 					isNextDisabled={isNextDisabled}
 				>
@@ -69,5 +70,9 @@ const CreateOrder = () => {
 export default CreateOrder;
 
 CreateOrder.getLayout = function getLayout(page: ReactElement) {
-	return <FullLayout>{page}</FullLayout>;
+	return (
+		<FullLayout>
+			<WalletRequired>{page}</WalletRequired>
+		</FullLayout>
+	);
 };

@@ -3,6 +3,32 @@ export const PricingContractABI = [
 		inputs: [
 			{
 				internalType: "address",
+				name: "_account",
+				type: "address",
+			},
+		],
+		name: "addCarrier",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "_account",
+				type: "address",
+			},
+		],
+		name: "addMember",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
 				name: "_roleContractAddress",
 				type: "address",
 			},
@@ -54,6 +80,24 @@ export const PricingContractABI = [
 		type: "event",
 	},
 	{
+		inputs: [
+			{
+				internalType: "bytes32",
+				name: "role",
+				type: "bytes32",
+			},
+			{
+				internalType: "address",
+				name: "account",
+				type: "address",
+			},
+		],
+		name: "grantRole",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
 		anonymous: false,
 		inputs: [
 			{
@@ -92,6 +136,39 @@ export const PricingContractABI = [
 		type: "event",
 	},
 	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "_id",
+				type: "uint256",
+			},
+			{
+				internalType: "uint256",
+				name: "_price",
+				type: "uint256",
+			},
+			{
+				internalType: "bool",
+				name: "_list",
+				type: "bool",
+			},
+			{
+				internalType: "uint8",
+				name: "_type",
+				type: "uint8",
+			},
+			{
+				internalType: "enum Pricing.Unit",
+				name: "_unit",
+				type: "uint8",
+			},
+		],
+		name: "modifyPrice",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
 		anonymous: false,
 		inputs: [
 			{
@@ -127,6 +204,94 @@ export const PricingContractABI = [
 		],
 		name: "PriceUpdated",
 		type: "event",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "_account",
+				type: "address",
+			},
+		],
+		name: "removeCarrier",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "_account",
+				type: "address",
+			},
+		],
+		name: "removeMember",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "_account",
+				type: "address",
+			},
+		],
+		name: "renounceCarrier",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "_account",
+				type: "address",
+			},
+		],
+		name: "renounceMember",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "bytes32",
+				name: "role",
+				type: "bytes32",
+			},
+			{
+				internalType: "address",
+				name: "account",
+				type: "address",
+			},
+		],
+		name: "renounceRole",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "bytes32",
+				name: "role",
+				type: "bytes32",
+			},
+			{
+				internalType: "address",
+				name: "account",
+				type: "address",
+			},
+		],
+		name: "revokeRole",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
 	},
 	{
 		anonymous: false,
@@ -243,45 +408,6 @@ export const PricingContractABI = [
 		type: "function",
 	},
 	{
-		inputs: [],
-		name: "MEMBER_ROLE",
-		outputs: [
-			{
-				internalType: "bytes32",
-				name: "",
-				type: "bytes32",
-			},
-		],
-		stateMutability: "view",
-		type: "function",
-	},
-	{
-		inputs: [
-			{
-				internalType: "address",
-				name: "_account",
-				type: "address",
-			},
-		],
-		name: "addCarrier",
-		outputs: [],
-		stateMutability: "nonpayable",
-		type: "function",
-	},
-	{
-		inputs: [
-			{
-				internalType: "address",
-				name: "_account",
-				type: "address",
-			},
-		],
-		name: "addMember",
-		outputs: [],
-		stateMutability: "nonpayable",
-		type: "function",
-	},
-	{
 		inputs: [
 			{
 				internalType: "address",
@@ -290,7 +416,7 @@ export const PricingContractABI = [
 			},
 			{
 				internalType: "uint256",
-				name: "_productId",
+				name: "_id",
 				type: "uint256",
 			},
 			{
@@ -316,6 +442,11 @@ export const PricingContractABI = [
 				name: "unit",
 				type: "uint8",
 			},
+			{
+				internalType: "bool",
+				name: "isListed",
+				type: "bool",
+			},
 		],
 		stateMutability: "view",
 		type: "function",
@@ -337,24 +468,6 @@ export const PricingContractABI = [
 			},
 		],
 		stateMutability: "view",
-		type: "function",
-	},
-	{
-		inputs: [
-			{
-				internalType: "bytes32",
-				name: "role",
-				type: "bytes32",
-			},
-			{
-				internalType: "address",
-				name: "account",
-				type: "address",
-			},
-		],
-		name: "grantRole",
-		outputs: [],
-		stateMutability: "nonpayable",
 		type: "function",
 	},
 	{
@@ -420,119 +533,16 @@ export const PricingContractABI = [
 		type: "function",
 	},
 	{
-		inputs: [
-			{
-				internalType: "uint256",
-				name: "productId",
-				type: "uint256",
-			},
-			{
-				internalType: "uint256",
-				name: "_price",
-				type: "uint256",
-			},
-			{
-				internalType: "uint8",
-				name: "_type",
-				type: "uint8",
-			},
-			{
-				internalType: "enum Pricing.Unit",
-				name: "_unit",
-				type: "uint8",
-			},
-		],
-		name: "modifyPrice",
-		outputs: [],
-		stateMutability: "nonpayable",
-		type: "function",
-	},
-	{
-		inputs: [
-			{
-				internalType: "address",
-				name: "_account",
-				type: "address",
-			},
-		],
-		name: "removeCarrier",
-		outputs: [],
-		stateMutability: "nonpayable",
-		type: "function",
-	},
-	{
-		inputs: [
-			{
-				internalType: "address",
-				name: "_account",
-				type: "address",
-			},
-		],
-		name: "removeMember",
-		outputs: [],
-		stateMutability: "nonpayable",
-		type: "function",
-	},
-	{
-		inputs: [
-			{
-				internalType: "address",
-				name: "_account",
-				type: "address",
-			},
-		],
-		name: "renounceCarrier",
-		outputs: [],
-		stateMutability: "nonpayable",
-		type: "function",
-	},
-	{
-		inputs: [
-			{
-				internalType: "address",
-				name: "_account",
-				type: "address",
-			},
-		],
-		name: "renounceMember",
-		outputs: [],
-		stateMutability: "nonpayable",
-		type: "function",
-	},
-	{
-		inputs: [
+		inputs: [],
+		name: "MEMBER_ROLE",
+		outputs: [
 			{
 				internalType: "bytes32",
-				name: "role",
+				name: "",
 				type: "bytes32",
 			},
-			{
-				internalType: "address",
-				name: "account",
-				type: "address",
-			},
 		],
-		name: "renounceRole",
-		outputs: [],
-		stateMutability: "nonpayable",
-		type: "function",
-	},
-	{
-		inputs: [
-			{
-				internalType: "bytes32",
-				name: "role",
-				type: "bytes32",
-			},
-			{
-				internalType: "address",
-				name: "account",
-				type: "address",
-			},
-		],
-		name: "revokeRole",
-		outputs: [],
-		stateMutability: "nonpayable",
+		stateMutability: "view",
 		type: "function",
 	},
 	{

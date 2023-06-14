@@ -1,10 +1,11 @@
 import { Box, Grid, Paper, Stack } from "@mui/material";
 import PricingRow from "./PricingRow";
+import { PricingType } from "../../hooks/usePricingContract";
 
 interface PriceListProps {
 	products: Array<{
 		productId: Number;
-		type: String;
+		type: PricingType;
 		name: String;
 	}>;
 }
