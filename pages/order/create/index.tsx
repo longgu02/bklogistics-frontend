@@ -58,6 +58,7 @@ const CreateOrder = () => {
 					handleNext={handleNext}
 					handleStepClick={handleStepClick}
 					isNextDisabled={isNextDisabled}
+					orientation="vertical"
 				>
 					<Box>{renderStep(selectedStep)}</Box>
 				</CustomStepper>

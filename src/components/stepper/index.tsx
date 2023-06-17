@@ -8,6 +8,7 @@ import {
 	Typography,
 	Grid,
 	StepButton,
+	Orientation,
 } from "@mui/material";
 // const steps = [
 // 	"Select campaign settings",
@@ -21,8 +22,9 @@ interface StepperProps {
 	optionalStep?: Array<number>;
 	skipStep?: Array<Number>;
 	isMobile?: boolean;
-	children: React.ReactElement;
+	children?: React.ReactElement;
 	isNextDisabled?: boolean;
+	orientation?: Orientation;
 	handleNext?: () => void;
 	handleBack?: () => void;
 	handleSkip?: () => void;
@@ -38,6 +40,7 @@ export default function CustomStepper(props: StepperProps) {
 		optionalStep,
 		skipStep,
 		isNextDisabled,
+		orientation,
 		handleNext,
 		handleBack,
 		handleSkip,
@@ -62,48 +65,14 @@ export default function CustomStepper(props: StepperProps) {
 		setSelectedStep(step);
 	};
 
-	// const handleNext = () => {
-	// 	let newSkipped = skipped;
-	// 	if (isStepSkipped(activeStep)) {
-	// 		newSkipped = new Set(newSkipped.values());
-	// 		newSkipped.delete(activeStep);
-	// 	}
-
-	// 	setActiveStep((prevActiveStep) => prevActiveStep + 1);
-	// 	setSkipped(newSkipped);
-	// };
-
-	// const handleBack = () => {
-	// 	setActiveStep((prevActiveStep) => prevActiveStep - 1);
-	// };
-
-	// const handleSkip = () => {
-	// 	if (!isStepOptional(activeStep)) {
-	// 		// You probably want to guard against something like this,
-	// 		// it should never occur unless someone's actively trying to break something.
-	// 		throw new Error("You can't skip a step that isn't optional.");
-	// 	}
-
-	// 	setActiveStep((prevActiveStep) => prevActiveStep + 1);
-	// 	setSkipped((prevSkipped) => {
-	// 		const newSkipped = new Set(prevSkipped.values());
-	// 		newSkipped.add(activeStep);
-	// 		return newSkipped;
-	// 	});
-	// };
-
-	// const handleReset = () => {
-	// 	setActiveStep(0);
-	// };
-
 	return (
 		<Box sx={{ width: "100%" }}>
 			{isMobile ? (
 				<Box>Mobile</Box>
 			) : (
 				<Grid container>
-					<Grid item xs={4}>
-						<Stepper activeStep={activeStep} orientation="vertical">
+					<Grid item xs={orientation == "horizontal" ? 12 : 4}>
+						<Stepper activeStep={activeStep} orientation={orientation}>
 							{steps.map((label, index) => {
 								const stepProps: { completed?: boolean } = {};
 								const labelProps: {
@@ -145,13 +114,13 @@ export default function CustomStepper(props: StepperProps) {
 							})}
 						</Stepper>
 					</Grid>
-					<Grid item xs={8}>
+					<Grid item xs={orientation == "horizontal" ? 12 : 8}>
 						{children}
 					</Grid>
 				</Grid>
 			)}
 			<Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-				{handleBack && (
+				{/* {handleBack && (
 					<Button
 						color="inherit"
 						disabled={activeStep === 0}
@@ -172,7 +141,7 @@ export default function CustomStepper(props: StepperProps) {
 					>
 						Skip
 					</Button>
-				)}
+				)} */}
 				{/* <Button
 					variant="contained"
 					onClick={handleNext}
