@@ -9,19 +9,20 @@ import {
 } from "../../redux/authentication/registerSlice";
 import { useImmer } from "use-immer";
 import { nextStep } from "../../redux/order/orderCreateSlice";
+import { useEffect, useRef } from "react";
 
 interface RegisterFirstStepProps {
 	isBlur?: boolean;
 	isDone: boolean;
 }
 
-// interface ContactInfo {
-// 	email: string;
-// 	phoneNumber: string;
-// 	website: string;
-// 	deliveryAddress: string;
-// 	shippingAddress: string;
-// }
+interface ErrorContactInfo {
+	email?: string;
+	phoneNumber?: string;
+	website?: string;
+	deliveryAddress?: string;
+	shippingAddress?: string;
+}
 
 export default function RegisterSecondStep(props: RegisterFirstStepProps) {
 	const { isBlur, isDone } = props;
@@ -32,18 +33,39 @@ export default function RegisterSecondStep(props: RegisterFirstStepProps) {
 		deliveryAddress: "",
 		shippingAddress: "",
 	});
+	const [error, setError] = useImmer<ErrorContactInfo>({});
+	const isMount = useRef(false);
 	const dispatch = useAppDispatch();
 	const handleConfirm = () => {
 		dispatch(updateSecondStep(contactInfo));
 	};
 
+	useEffect(() => {
+		if (!isBlur && !isDone) {
+			Object.keys(contactInfo).map((key) => {
+				if (
+					typeof contactInfo[key as keyof ContactInfo] === undefined ||
+					contactInfo[key as keyof ContactInfo].trim() === ""
+				) {
+					setError((draft) => {
+						draft[
+							key as keyof ErrorContactInfo
+						] = `Please fill in the text field`;
+					});
+				} else {
+					setError((draft) => {
+						draft[key as keyof ErrorContactInfo] = undefined;
+					});
+				}
+			});
+		}
+	}, [contactInfo]);
+
 	return (
 		<BaseStepper
 			isDisabled={
 				Object.keys(contactInfo).some(
-					(key) =>
-						contactInfo[key as keyof ContactInfo] === "" ||
-						typeof contactInfo[key as keyof ContactInfo] === "undefined"
+					(key) => error[key as keyof ErrorContactInfo] !== undefined
 				) || isDone
 			}
 			isBlur={isBlur}
@@ -72,6 +94,8 @@ export default function RegisterSecondStep(props: RegisterFirstStepProps) {
 							})
 						}
 						sx={{ cursor: isBlur || isDone ? "not-allowed" : "none" }}
+						helperText={error.email}
+						error={error.email}
 						disabled={isBlur || isDone}
 					/>
 
@@ -96,6 +120,8 @@ export default function RegisterSecondStep(props: RegisterFirstStepProps) {
 							})
 						}
 						sx={{ cursor: isBlur || isDone ? "not-allowed" : "none" }}
+						helperText={error.phoneNumber}
+						error={error.phoneNumber}
 						disabled={isBlur || isDone}
 					/>
 
@@ -120,6 +146,8 @@ export default function RegisterSecondStep(props: RegisterFirstStepProps) {
 							})
 						}
 						sx={{ cursor: isBlur || isDone ? "not-allowed" : "none" }}
+						helperText={error.website}
+						error={error.website}
 						disabled={isBlur || isDone}
 					/>
 					<Typography
@@ -142,6 +170,8 @@ export default function RegisterSecondStep(props: RegisterFirstStepProps) {
 								draft.deliveryAddress = e.target.value;
 							})
 						}
+						helperText={error.deliveryAddress}
+						error={error.deliveryAddress}
 						sx={{ cursor: isBlur || isDone ? "not-allowed" : "none" }}
 						disabled={isBlur || isDone}
 					/>
@@ -165,6 +195,8 @@ export default function RegisterSecondStep(props: RegisterFirstStepProps) {
 								draft.shippingAddress = e.target.value;
 							})
 						}
+						helperText={error.shippingAddress}
+						error={error.shippingAddress}
 						sx={{ cursor: isBlur || isDone ? "not-allowed" : "none" }}
 						disabled={isBlur || isDone}
 					/>

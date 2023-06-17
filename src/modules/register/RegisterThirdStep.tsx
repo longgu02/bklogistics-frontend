@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Paper, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import CustomTextField from "../../components/forms/theme-elements/CustomTextField";
 import Link from "next/link";
 import BaseStepper from "../../components/stepper/BaseStepper";
@@ -9,10 +9,17 @@ import {
 import { useAppDispatch } from "../../redux/hooks";
 import { useImmer } from "use-immer";
 import { set } from "lodash";
+import { useEffect } from "react";
 
 interface RegisterFirstStepProps {
 	isBlur?: boolean;
 	isDone: boolean;
+}
+
+interface ErrorAdditionalInfo {
+	profileImage?: string;
+	coverImage?: string;
+	description?: string;
 }
 
 export default function RegisterThirdStep(props: RegisterFirstStepProps) {
@@ -22,10 +29,30 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 		coverImage: "",
 		description: "",
 	});
+
+	const [error, setError] = useImmer<ErrorAdditionalInfo>({});
 	const dispatch = useAppDispatch();
 	const handleConfirm = () => {
 		dispatch(updateThirdStep(additionalInfo));
 	};
+
+	useEffect(() => {
+		if (!isBlur && !isDone) {
+			if (
+				additionalInfo.description.trim() === "" ||
+				additionalInfo.description == undefined
+			) {
+				setError((draft) => {
+					draft.description = "Please provide a description.";
+				});
+			} else {
+				setError((draft) => {
+					draft.description = undefined;
+				});
+			}
+		}
+	}, [additionalInfo]);
+
 	return (
 		<BaseStepper
 			isDisabled={
@@ -100,6 +127,8 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 					<CustomTextField
 						id="Description"
 						variant="outlined"
+						multiline
+						rows={5}
 						fullWidth
 						value={additionalInfo.description}
 						onChange={(e: any) =>
@@ -107,6 +136,8 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 								draft.description = e.target.value;
 							})
 						}
+						helperText={error.description}
+						error={error.description}
 						sx={{ cursor: isBlur || isDone ? "not-allowed" : "none" }}
 						disabled={isBlur || isDone}
 					/>
