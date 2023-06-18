@@ -225,7 +225,7 @@ export default function ConnectWalletButton() {
 				variant="contained"
 				disableElevation
 				color="primary"
-				// onClick={connect}
+				disabled={isLoading}
 				onClick={handleOpen}
 				sx={{ width: 170 }}
 			>
