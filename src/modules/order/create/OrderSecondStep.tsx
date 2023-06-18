@@ -1,4 +1,18 @@
-import { Box, TextField, Button } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  IconButton,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableCell,
+  TableRow,
+  Paper,
+  Collapse,
+} from "@mui/material";
 import Autocomplete, {
   AutocompleteChangeReason,
 } from "@mui/material/Autocomplete";
@@ -9,32 +23,134 @@ import {
   setNextDisabled,
 } from "../../../redux/order/orderCreateSlice";
 import useNotify from "../../../hooks/useNotify";
-import { Unit, setProduct, Product } from "../../../redux/order/orderSlice";
 import BaseStepper from "../../../components/stepper/BaseStepper";
-
-const products: Product[] = [
+import { Product, Material, Unit, Rq_Material } from "../../../types";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import { addOrder_Product } from "../../../redux/order/orderSlice";
+const ProductList: Product[] = [
   {
     id: 1,
-    name: "Product A",
-    price: 10,
-    material: "Material X",
-    unit: [Unit.KILOGRAM, Unit.TONNE],
+    name: "T-Shirt",
+    price: 19.99,
+    rq_material: [
+      {
+        material: {
+          material_id: 1,
+          name: "Cotton",
+          unit: [Unit.KILOGRAM],
+          price: 8.99,
+        },
+        quantity: 0.5, // Quantity required in kilograms
+      },
+    ],
+    description: "A comfortable and stylish t-shirt.",
   },
   {
     id: 2,
-    name: "Product B",
-    price: 20,
-    material: "Material Y",
-    unit: [Unit.KILOGRAM, Unit.TONNE],
+    name: "Jeans",
+    price: 49.99,
+    rq_material: [
+      {
+        material: {
+          material_id: 2,
+          name: "Denim",
+          unit: [Unit.METER],
+          price: 12.99,
+        },
+        quantity: 2, // Quantity required in meters
+      },
+    ],
+    description: "Classic denim jeans for a trendy look.",
   },
   {
     id: 3,
-    name: "Product C",
-    price: 5,
-    material: "Material Z",
-    unit: [Unit.METER],
+    name: "Dress",
+    price: 39.99,
+    rq_material: [
+      {
+        material: {
+          material_id: 1,
+          name: "Cotton",
+          unit: [Unit.KILOGRAM],
+          price: 8.99,
+        },
+        quantity: 1, // Quantity required in kilograms
+      },
+      {
+        material: {
+          material_id: 3,
+          name: "Silk",
+          unit: [Unit.METER],
+          price: 24.99,
+        },
+        quantity: 1.5, // Quantity required in meters
+      },
+    ],
+    description: "Elegant and feminine dress made from cotton and silk.",
+  },
+  {
+    id: 4,
+    name: "Jacket",
+    price: 79.99,
+    rq_material: [
+      {
+        material: {
+          material_id: 4,
+          name: "Leather",
+          unit: [Unit.METER],
+          price: 49.99,
+        },
+        quantity: 1.2, // Quantity required in meters
+      },
+      {
+        material: {
+          material_id: 1,
+          name: "Cotton",
+          unit: [Unit.KILOGRAM],
+          price: 8.99,
+        },
+        quantity: 0.3, // Quantity required in kilograms
+      },
+    ],
+    description: "Stylish leather jacket with a cotton lining.",
+  },
+  {
+    id: 5,
+    name: "Sweater",
+    price: 29.99,
+    rq_material: [
+      {
+        material: {
+          material_id: 5,
+          name: "Wool",
+          unit: [Unit.KILOGRAM],
+          price: 15.99,
+        },
+        quantity: 0.8, // Quantity required in kilograms
+      },
+    ],
+    description: "Warm and cozy sweater made from soft wool.",
+  },
+  {
+    id: 6,
+    name: "Skirt",
+    price: 34.99,
+    rq_material: [
+      {
+        material: {
+          material_id: 3,
+          name: "Silk",
+          unit: [Unit.METER],
+          price: 24.99,
+        },
+        quantity: 1.2, // Quantity required in meters
+      },
+    ],
+    description: "Flowy silk skirt for a stylish and elegant look.",
   },
 ];
+
+
 
 export default function OrderSecondStep() {
   const dispatch = useAppDispatch();
@@ -43,103 +159,121 @@ export default function OrderSecondStep() {
   );
   const { successNotify, errorNotify } = useNotify();
 
-  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(
-    null
-  );
-  const [notes, setNotes] = React.useState("");
-  const [quantity, setQuantity] = React.useState<number | null>(null);
-  const [unit, setUnit] = React.useState<Unit | null>(null);
-  const [availableUnits, setAvailableUnits] = React.useState<Unit[]>([]);
-
-  const handleProductSelected = (
-    event: React.SyntheticEvent,
-    product: Product | null,
-    reason: AutocompleteChangeReason
-  ) => {
-    setSelectedProduct(product);
-    if (product !== null) {
-      setAvailableUnits(product?.unit);
-      setUnit(product?.unit[0]);
-    } else {
-      setAvailableUnits([]);
-      setUnit(null);
-    }
+  const [product, setProduct] = React.useState<Product>();
+  const [rqMaterial, setRqMaterial] = React.useState<Rq_Material>();
+  const [material, setMaterial] = React.useState<Material>();
+  const [option, setOption] = React.useState<string>("");
+  const handleAddProduct = () => {
+    if (product) dispatch(addOrder_Product(product));
   };
-
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement | {}>,
-    value: string | null
-  ) => {
-    setUnit(value); // Update the state using value
-  };
-React.useEffect(() => {
-  if (selectedProduct && quantity !== null && unit !== null) {
-    successNotify("You have selected a product");
-    dispatch(
-      setProduct({
-        product: selectedProduct,
-        unit: unit,
-        notes: notes,
-        quantity: quantity,
-      })
+  const Choose = () => {
+    return (
+      <>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-around",
+            marginY: 20,
+          }}
+        >
+          <Button variant="contained" onClick={() => setOption("opt1")}>
+            Select Product
+          </Button>
+          <Typography variant="h6">OR</Typography>
+          <Button variant="contained" onClick={() => setOption("opt2")}>
+            Create new Product
+          </Button>
+        </Box>
+      </>
     );
-  }
-}, [selectedProduct, quantity, unit, notes]);
+  };
 
-  return (
-    <BaseStepper
-      isDisabled={!selectedProduct || !quantity || !unit}
-    >
-      <Autocomplete
-        options={products}
-        getOptionLabel={(product) =>
-          `${product.id} - ${product.name} (${product.price})`
-        }
-        value={selectedProduct}
-        onChange={handleProductSelected}
-        renderInput={(params) => (
-          <TextField {...params} label="Product" required />
-        )}
-      />
-      <TextField
-        sx={{ marginTop: 2 }}
-        fullWidth
-        label="Notes"
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-      />
-      <Box sx={{ display: "flex", marginTop: 2 }}>
-        <TextField
-          label="Quantity"
-          type="number"
-          value={quantity ?? ""}
-          onChange={(e) => {
-            const val = Number(e.target.value);
-            if (val <= 0) {
-              errorNotify("Quantity cannot be less than or equal to zero");
-            } else {
-              setQuantity(val);
+  const OPT1 = () => {
+    const [inputValue, setInputValue] = React.useState("");
+    return (
+      <>
+        <IconButton
+          onClick={() => {
+            setOption("");
+            if (product) {
+              setProduct();
             }
           }}
-          required
-        />
+        >
+          <ArrowBackIosNewIcon />
+        </IconButton>
         <Autocomplete
-          sx={{ marginLeft: 2 }}
-          disableClearable
-          freeSolo={false}
-          disabled={!availableUnits.length}
-          options={availableUnits.flat()}
-          value={unit} // Ensure that value is not null
-          onChange={handleChange} // pass the defined method
+          options={ProductList}
+          getOptionLabel={(item) => `${item.name}`}
+          value={product}
+          onChange={(event, value) => {
+            if (value) setProduct(value);
+          }}
+          // inputValue={inputValue}
+          // onInputChange={(event, newInputValue) => {
+          //   setInputValue(newInputValue);
+          // }}
+          isOptionEqualToValue={(option, value) => option?.id.toString() === value?.id.toString()}
           renderInput={(params) => (
-            <TextField
-              {...params}
-              disabled
-              label="Unit"
-            />
+            <TextField {...params} label="Product" required />
           )}
+          sx={{ marginTop: 2 }}
         />
-      </Box>
+        <Collapse in={product ? true : false} timeout="auto" unmountOnExit>
+          <Typography variant="h4">Require Materials:</Typography>
+          <TableContainer sx={{ marginTop: 2 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Quantity</TableCell>
+                  <TableCell>Unit</TableCell>
+                  <TableCell>Price/Unit</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {product?.rq_material.map((material) => (
+                  <TableRow>
+                    <TableCell>{material.material.material_id}</TableCell>
+                    <TableCell>{material.material.name}</TableCell>
+                    <TableCell>{material.quantity}</TableCell>
+                    <TableCell>{material.material.unit}</TableCell>
+                    <TableCell>{material.material.price}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <Typography variant="body1" sx={{ marginTop: 2 }}>
+            Description: {product?.description}
+          </Typography>
+          <Typography variant="body1">
+            Price of product: {product?.price}
+          </Typography>
+        </Collapse>
+      </>
+    );
+  };
+  const OPT2 = () => {
+    return (
+      <>
+        <IconButton
+          onClick={() => {
+            setOption("");
+            if (product) {
+              setProduct();
+            }
+          }}
+        >
+          <ArrowBackIosNewIcon />
+        </IconButton>
+      </>
+    );
+  };
+  return (
+    <BaseStepper isDisabled={product ? false : true} handleConfirm={handleAddProduct}>
+      {option === "" ? <Choose /> : option === "opt1" ? <OPT1 /> : <OPT2 />}
     </BaseStepper>
   );
 }
