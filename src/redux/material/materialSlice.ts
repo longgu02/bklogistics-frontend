@@ -1,12 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { Unit } from "../unit/unitModel";
-export interface Material {
-  material_id: number;
-  name: string;
-  unit: Unit[];
-  price: number;
-}
+import {Material} from '../../types/index';
 
 const initialState: Material[] = [];
 

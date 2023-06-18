@@ -1,19 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { Material } from "../material/materialSlice";
-import { Product } from "../order/orderSlice";
+import {Profile, Material, Product} from '../../types/index';
 
-export interface Profile {
-  profile_id: number;
-  wallet_address: string;
-  name: string;
-  email: string;
-  contact_address: string;
-  phone_number: number;
-  materialList?: Material[];
-  productList?: Product[];
-  registeredDate?: Date;
-}
 
 const initialState: Profile = {
   profile_id: 0,

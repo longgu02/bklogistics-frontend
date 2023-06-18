@@ -31,12 +31,14 @@ import { formatAddress } from "../../../utils";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import useNotify, { errorNotify } from "../../../hooks/useNotify";
 import {
-  setSupplier,
-  setManufacturer,
-  Supplier,
-  Manufacturer,
   Unit,
-} from "../../../redux/order/orderSlice";
+  Order_Stakeholder,
+  Material,
+  Rq_Material,
+  Rq_Product,
+  Role,
+} from "../../../types";
+import profileList from "../../../fakeData/fakeProfile";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -46,27 +48,7 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-interface DetailInfo {
-  material: string;
-  price: number;
-  quantity: number;
-  unit: string;
-}
-
-interface Stakeholder {
-  address_wallet: string;
-  validation?: boolean;
-  role: string;
-  name?: string;
-  address?: string;
-  detail?: DetailInfo[];
-}
-
-interface Role {
-  role: string;
-}
-
-const RoleList: Role[] = [
+const ROLE = [
   {
     role: "Supplier",
   },
@@ -74,93 +56,86 @@ const RoleList: Role[] = [
     role: "Manufacturer",
   },
 ];
-
-const StakeholderData: Stakeholder[] = [
-  {
-    address_wallet: "0x1234567890abcdef",
-    validation: true,
-    role: "Supplier",
-    name: "John Doe",
-    address: "123 Main St, Anytown USA",
-    detail: [
-      {
-        material: "Gold",
-        price: 1000.0,
-        quantity: 100,
-        unit: "grams",
-      },
-      {
-        material: "Silver",
-        price: 500.0,
-        quantity: 50,
-        unit: "grams",
-      },
-    ],
-  },
-  {
-    address_wallet: "0x0987654321fedcba",
-    validation: false,
-    role: "Manufacturer",
-    name: "Jane Smith",
-    address: "456 Oak Ave, Anytown USA",
-    detail: [
-      {
-        material: "Copper",
-        price: 2000.0,
-        quantity: 200,
-        unit: "grams",
-      },
-      {
-        material: "Iron",
-        price: 1500.0,
-        quantity: 150,
-        unit: "grams",
-      },
-    ],
-  },
-];
-
-interface Material {
-  material: string;
-  unit: Unit[];
-  checked?: boolean;
-}
 
 const MaterialList: Material[] = [
   {
-    material: "gold",
-    unit: [Unit.KILOGRAM, Unit.TONNE],
-    checked: false,
+    material_id: 1,
+    name: "Cotton",
+    unit: [Unit.KILOGRAM],
+    price: 8.99,
+  },
+  {
+    material_id: 2,
+    name: "Denim",
+    unit: [Unit.METER],
+    price: 12.99,
+  },
+  {
+    material_id: 3,
+    name: "Silk",
+    unit: [Unit.METER],
+    price: 24.99,
+  },
+  {
+    material_id: 4,
+    name: "Leather",
+    unit: [Unit.METER],
+    price: 49.99,
+  },
+  {
+    material_id: 5,
+    name: "Wool",
+    unit: [Unit.KILOGRAM],
+    price: 15.99,
   },
 ];
 
-function Row(props: Stakeholder) {
-  const { address_wallet, validation, role, name, address, detail } = props;
+function Row(props: Order_Stakeholder) {
+  const {
+    addressWallet,
+    name,
+    address,
+    role,
+    supplier_material,
+    manufacturer_product,
+    validation,
+  } = props;
   const [open, setOpen] = useState(false);
 
   const total = () => {
     let _total = 0;
-    if (detail) {
-      detail.forEach((element) => {
-        _total += element.price * element.quantity;
-      });
-    }
+    if (role === "Supplier") {
+      supplier_material?.forEach(
+        (material) => (_total += material.material.price * material.quantity)
+      );
+    } else
+      manufacturer_product?.forEach(
+        (product) => (_total += product.product.price * product.quantity)
+      );
     return _total;
   };
 
-  const RenderItem = (items: DetailInfo[] | undefined) => {
+  const RenderItem = () => {
     return (
       <>
-        {items &&
-          items.map((item, i) => (
-            <TableRow key={i}>
-              <TableCell>{item.material}</TableCell>
-              <TableCell>{item.price}</TableCell>
-              <TableCell>{item.quantity}</TableCell>
-              <TableCell>{item.unit}</TableCell>
-              <TableCell>{item.quantity * item.price}</TableCell>
-            </TableRow>
-          ))}
+        {role == "Supplier"
+          ? supplier_material?.map((item, i) => (
+              <TableRow key={i}>
+                <TableCell>{item.material.name}</TableCell>
+                <TableCell>{item.material.price}</TableCell>
+                <TableCell>{item.quantity}</TableCell>
+                <TableCell>{item.material.unit}</TableCell>
+                <TableCell>{item.quantity * item.material.price}</TableCell>
+              </TableRow>
+            ))
+          : manufacturer_product?.map((item, i) => (
+              <TableRow key={i}>
+                <TableCell>{item.product.name}</TableCell>
+                <TableCell>{item.product.price}</TableCell>
+                <TableCell>{item.quantity}</TableCell>
+                <TableCell>{item.product.price * item.quantity}</TableCell>
+              </TableRow>
+            ))}
       </>
     );
   };
@@ -177,7 +152,7 @@ function Row(props: Stakeholder) {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell>{formatAddress(address_wallet, 5)}</TableCell>
+        <TableCell>{formatAddress(addressWallet, 5)}</TableCell>
         <TableCell style={{ color: validation ? "green" : "red" }}>
           {validation ? "Verified" : "Not Verified"}
         </TableCell>
@@ -199,14 +174,16 @@ function Row(props: Stakeholder) {
             <Table size="small" aria-label="purchases">
               <TableHead>
                 <TableRow>
-                  <TableCell>Material</TableCell>
+                  <TableCell>
+                    {role === "Supplier" ? "Material" : "Product"}
+                  </TableCell>
                   <TableCell>Price</TableCell>
                   <TableCell>Quantity</TableCell>
-                  <TableCell>Unit</TableCell>
+                  {role === "Supplier" && <TableCell>Unit</TableCell>}
                   <TableCell>Subtotal</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>{RenderItem(detail)}</TableBody>
+              <TableBody>{RenderItem()}</TableBody>
             </Table>
           </Box>
         </Collapse>
@@ -218,19 +195,22 @@ function Row(props: Stakeholder) {
 export default function OrderThirdStep() {
   const dispatch = useAppDispatch();
   const { successNotify, errorNotify } = useNotify();
-  const [addressWallet, setAddressWallet] = useState<string>();
-  const [manufacturer, setManufacturerAddress] = useState<Manufacturer>();
-  const [suppliers, setSuppliersAddress] = useState<Supplier[]>([]);
-  const [role, setRoleAddress] = useState<Role>();
-  const [manufacturers, setManufacturersAddress] = useState<Manufacturer[]>([]);
+  const [addressWallet, setAddressWallet] = useState<string>("");
+  const [role, setRoleAddress] = useState<{ role: string }>({
+    role: "Supplier",
+  });
   const [open, setOpen] = useState(false);
   const [open1, setOpen1] = useState(false);
   const [quantity, setQuantity] = useState<number | null>(null);
   const [unit, setUnit] = useState<Unit>();
   const [availableUnits, setAvailableUnits] = useState<Unit[]>([]);
-  const [materials, setMaterials] = useState<Material[]>(MaterialList);
+  const [materials, setMaterials] = useState<Material[]>();
   const [material, setMaterial] = useState<Material>();
-
+  const { product, order_stakeholder } = useAppSelector(
+    (state) => state.orderData
+  );
+  console.log(product);
+  console.log(profileList);
   const handleChangeCheckBox = (
     event: React.ChangeEvent<HTMLInputElement>,
     material: Material
@@ -253,11 +233,7 @@ export default function OrderThirdStep() {
     setOpen(false);
   };
 
-  const handleConfirm = () => {
-    successNotify("Success!");
-    dispatch(setSupplier(suppliers));
-    dispatch(setManufacturer(manufacturers));
-  };
+  const handleConfirm = () => {};
 
   const next = () => {
     handleClose();
@@ -289,9 +265,7 @@ export default function OrderThirdStep() {
     }
   };
 
-  const product = useAppSelector((state) => state.orderData.product);
-
-  const RenderItems = (items: Stakeholder[]) => {
+  const RenderItems = (items: Order_Stakeholder[]) => {
     return (
       <>
         {items.map((item, i) => (
@@ -318,7 +292,7 @@ export default function OrderThirdStep() {
                 <TableCell>Total</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>{RenderItems(StakeholderData)}</TableBody>
+            <TableBody>{RenderItems(order_stakeholder)}</TableBody>
           </Table>
         </TableContainer>
         <FormDialog
@@ -344,10 +318,14 @@ export default function OrderThirdStep() {
               sx={{ width: 320 }}
             />
             <Autocomplete
-              options={RoleList}
+              // isOptionEqualToValue={(option, value) => option?.role == value.role}
+              options={ROLE}
               getOptionLabel={(r) => `${r.role}`}
               value={role}
-              onChange={(event, value) => setRoleAddress(value)}
+              onChange={(event, value) => {
+                if (value) setRoleAddress(value);
+                console.log(role);
+              }}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -363,55 +341,6 @@ export default function OrderThirdStep() {
               <Typography>
                 {role.role === "Supplier" ? "Materials" : "Products"}
               </Typography>
-              {MaterialList.map((mte) => (
-                <>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={mte.checked}
-                        onChange={(event) => handleChangeCheckBox(event, mte)}
-                      />
-                    }
-                    label={mte.material}
-                    key={mte.material}
-                  />
-                  <Collapse in={mte.checked} timeout="auto" unmountOnExit>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        marginTop: 2,
-                        width: 500,
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <TextField
-                        label="Quantity"
-                        type="number"
-                        required
-                        value={quantity || ""}
-                        onChange={(event) =>
-                          setQuantity(Number(event.target.value))
-                        }
-                        sx={{ width: 100 }}
-                      />
-                      <Autocomplete
-                        options={availableUnits}
-                        getOptionLabel={(unit) => `${unit}`}
-                        value={unit}
-                        onChange={handleChange}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Unit"
-                            required
-                            sx={{ width: 150 }}
-                          />
-                        )}
-                      />
-                    </Box>
-                  </Collapse>
-                </>
-              ))}
             </FormGroup>
           )}
         </FormDialog>
