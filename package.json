@@ -28,6 +28,7 @@
     "axios": "^1.4.0",
     "big-number": "^2.0.0",
     "ethers": "^6.3.0",
+    "faker": "^6.6.6",
     "lodash": "^4.17.21",
     "next": "latest",
     "notistack": "^3.0.1",
@@ -38,6 +39,7 @@
     "react-redux": "^8.0.5"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.0.2",
     "@types/lodash": "^4.14.191",
     "@types/node": "latest",
     "@types/react": "latest",

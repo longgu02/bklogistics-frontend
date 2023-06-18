@@ -1,4 +1,4 @@
-import { JsonRpcSigner, ethers, Signer } from 'ethers';
+import { JsonRpcSigner, ethers} from 'ethers';
 import { getNetworkAddress } from "../constants/address";
 import { ShippingContractABI } from "../contract/abis/ShippingContractABI";
 
