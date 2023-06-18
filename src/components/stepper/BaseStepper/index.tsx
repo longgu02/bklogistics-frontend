@@ -29,7 +29,7 @@ export default function BaseStepper(props: BaseStepperProps) {
 			sx={{
 				p: 2,
 				filter: isBlur ? "blur(1.5px)" : "none",
-				cursor: isBlur || isDone ? "not-allowed" : "none",
+				cursor: isBlur || isDone ? "not-allowed" : "auto",
 				backgroundColor: isBlur || isDone ? "#F5F7FA" : "none",
 			}}
 		>
