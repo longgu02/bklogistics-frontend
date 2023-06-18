@@ -1,4 +1,5 @@
-import { Box, Stack, Typography } from "@mui/material";
+require("dotenv").config;
+import { Box, Button, Stack, Typography } from "@mui/material";
 import CustomTextField from "../../components/forms/theme-elements/CustomTextField";
 import Link from "next/link";
 import BaseStepper from "../../components/stepper/BaseStepper";
@@ -8,8 +9,33 @@ import {
 } from "../../redux/authentication/registerSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { useImmer } from "use-immer";
-import { set } from "lodash";
 import { useEffect } from "react";
+// import { imgurUpload } from "../../services/imgur";
+
+// const imgurUpload = async () => {
+// 	const fileInput = document.getElementById("file-input") as HTMLInputElement;
+// 	const file = fileInput.files[0];
+
+// 	const reader = new FileReader();
+// 	reader.readAsDataURL(file);
+
+// 	return new Promise<string>((resolve, reject) => {
+// 		reader.onloadend = async () => {
+// 			const base64data = reader.result?.toString();
+
+// 			try {
+// 				const response = await client.upload({
+// 					image: base64data,
+// 					type: "base64",
+// 				});
+// 				resolve(response.data.link);
+// 			} catch (error) {
+// 				reject(error);
+// 			}
+// 		};
+// 		reader.onerror = reject;
+// 	});
+// };
 
 interface RegisterFirstStepProps {
 	isBlur?: boolean;
@@ -53,6 +79,44 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 		}
 	}, [additionalInfo]);
 
+	console.log(process.env.NODE_ENV);
+	const upload = async (e: any) => {
+		const imageData = e.target.files[0];
+		console.log(e.target.files[0]);
+		const formData = new FormData();
+		formData.append("image", imageData);
+	};
+
+	// const upload = (e: any) => {
+	// 	const client = new ImgurClient({
+	// 		clientId: process.env.CLIENT_ID,
+	// 		clientSecret: process.env.CLIENT_SECRET,
+	// 		refreshToken: process.env.REFRESH_TOKEN,
+	// 	});
+	// 	const fileInput = document.getElementById("file-input") as HTMLInputElement;
+	// 	const file = e.target.value;
+	// 	console.log(e.target.value);
+	// 	const reader = new FileReader();
+	// 	reader.readAsDataURL(file);
+
+	// 	return new Promise<string>((resolve, reject) => {
+	// 		reader.onloadend = async () => {
+	// 			const base64data = reader.result?.toString();
+
+	// 			try {
+	// 				const response = await client.upload({
+	// 					image: base64data,
+	// 					type: "base64",
+	// 				});
+	// 				resolve(response.data.link);
+	// 			} catch (error) {
+	// 				reject(error);
+	// 			}
+	// 		};
+	// 		reader.onerror = reject;
+	// 	});
+	// };
+
 	return (
 		<BaseStepper
 			isDisabled={
@@ -68,6 +132,7 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 		>
 			<Box>
 				<Stack mb={3}>
+					{/* <Button onClick={}>Upload</Button> */}
 					<Typography
 						variant="subtitle1"
 						fontWeight={600}
@@ -77,20 +142,18 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 					>
 						Profile Image
 					</Typography>
-					<CustomTextField
-						id="profile-image"
-						variant="outlined"
-						fullWidth
-						value={additionalInfo.profileImage}
-						onChange={(e: any) =>
-							setAdditionalInfo((draft) => {
-								draft.profileImage = e.target.value;
-							})
-						}
-						sx={{ cursor: isBlur || isDone ? "not-allowed" : "none" }}
-						disabled={isBlur || isDone}
+					{/* <Button variant="contained" component="label" sx={{ mb: "5px" }}>
+						Upload File */}
+					<input
+						accept="image/*"
+						// style={{ display: "none" }}
+						id="file-input"
+						// multiple
+						type="file"
+						onChange={(e) => upload(e)}
+						// hidden
 					/>
-
+					{/* </Button> */}
 					<Typography
 						variant="subtitle1"
 						fontWeight={600}
@@ -101,19 +164,19 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 					>
 						Cover Image
 					</Typography>
-					<CustomTextField
-						id="cover-image"
-						variant="outlined"
-						fullWidth
-						value={additionalInfo.coverImage}
-						onChange={(e: any) =>
-							setAdditionalInfo((draft) => {
-								draft.coverImage = e.target.value;
-							})
-						}
-						sx={{ cursor: isBlur || isDone ? "not-allowed" : "none" }}
-						disabled={isBlur || isDone}
+					{/* <Button variant="contained" component="label" sx={{ mb: "5px" }}>
+						Upload File */}
+					{/* <input type="file" hidden /> */}
+					<input
+						accept="image/*"
+						// style={{ display: "none" }}
+						id="file-input"
+						// multiple
+						type="file"
+						onChange={(e) => upload(e)}
+						// hidden
 					/>
+					{/* </Button> */}
 					<Typography
 						variant="subtitle1"
 						fontWeight={600}
