@@ -68,19 +68,13 @@ const Menuitems = [
 		id: uniqueId(),
 		title: "Register",
 		icon: IconUserPlus,
-		href: "/authentication/register",
+		href: "/register",
 	},
 	{
 		id: uniqueId(),
 		title: "Pricing",
 		icon: IconCurrencyDollar,
 		href: "/pricing",
-	},
-	{
-		id: uniqueId(),
-		title: "Profile",
-		icon: IconUser,
-		href: "/profile",
 	},
 	{
 		navlabel: true,

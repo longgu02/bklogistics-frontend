@@ -10,6 +10,7 @@ import {
 import { useAppDispatch } from "../../redux/hooks";
 import { useImmer } from "use-immer";
 import { useEffect } from "react";
+import { uploadImgur } from "../../services/imgur-api";
 // import { imgurUpload } from "../../services/imgur";
 
 // const imgurUpload = async () => {
@@ -82,9 +83,17 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 	console.log(process.env.NODE_ENV);
 	const upload = async (e: any) => {
 		const imageData = e.target.files[0];
-		console.log(e.target.files[0]);
 		const formData = new FormData();
 		formData.append("image", imageData);
+		// console.log(imageData.webkitRelativePath());
+		const reader = new FileReader();
+		await uploadImgur(imageData)
+			.then((res) => {
+				console.log(res);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	};
 
 	// const upload = (e: any) => {
@@ -176,6 +185,7 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 						onChange={(e) => upload(e)}
 						// hidden
 					/>
+
 					{/* </Button> */}
 					<Typography
 						variant="subtitle1"
