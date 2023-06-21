@@ -80,7 +80,7 @@ export default function FromDialog(props: DialogProps) {
   const { open, handleClose, title, children, confirm, isDisabled, ...other } = props;
   return (
     <>
-      <BootstrapDialog onClose={handleClose} open={open}>
+      <BootstrapDialog onClose={handleClose} open={open} maxWidth='xl'>
         <BootstrapDialogTitle onClose={handleClose}>
           {title}
         </BootstrapDialogTitle>

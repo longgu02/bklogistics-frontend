@@ -243,7 +243,7 @@ export const ProductContractABI = [
 		outputs: [
 			{
 				internalType: "uint256",
-				name: "",
+				name: "productQuantity",
 				type: "uint256",
 			},
 		],

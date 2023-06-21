@@ -36,6 +36,10 @@ export default function useProductContract(
 		const _promise = contract.getMaterial(materialId);
 		return _promise;
 	};
+	const productCounter = async () => {
+		const _promise = contract.productCounter();
+		return _promise;
+	} 
 	return {
 		contract,
 		getProduct,
@@ -44,5 +48,6 @@ export default function useProductContract(
 		removeProduct,
 		getRequiredMaterial,
 		getMaterial,
+		productCounter,
 	};
 }

@@ -16,6 +16,7 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
+  Divider,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -30,116 +31,277 @@ import FormDialog from "../component/FormDialog";
 import { formatAddress } from "../../../utils";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import useNotify, { errorNotify } from "../../../hooks/useNotify";
+import { addSupplier, addManufacturer } from "../../../redux/order/orderSlice";
 import {
   Unit,
-  Order_Stakeholder,
-  Material,
-  Rq_Material,
+  Holder,
+  Item,
   Rq_Product,
   Role,
+  RequireMaterial,
+  Product,
 } from "../../../types";
-import profileList from "../../../fakeData/fakeProfile";
+type Address = {
+  address: string;
+};
+type ItemHolder = {
+  id: number;
+  holderAddress: Address[];
+};
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-}));
-
-const ROLE = [
+const materialHolderList: ItemHolder[] = [
   {
-    role: "Supplier",
+    id: 1,
+    holderAddress: [
+      {
+        address: "0x1234567890abcdef1234567890abcdef12345678",
+      },
+      {
+        address: "0xabcdef1234567890abcdef1234567890abcdef12",
+      },
+      {
+        address: "0x4567890abcdef1234567890abcdef1234567890ab",
+      },
+    ],
   },
   {
-    role: "Manufacturer",
+    id: 2,
+    holderAddress: [
+      {
+        address: "0x9876543210fedcba9876543210fedcba98765432",
+      },
+      {
+        address: "0xfedcba9876543210fedcba9876543210fedcba98",
+      },
+      {
+        address: "0x567890abcdef1234567890abcdef1234567890ab",
+      },
+    ],
+  },
+  {
+    id: 3,
+    holderAddress: [
+      {
+        address: "0xabcdef1234567890abcdef1234567890abcdef12",
+      },
+      {
+        address: "0x1234567890abcdef1234567890abcdef12345678",
+      },
+    ],
+  },
+  {
+    id: 4,
+    holderAddress: [
+      {
+        address: "0xabcdef1234567890abcdef1234567890abcdef12",
+      },
+      {
+        address: "0x4567890abcdef1234567890abcdef1234567890ab",
+      },
+      {
+        address: "0x9876543210fedcba9876543210fedcba98765432",
+      },
+      {
+        address: "0xfedcba9876543210fedcba9876543210fedcba98",
+      },
+    ],
+  },
+  {
+    id: 5,
+    holderAddress: [
+      {
+        address: "0x1234567890abcdef1234567890abcdef12345678",
+      },
+      {
+        address: "0x567890abcdef1234567890abcdef1234567890ab",
+      },
+    ],
   },
 ];
 
-const MaterialList: Material[] = [
+const supplierList: Holder[] = [
   {
-    material_id: 1,
-    name: "Cotton",
-    unit: [Unit.KILOGRAM],
-    price: 8.99,
+    address: "0x1234567890abcdef1234567890abcdef12345678",
+    item: [
+      { id: 1, price: 2 },
+      { id: 3, price: 1 },
+      { id: 5, price: 1 },
+    ],
   },
   {
-    material_id: 2,
-    name: "Denim",
-    unit: [Unit.METER],
-    price: 12.99,
+    address: "0xabcdef1234567890abcdef1234567890abcdef12",
+    item: [
+      { id: 1, price: 3 },
+      { id: 3, price: 2 },
+      { id: 4, price: 3 },
+    ],
   },
   {
-    material_id: 3,
-    name: "Silk",
-    unit: [Unit.METER],
-    price: 24.99,
+    address: "0x4567890abcdef1234567890abcdef1234567890ab",
+    item: [
+      { id: 1, price: 1 },
+      { id: 4, price: 3 },
+    ],
   },
   {
-    material_id: 4,
-    name: "Leather",
-    unit: [Unit.METER],
-    price: 49.99,
+    address: "0x9876543210fedcba9876543210fedcba98765432",
+    item: [
+      { id: 2, price: 2 },
+      { id: 4, price: 2 },
+    ],
   },
   {
-    material_id: 5,
-    name: "Wool",
-    unit: [Unit.KILOGRAM],
-    price: 15.99,
+    address: "0xfedcba9876543210fedcba9876543210fedcba98",
+    item: [
+      { id: 2, price: 1 },
+      { id: 4, price: 2 },
+    ],
+  },
+  {
+    address: "0x567890abcdef1234567890abcdef1234567890ab",
+    item: [
+      { id: 2, price: 3 },
+      { id: 5, price: 3 },
+    ],
   },
 ];
 
-function Row(props: Order_Stakeholder) {
-  const {
-    addressWallet,
-    name,
-    address,
-    role,
-    supplier_material,
-    manufacturer_product,
-    validation,
-  } = props;
+const manufacturerList: Holder[] = [
+  {
+    address: "0x1234567890abcdef1234567890abcdef12345678",
+    item: [{ id: 1, price: 1 }],
+  },
+  {
+    address: "0xabcdef1234567890abcdef1234567890abcdef12",
+    item: [
+      { id: 1, price: 1 },
+      { id: 3, price: 2 },
+    ],
+  },
+  {
+    address: "0x4567890abcdef1234567890abcdef1234567890ab",
+    item: [
+      { id: 2, price: 2 },
+      { id: 4, price: 1 },
+    ],
+  },
+  {
+    address: "0x9876543210fedcba9876543210fedcba98765432",
+    item: [
+      { id: 2, price: 1 },
+      { id: 5, price: 3 },
+    ],
+  },
+  {
+    address: "0xfedcba9876543210fedcba9876543210fedcba98",
+    item: [{ id: 2, price: 2 }],
+  },
+];
+const productHolderList: ItemHolder[] = [
+  {
+    id: 1,
+    holderAddress: [
+      {
+        address: "0x1234567890abcdef1234567890abcdef12345678",
+      },
+      {
+        address: "0xabcdef1234567890abcdef1234567890abcdef12",
+      },
+    ],
+  },
+  {
+    id: 2,
+    holderAddress: [
+      {
+        address: "0x4567890abcdef1234567890abcdef1234567890ab",
+      },
+      {
+        address: "0x9876543210fedcba9876543210fedcba98765432",
+      },
+      {
+        address: "0xfedcba9876543210fedcba9876543210fedcba98",
+      },
+    ],
+  },
+  {
+    id: 3,
+    holderAddress: [
+      {
+        address: "0x567890abcdef1234567890abcdef1234567890ab",
+      },
+      {
+        address: "0xabcdef1234567890abcdef1234567890abcdef12",
+      },
+      {
+        address: "0x1234567890abcdef1234567890abcdef12345678",
+      },
+    ],
+  },
+  {
+    id: 4,
+    holderAddress: [
+      {
+        address: "0xabcdef1234567890abcdef1234567890abcdef12",
+      },
+      {
+        address: "0x4567890abcdef1234567890abcdef1234567890ab",
+      },
+    ],
+  },
+  {
+    id: 5,
+    holderAddress: [
+      {
+        address: "0x9876543210fedcba9876543210fedcba98765432",
+      },
+      {
+        address: "0xfedcba9876543210fedcba9876543210fedcba98",
+      },
+    ],
+  },
+];
+
+type RowProps = {
+  holder: Holder;
+  name?: string;
+  role: string;
+  validation?: boolean;
+  address?: string;
+  rqMaterial?: RequireMaterial[];
+  product?: Product;
+};
+function Row(props: RowProps) {
+  const { name, address, role, validation, holder, rqMaterial, product } =
+    props;
   const [open, setOpen] = useState(false);
 
   const total = () => {
     let _total = 0;
     if (role === "Supplier") {
-      supplier_material?.forEach(
-        (material) => (_total += material.material.price * material.quantity)
+      holder.item.forEach((material) =>
+        rqMaterial?.forEach((rq) => {
+          if (rq.materialId === material.id)
+            _total += rq.quantity * material.price;
+        })
       );
-    } else
-      manufacturer_product?.forEach(
-        (product) => (_total += product.product.price * product.quantity)
-      );
+    } else holder.item.forEach((material) => (_total += material.price));
     return _total;
   };
 
-  const RenderItem = () => {
+  const RenderItem = (item: Item, rq: RequireMaterial[]) => {
+    const index = rq.findIndex((rq) => rq.materialId === item.id);
     return (
       <>
-        {role == "Supplier"
-          ? supplier_material?.map((item, i) => (
-              <TableRow key={i}>
-                <TableCell>{item.material.name}</TableCell>
-                <TableCell>{item.material.price}</TableCell>
-                <TableCell>{item.quantity}</TableCell>
-                <TableCell>{item.material.unit}</TableCell>
-                <TableCell>{item.quantity * item.material.price}</TableCell>
-              </TableRow>
-            ))
-          : manufacturer_product?.map((item, i) => (
-              <TableRow key={i}>
-                <TableCell>{item.product.name}</TableCell>
-                <TableCell>{item.product.price}</TableCell>
-                <TableCell>{item.quantity}</TableCell>
-                <TableCell>{item.product.price * item.quantity}</TableCell>
-              </TableRow>
-            ))}
+        <TableRow key={rq[index].materialId}>
+          <TableCell>{rq[index].name}</TableCell>
+          <TableCell>{item.price}</TableCell>
+          <TableCell>{rq[index].quantity}</TableCell>
+          <TableCell>{rq[index].unit}</TableCell>
+          <TableCell>{rq[index].quantity * item.price}</TableCell>
+        </TableRow>
       </>
     );
   };
-
   return (
     <>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
@@ -152,7 +314,7 @@ function Row(props: Order_Stakeholder) {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell>{formatAddress(addressWallet, 5)}</TableCell>
+        <TableCell>{formatAddress(holder.address, 5)}</TableCell>
         <TableCell style={{ color: validation ? "green" : "red" }}>
           {validation ? "Verified" : "Not Verified"}
         </TableCell>
@@ -183,7 +345,19 @@ function Row(props: Order_Stakeholder) {
                   <TableCell>Subtotal</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>{RenderItem()}</TableBody>
+              <TableBody>
+                {role === "Supplier" ? (
+                  rqMaterial &&
+                  holder.item.map((i) => RenderItem(i, rqMaterial))
+                ) : (
+                  <TableRow key={holder.item[0].id}>
+                    <TableCell>{product?.name}</TableCell>
+                    <TableCell>{holder.item[0].price}</TableCell>
+                    <TableCell>1</TableCell>
+                    <TableCell>{holder.item[0].price * 1}</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
             </Table>
           </Box>
         </Collapse>
@@ -192,38 +366,142 @@ function Row(props: Order_Stakeholder) {
   );
 }
 
+type CheckRowProps = {
+  id: number;
+  title: string;
+  itemsHolder: ItemHolder[];
+  role: boolean;
+};
+
 export default function OrderThirdStep() {
   const dispatch = useAppDispatch();
   const { successNotify, errorNotify } = useNotify();
-  const [addressWallet, setAddressWallet] = useState<string>("");
-  const [role, setRoleAddress] = useState<{ role: string }>({
-    role: "Supplier",
-  });
   const [open, setOpen] = useState(false);
-  const [open1, setOpen1] = useState(false);
-  const [quantity, setQuantity] = useState<number | null>(null);
-  const [unit, setUnit] = useState<Unit>();
-  const [availableUnits, setAvailableUnits] = useState<Unit[]>([]);
-  const [materials, setMaterials] = useState<Material[]>();
-  const [material, setMaterial] = useState<Material>();
-  const { product, order_stakeholder } = useAppSelector(
+  const { product, requireMaterial } = useAppSelector(
     (state) => state.orderData
   );
-  console.log(product);
-  console.log(profileList);
-  const handleChangeCheckBox = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    material: Material
-  ) => {
-    setMaterials((prevState) =>
-      prevState.map((item) =>
-        item.material === material.material
-          ? { ...item, checked: event.target.checked }
-          : item
-      )
-    );
-    material.checked = event.target.checked;
+  let suppliers: Holder[] = [];
+  let manufacturer: Holder[] = [];
+  const [sup, setSup] = useState<Holder[]>();
+  const [manu, setManu] = useState<Holder[]>();
+  const handleSearch = (id: number, itemHolder: ItemHolder[]) => {
+    let temp: Address[] = [];
+    itemHolder.forEach((item) => {
+      if (item.id === id) temp = item.holderAddress;
+    });
+    return temp;
   };
+  function CheckRow(props: CheckRowProps) {
+    const { id, itemsHolder, title, role } = props;
+    const addressWallet: Address[] = handleSearch(id, itemsHolder);
+    const [prevAddress, setPrevAddress] = useState<Address>({ address: "" });
+    const [check, setCheck] = useState<boolean>(false);
+    const getPrice = (id: number, address: String) => {
+      let temp : Holder[] = [];
+      let price : number = 0;
+      if (role) temp = supplierList;
+      else temp = manufacturerList;
+      temp.forEach((item) => {
+        if(item.address === address){
+          item.item.forEach((i) => {
+            if(i.id === id) price = i.price;
+          })
+        }
+      })
+      return price;
+    }
+    const handleAddressChange1 = (
+      event: React.SyntheticEvent,
+      value: Address | null
+    ) => {
+      if (value) {
+        if (suppliers.length > 0 && prevAddress.address !== "") {
+          let index = suppliers.findIndex(
+            (e) => e.address === prevAddress.address
+          );
+          if (suppliers[index].item.length === 1) suppliers.splice(index, 1);
+          else if (suppliers[index].item.length > 1) {
+            let indexItem = suppliers[index].item.findIndex((e) => e.id === id);
+            suppliers[index].item.splice(indexItem, 1);
+          }
+        }
+        let index = suppliers.findIndex((e) => e.address === value.address);
+        if (index !== -1) {
+          suppliers[index].item.push({
+            id: id,
+            price: getPrice(id, value.address),
+          });
+        } else
+          suppliers.push({
+            address: value.address,
+            item: [
+              {
+                id: id,
+                price: getPrice(id, value.address),
+              },
+            ],
+          });
+        setPrevAddress(value);
+      }
+      console.log(suppliers);
+    };
+    const handleAddressChange2 = (
+      event: React.SyntheticEvent,
+      value: Address | null
+    ) => {
+      if (value) {
+        manufacturer = [
+          {
+            address: value.address,
+            item: [
+              {
+                id: id,
+                price: getPrice(id, value.address),
+              },
+            ],
+          },
+        ];
+        setPrevAddress(value);
+      }
+      console.log(manufacturer);
+    };
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: 2,
+          marginLeft: 2,
+        }}
+      >
+        <Typography variant="body1" sx={{width: 150}}>{title}</Typography>
+        <Autocomplete
+          isOptionEqualToValue={(option, value) =>
+            option.address == value.address
+          }
+          options={addressWallet}
+          getOptionLabel={(r) => `${r.address}`}
+          value={prevAddress}
+          onChange={role ? handleAddressChange1 : handleAddressChange2}
+          disabled={check}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Address"
+              required
+              sx={{ width: 300 }}
+            />
+          )}
+        />
+        <FormControlLabel
+          label="I do"
+          control={
+            <Checkbox checked={check} onChange={() => setCheck(!check)} />
+          }
+        />
+      </Box>
+    );
+  }
 
   const handleOpen = () => {
     setOpen(true);
@@ -233,54 +511,53 @@ export default function OrderThirdStep() {
     setOpen(false);
   };
 
-  const handleConfirm = () => {};
+  const handleConfirm = () => {
+   if(sup && manu) {
+     dispatch(addSupplier(sup));
+     dispatch(addManufacturer(manu));
+     successNotify("Successfully added");
+   }
+   else {
+    errorNotify("Failed to add");
+   }
+  };
 
   const next = () => {
+    setSup(suppliers);
+    setManu(manufacturer);
     handleClose();
-    handleOpen();
   };
 
-  const handleMaterialSelected = (
-    event: React.SyntheticEvent,
-    material: Material | undefined,
-    reason: AutocompleteChangeReason
-  ) => {
-    if (material) {
-      let temp = [...materials, material];
-      setMaterials(temp);
-      setAvailableUnits(material.unit);
-      setUnit(material.unit[0]);
-    } else {
-      setAvailableUnits([]);
-      setUnit(undefined);
-    }
-  };
-
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement | {}>,
-    value: Unit | null
-  ) => {
-    if (value) {
-      setUnit(value);
-    }
-  };
-
-  const RenderItems = (items: Order_Stakeholder[]) => {
+  const RenderItems = (item1: Holder[], item2: Holder[]) => {
     return (
       <>
-        {items.map((item, i) => (
-          <Row key={i} {...item} />
+        {item1.map((item, i) => (
+          <Row
+            key={i}
+            holder={item}
+            role="Supplier"
+            rqMaterial={requireMaterial}
+            validation={true}
+          />
+        ))}
+        {item2.map((item, i) => (
+          <Row
+            key={i}
+            holder={item}
+            role="Manufacturer"
+            product={product}
+            validation={true}
+          />
         ))}
       </>
     );
   };
-
   return (
     <>
       <Button sx={{ marginBottom: 2 }} variant="contained" onClick={handleOpen}>
         Add Stakeholder
       </Button>
-      <BaseStepper isDisabled={false} handleConfirm={handleConfirm}>
+      <BaseStepper isDisabled={!manu || !sup} handleConfirm={handleConfirm}>
         <TableContainer>
           <Table>
             <TableHead>
@@ -292,57 +569,44 @@ export default function OrderThirdStep() {
                 <TableCell>Total</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>{RenderItems(order_stakeholder)}</TableBody>
+            <TableBody>{sup && manu && RenderItems(sup, manu)}</TableBody>
           </Table>
         </TableContainer>
         <FormDialog
           title="Add New Stakeholder"
-          isDisabled={addressWallet && role && quantity ? false : true}
+          isDisabled={false}
           handleClose={handleClose}
           open={open}
           confirm={next}
         >
-          <Box
-            sx={{
-              display: "flex",
-              marginTop: 2,
-              width: 500,
-              justifyContent: "space-between",
-            }}
-          >
-            <TextField
-              value={addressWallet}
-              label="Address"
-              required
-              onChange={(event) => setAddressWallet(event.target.value)}
-              sx={{ width: 320 }}
+          <Box sx={{ width: 650 }}>
+            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+              {" "}
+              Manufacturer{" "}
+            </Typography>
+            <CheckRow
+              id={product.id}
+              title={product.name}
+              role={false}
+              itemsHolder={productHolderList}
             />
-            <Autocomplete
-              // isOptionEqualToValue={(option, value) => option?.role == value.role}
-              options={ROLE}
-              getOptionLabel={(r) => `${r.role}`}
-              value={role}
-              onChange={(event, value) => {
-                if (value) setRoleAddress(value);
-                console.log(role);
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Role"
-                  required
-                  sx={{ width: 150 }}
+            <Divider sx={{ marginBottom: 2 }} />
+            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+              {" "}
+              Supplier
+            </Typography>
+            {requireMaterial.map((item) => (
+              <>
+                <CheckRow
+                  id={item.materialId}
+                  title={item.name}
+                  role={true}
+                  itemsHolder={materialHolderList}
+                  key={item.materialId}
                 />
-              )}
-            />
+              </>
+            ))}
           </Box>
-          {addressWallet && role && (
-            <FormGroup>
-              <Typography>
-                {role.role === "Supplier" ? "Materials" : "Products"}
-              </Typography>
-            </FormGroup>
-          )}
         </FormDialog>
       </BaseStepper>
     </>

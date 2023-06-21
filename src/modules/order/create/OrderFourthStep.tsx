@@ -16,29 +16,15 @@ import { useAppSelector } from "../../../redux/hooks";
 import BaseStepper from "../../../components/stepper/BaseStepper";
 import { formatAddress } from "../../../utils";
 import React from "react";
+import { Holder, RequireMaterial } from "../../../types";
+import useProductContract from "../../../hooks/useProductContract";
 interface DATA {
   addressWallet: string;
   material: string[];
   total: number;
 }
 
-const Data: DATA[] = [
-  {
-    addressWallet: "0x1234567890abcdef",
-    material: ["gold", "silver", "copper"],
-    total: 1000,
-  },
-  {
-    addressWallet: "0x0987654321fedcba",
-    material: ["diamond", "gold", "silver"],
-    total: 500,
-  },
-  {
-    addressWallet: "0x5555555555555555",
-    material: ["diamond", "gold", "silver", "copper"],
-    total: 750,
-  },
-];
+
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -60,23 +46,71 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-
 export default function OrderFourthStep() {
   const onTransactionClick = () => {
     throw new Error("Function not implemented.");
   };
-  const [total, setTotal] = React.useState(() => {
-    let _total = 0;
-    Data.forEach((data) => (_total += data.total));
+  const { signer, chainId } = useAppSelector((state) => state.wallet);
+  const getName = (id: number, rqMaterial: RequireMaterial[]) => {
+    let name: string = "";
+    rqMaterial?.forEach((rq) => {
+      if (rq.materialId === id) name = rq.name;
+    });
+    return name;
+  };
+  const getTotal = (
+    id: number,
+    rqMaterial: RequireMaterial[],
+    price: number
+    ) => {
+      let _total = 0;
+      rqMaterial?.forEach((rq) => {
+        if (rq.materialId === id) _total += rq.quantity * price;
+    });
     return _total;
-  });
-  const { product, notes, quantity, supplierAddress, manufacturer } =
-    useAppSelector((state) => state.orderData);
-
-  const deposit = (p: number) =>{
-    let d = (p/100)*total;
+  };
+  const { suppliers, manufacturer, requireMaterial, product } = useAppSelector(
+    (state) => state.orderData
+  );
+  const getHolderList = () => {
+    let holder: DATA[] = [];
+    suppliers.forEach((supplier) => {
+      let nameList: string[] = [];
+      let total: number = 0;
+      supplier.item.forEach((i) => {
+        nameList.push(getName(i.id, requireMaterial));
+        total += getTotal(i.id, requireMaterial, i.price);
+      });
+      holder.push({
+        addressWallet: supplier.address,
+        material: nameList,
+        total: total,
+      });
+    });
+    const index = holder.findIndex(
+      (h) => h.addressWallet === manufacturer[0].address
+      );
+      if (index !== -1) {
+        holder[index].material.push(product.name);
+        holder[index].total += manufacturer[0].item[0].price;
+      } else
+      holder.push({
+        addressWallet: manufacturer[0].address,
+        material: [product.name],
+        total: manufacturer[0].item[0].price,
+      });
+      return holder;
+    };
+    const Data : DATA[] = getHolderList();
+    const [total, setTotal] = React.useState(() => {
+      let _total = 0;
+      Data.forEach((data) => (_total += data.total));
+      return _total;
+    });
+    const deposit = (p: number) => {
+    let d = (p / 100) * total;
     return `${p}% (${d} ETH)`;
-  }
+  };
   return (
     <BaseStepper isDisabled={false}>
       <TableContainer>
@@ -101,7 +135,7 @@ export default function OrderFourthStep() {
           </TableBody>
         </Table>
       </TableContainer>
-      <Box sx={{marginTop: 4}}>
+      <Box sx={{ marginTop: 4 }}>
         <Typography variant="h6" sx={{ display: "flex" }}>
           Total:
           <Typography variant="body1" sx={{ marginLeft: 2 }}>
