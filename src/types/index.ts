@@ -1,8 +1,8 @@
 export enum Unit {
-	none = 1,
-	KILOGRAM = "kg",
-	TONNE = "t",
-	METER = "m",
+  NONE = 0,
+  KILOGRAM = 1,
+  METER = 2,
+  LITRE= 3,
 }
 export enum Status {
 	PENDING = "pending",
@@ -39,43 +39,54 @@ export interface Profile {
 }
 
 export interface Material {
-	material_id: number;
-	name: string;
-	unit: Unit[];
-	price: number;
+  materialId: number;
+  name: string;
+}
+
+export interface Item {
+  id: number;
+  price: number;
 }
 
 export interface Product {
-	id: number;
-	name: string;
-	price: number;
-	rq_material: Rq_Material[];
-	description?: string; // Change the type to an array of Unit or null
+  inputValue?:string;
+  id: number;
+  name: string;
+  description?: string; // Change the type to an array of Unit or null
 }
 
-export interface Rq_Material {
-	material: Material;
-	quantity: number;
+export interface RequireMaterial {
+  materialId: number;
+  name: string;
+  quantity: number;
+  unit: number;
 }
 export interface Rq_Product {
 	product: Product;
 	quantity: number;
 }
 export interface Order_Stakeholder {
-	addressWallet: string;
-	role: string;
-	name: string;
-	address: string;
-	supplier_material?: Rq_Material[];
-	manufacturer_product?: Rq_Product[];
-	validation?: boolean;
+  addressWallet: string;
+  role: string;
+  name: string;
+  address: string;
+  supplier_material?: RequireMaterial[];
+  manufacturer_product?: Rq_Product[];
+  validation?: boolean;
 }
 
 export interface Order {
-	product: Product;
-	status: Status;
-	is_paid?: boolean;
-	deposit_amount: number;
-	customer_address: string;
-	order_stakeholder: Order_Stakeholder[];
+  product: Product;
+  requireMaterial: RequireMaterial[];
+  status: Status;
+  is_paid?: boolean;
+  deposit_amount: number;
+  customer_address: string;
+  suppliers: Holder[];
+  manufacturer: Holder[];
+}
+
+export interface Holder {
+  address: string;
+  item: Item[];
 }

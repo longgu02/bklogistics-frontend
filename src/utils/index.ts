@@ -47,7 +47,6 @@ export const getSessionInfo = (provider: BrowserProvider) => {
 export const removeSessionInfo = () => {
 	sessionStorage.removeItem("metamaskSigner");
 };
-
 export const random = (min: number, max: number) => {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 };
@@ -112,3 +111,12 @@ export const convertBase64 = (file: File) => {
 		};
 	});
 };
+
+export const getUnit = (unit: number) => {
+	switch (unit) {
+		case 1: return "kg";
+		case 2: return "m";
+		case 3: return "l";
+		default: return "pc";
+	}
+}
