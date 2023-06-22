@@ -23,6 +23,8 @@ import useNotify, { errorNotify } from "../../../../hooks/useNotify";
 import {
 	formatAddress,
 	getSessionInfo,
+	getStoredJWT,
+	isTokenExpired,
 	removeSessionInfo,
 	storeSession,
 } from "../../../../utils";
@@ -33,14 +35,17 @@ import React from "react";
 import {
 	removeWallet,
 	updateAddress,
+	updateAdmin,
 	updateBalance,
 	updateChain,
+	updateJWT,
 	updateProvider,
 	updateSigner,
 	updateWallet,
 } from "../../../../redux/connection/walletSlice";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import Link from "next/link";
+import { checkAdmin } from "../../../../services/auth";
 
 const modalStyle = {
 	position: "absolute" as "absolute",
@@ -86,6 +91,7 @@ export default function ConnectWalletButton() {
 						provider: provider,
 						signer: signer,
 						balance: Number(ethers.formatEther(accountBalance)),
+						isAdmin: false,
 					})
 				);
 				setLoading(false);
@@ -139,6 +145,8 @@ export default function ConnectWalletButton() {
 		});
 		dispatch(updateSigner(signer));
 		dispatch(updateAddress(accountSwitched));
+		dispatch(updateAdmin(false));
+		dispatch(updateJWT(undefined));
 		storeSession(pd, signer);
 		successNotify(`Account changed to ${accountSwitched}`);
 	};
@@ -190,6 +198,28 @@ export default function ConnectWalletButton() {
 			window.ethereum.on("accountsChanged", _handleAccountChanged);
 			window.ethereum.on("disconnect", _handleDisconnect);
 			window.ethereum.on("chainChanged", _handleChainChanged);
+			const jwt = getStoredJWT(address);
+			console.log(jwt);
+
+			if (jwt) {
+				if (!isTokenExpired(jwt)) {
+					dispatch(updateJWT(jwt));
+					checkAdmin(jwt)
+						.then((response) => {
+							dispatch(updateAdmin(response.isAdmin));
+							console.log(response);
+						})
+						.catch((err) => {
+							console.log(err);
+						});
+				} else {
+					dispatch(updateJWT(undefined));
+					dispatch(updateAdmin(false));
+				}
+			} else {
+				dispatch(updateJWT(undefined));
+				dispatch(updateAdmin(false));
+			}
 			return () => {
 				window.ethereum.removeListener("connect", _handleConnect);
 				window.ethereum.removeListener(

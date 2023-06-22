@@ -5,34 +5,37 @@ export enum Unit {
   LITRE= 3,
 }
 export enum Status {
-  PENDING = "pending",
-  IN_PROGRESS = "progress",
-  SUCCESS = "success",
-  FAILED = "failed",
-  CANCELED = "cancelled",
+	PENDING = "pending",
+	IN_PROGRESS = "progress",
+	SUCCESS = "success",
+	FAILED = "failed",
+	CANCELED = "cancelled",
 }
 export enum Role {
-  supplier = "Supplier",
-  manufacturer = "Manufacturer",
+	supplier = "Supplier",
+	manufacturer = "Manufacturer",
 }
 export interface Wallet {
-  address: string;
-  isRegistered: boolean;
-  // isPending: boolean;
+	address: string;
+	isRegistered: boolean;
+	// isPending: boolean;
 }
 
 export interface Profile {
-  _id?: string;
-  profile_id: number;
-  wallet_address: string;
-  contact_address: string;
-  phone_number: string;
-  name: string;
-  email: string;
-  isMember?: boolean;
-  registeredDate?: string;
-  materialList?: Item[];
-  productList?: Product[];
+	_id?: string;
+	profile_id: number;
+	walletAddress: string;
+	image: string;
+	companyName: string;
+	shippingAddress: string;
+	deliveryAddress: string;
+	phoneNumber: string;
+	email: string;
+	registeredDate: string;
+	description: string;
+	website?: string;
+	listedProduct?: Material[];
+	listedMaterial?: Product[];
 }
 
 export interface Material {
@@ -59,8 +62,8 @@ export interface RequireMaterial {
   unit: number;
 }
 export interface Rq_Product {
-  product: Product;
-  quantity: number;
+	product: Product;
+	quantity: number;
 }
 export interface Order_Stakeholder {
   addressWallet: string;

@@ -8,6 +8,7 @@ import {
 	IconUserPlus,
 	IconUser,
 	IconCurrencyDollar,
+	IconUserCheck,
 } from "@tabler/icons-react";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import SourceIcon from "@mui/icons-material/Source";
@@ -17,6 +18,19 @@ import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import { uniqueId } from "lodash";
 
 const Menuitems = [
+	{
+		navlabel: true,
+		subheader: "Manage",
+		isAdmin: true,
+	},
+
+	{
+		id: uniqueId(),
+		title: "Request Monitoring",
+		icon: IconUserCheck,
+		href: "/admin",
+		isAdmin: true,
+	},
 	{
 		navlabel: true,
 		subheader: "Home",
@@ -68,19 +82,13 @@ const Menuitems = [
 		id: uniqueId(),
 		title: "Register",
 		icon: IconUserPlus,
-		href: "/authentication/register",
+		href: "/register",
 	},
 	{
 		id: uniqueId(),
 		title: "Pricing",
 		icon: IconCurrencyDollar,
 		href: "/pricing",
-	},
-	{
-		id: uniqueId(),
-		title: "Profile",
-		icon: IconUser,
-		href: "/profile",
 	},
 	{
 		navlabel: true,
