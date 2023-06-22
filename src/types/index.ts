@@ -46,6 +46,7 @@ export interface Item {
 }
 
 export interface Product {
+  inputValue?:string;
   id: number;
   name: string;
   description?: string; // Change the type to an array of Unit or null

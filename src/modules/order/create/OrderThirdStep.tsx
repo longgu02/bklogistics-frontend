@@ -29,7 +29,7 @@ import { styled } from "@mui/material/styles";
 import BaseStepper from "../../../components/stepper/BaseStepper";
 import FormDialog from "../component/FormDialog";
 import { formatAddress } from "../../../utils";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import useNotify, { errorNotify } from "../../../hooks/useNotify";
 import { addSupplier, addManufacturer } from "../../../redux/order/orderSlice";
 import {
@@ -380,6 +380,7 @@ export default function OrderThirdStep() {
   const { product, requireMaterial } = useAppSelector(
     (state) => state.orderData
   );
+  const {address} = useAppSelector((state) => state.wallet);
   let suppliers: Holder[] = [];
   let manufacturer: Holder[] = [];
   const [sup, setSup] = useState<Holder[]>();
@@ -397,19 +398,19 @@ export default function OrderThirdStep() {
     const [prevAddress, setPrevAddress] = useState<Address>({ address: "" });
     const [check, setCheck] = useState<boolean>(false);
     const getPrice = (id: number, address: String) => {
-      let temp : Holder[] = [];
-      let price : number = 0;
+      let temp: Holder[] = [];
+      let price: number = 0;
       if (role) temp = supplierList;
       else temp = manufacturerList;
       temp.forEach((item) => {
-        if(item.address === address){
+        if (item.address === address) {
           item.item.forEach((i) => {
-            if(i.id === id) price = i.price;
-          })
+            if (i.id === id) price = i.price;
+          });
         }
-      })
+      });
       return price;
-    }
+    };
     const handleAddressChange1 = (
       event: React.SyntheticEvent,
       value: Address | null
@@ -474,7 +475,9 @@ export default function OrderThirdStep() {
           marginLeft: 2,
         }}
       >
-        <Typography variant="body1" sx={{width: 150}}>{title}</Typography>
+        <Typography variant="body1" sx={{ width: 150 }}>
+          {title}
+        </Typography>
         <Autocomplete
           isOptionEqualToValue={(option, value) =>
             option.address == value.address
@@ -496,7 +499,14 @@ export default function OrderThirdStep() {
         <FormControlLabel
           label="I do"
           control={
-            <Checkbox checked={check} onChange={() => setCheck(!check)} />
+            <Checkbox
+              checked={check}
+              onChange={() => {
+                setCheck(!check);
+                if(!check) setPrevAddress({ address: address });
+                else setPrevAddress({ address: ''});
+              }}
+            />
           }
         />
       </Box>
@@ -512,14 +522,13 @@ export default function OrderThirdStep() {
   };
 
   const handleConfirm = () => {
-   if(sup && manu) {
-     dispatch(addSupplier(sup));
-     dispatch(addManufacturer(manu));
-     successNotify("Successfully added");
-   }
-   else {
-    errorNotify("Failed to add");
-   }
+    if (sup && manu) {
+      dispatch(addSupplier(sup));
+      dispatch(addManufacturer(manu));
+      successNotify("Successfully added");
+    } else {
+      errorNotify("Failed to add");
+    }
   };
 
   const next = () => {
