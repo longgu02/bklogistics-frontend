@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from "react";
+import { useState, useEffect, type ReactElement } from "react";
 import {
 	Grid,
 	Box,
@@ -34,10 +34,20 @@ import BlankCard from "../../src/components/shared/BlankCard";
 import Image from "next/image";
 import img1 from "public/images/products/s4.jpg";
 import useSBTContract from "../../src/hooks/useSBTContract";
+import RequestCard from "../../src/modules/admin/RequestCard";
+import { getRequests } from "../../src/services/request";
+
+const TEST = [
+	{ image: "..." },
+	{ image: "..." },
+	{ image: "..." },
+	{ image: "..." },
+];
 
 const Register = () => {
 	const [finishedStep, setFinishedStep] = useState<number>(0);
 	const { signer, address, chainId } = useAppSelector((state) => state.wallet);
+	const [requests, setRequests] = useState([]);
 	const [isOpen, setOpen] = useState<boolean>(false);
 	const handleClose = () => {
 		setOpen(false);
@@ -55,101 +65,25 @@ const Register = () => {
 				.catch((err) => console.log(err));
 		}
 	};
+
+	useEffect(() => {
+		getRequests()
+			.then((res) => setRequests(res.requests))
+			.catch((err) => console.log(err));
+	}, []);
+
 	return (
 		<PageContainer title="Register" description="this is Register page">
 			<Grid container>
-				<Grid item xs={3}>
-					<BlankCard>
-						<Typography component={Link} href="/">
-							<Image
-								src={img1}
-								alt="img"
-								style={{ width: "100%", height: "250px" }}
+				{requests &&
+					requests.map((request: any) => (
+						<Grid item xs={3} p={1}>
+							<RequestCard
+								image={request.profileImage || "https://i.imgur.com/EYrkDIP"}
 							/>
-						</Typography>
-						{/* <Tooltip title="Add To Cart">
-							<Fab
-								size="small"
-								color="primary"
-								sx={{ bottom: "75px", right: "15px", position: "absolute" }}
-							>
-								<IconBasket size="16" />
-							</Fab>
-						</Tooltip> */}
-						<CardContent sx={{ p: 3, pt: 2 }}>
-							<Typography variant="h6">Company name</Typography>
-							<Stack
-								direction="row"
-								alignItems="center"
-								justifyContent="space-between"
-								mt={1}
-							>
-								<Stack direction="row" alignItems="center">
-									<Typography variant="h6">Address</Typography>
-									{/* <Typography
-										color="textSecondary"
-										ml={1}
-										sx={{ textDecoration: "line-through" }}
-									>
-										HIHIIH
-									</Typography> */}
-								</Stack>
-								{/* <Rating name="read-only" size="small" value={2} readOnly /> */}
-							</Stack>
-						</CardContent>
-						<CardActions>
-							<Button
-								variant="contained"
-								onClick={handleOpen}
-								sx={{ ml: "auto", mr: "auto" }}
-							>
-								Verify
-							</Button>
-						</CardActions>
-					</BlankCard>
-				</Grid>
+						</Grid>
+					))}
 			</Grid>
-			<Dialog onClose={handleClose} open={isOpen} fullWidth>
-				<DialogTitle>Information</DialogTitle>
-				<DialogContent>
-					<Typography variant="subtitle1" mb="5px">
-						<span style={{ fontWeight: 600 }}>Company Name: </span>
-						Cong ty TNHH mot minh tao
-					</Typography>
-					<Typography variant="subtitle1" fontWeight={600} mb="5px">
-						<span style={{ fontWeight: 600 }}>Address: </span>
-					</Typography>
-					<Grid container>
-						<Grid item xs={6}>
-							<Typography variant="subtitle1" fontWeight={600} mb="5px">
-								<span style={{ fontWeight: 600 }}>Email: </span>
-							</Typography>
-						</Grid>
-						<Grid item xs={6}>
-							<Typography variant="subtitle1" fontWeight={600} mb="5px">
-								<span style={{ fontWeight: 600 }}>Tel: </span>
-							</Typography>
-						</Grid>
-					</Grid>
-					<Typography variant="subtitle1" fontWeight={600} mb="5px">
-						<span style={{ fontWeight: 600 }}>Delivery Address: </span>
-					</Typography>
-					<Typography variant="subtitle1" fontWeight={600} mb="5px">
-						<span style={{ fontWeight: 600 }}>Shipping Address: </span>
-					</Typography>
-					<Typography variant="subtitle1" fontWeight={600} mb="5px">
-						<span style={{ fontWeight: 600 }}>Description: </span>
-					</Typography>
-				</DialogContent>
-				<DialogActions>
-					<Button variant="contained" color="error">
-						Decline
-					</Button>
-					<Button variant="contained" onClick={handleConfirm}>
-						Confirm
-					</Button>
-				</DialogActions>
-			</Dialog>
 		</PageContainer>
 	);
 };

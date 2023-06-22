@@ -6,9 +6,10 @@ import { ReadableStream } from "stream/web";
 export async function uploadImgur(image: any) {
 	const formData = new FormData();
 	formData.append("file", image);
+	image = image.replace(/^data:image\/(png|jpg|jpeg);base64,/, "");
 	try {
 		console.log(formData);
-		const response = await nextClient.post("/api/imgur", formData);
+		const response = await nextClient.post("/api/imgur", { image: image });
 		return response;
 	} catch (error) {
 		console.error(error);

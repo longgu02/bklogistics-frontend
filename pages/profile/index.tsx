@@ -50,7 +50,7 @@ const ProfilePage = () => {
 			.catch((err) => {
 				console.log(err);
 			});
-	}, []);
+	}, [address]);
 
 	return (
 		<PageContainer title="Profile" description="this is Profile page">

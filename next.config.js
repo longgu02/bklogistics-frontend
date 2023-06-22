@@ -7,4 +7,14 @@ dotenvLoad();
 const withNextEnv = nextEnv();
 module.exports = withNextEnv({
 	reactStrictMode: true,
+	images: {
+		remotePatterns: [
+			{
+				protocol: "https",
+				hostname: "i.imgur.com",
+				// port: '',
+				pathname: "/**",
+			},
+		],
+	},
 });

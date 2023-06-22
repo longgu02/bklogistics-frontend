@@ -34,6 +34,7 @@
     "faker": "^6.6.6",
     "formidable": "^3.4.0",
     "imgur": "^2.3.0",
+    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.21",
     "next": "latest",
     "next-env": "^1.1.1",
