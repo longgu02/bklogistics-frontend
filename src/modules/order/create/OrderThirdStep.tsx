@@ -33,11 +33,8 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import useNotify, { errorNotify } from "../../../hooks/useNotify";
 import { addSupplier, addManufacturer } from "../../../redux/order/orderSlice";
 import {
-  Unit,
   Holder,
   Item,
-  Rq_Product,
-  Role,
   RequireMaterial,
   Product,
 } from "../../../types";

@@ -58,19 +58,6 @@ export interface RequireMaterial {
   quantity: number;
   unit: number;
 }
-export interface Rq_Product {
-  product: Product;
-  quantity: number;
-}
-export interface Order_Stakeholder {
-  addressWallet: string;
-  role: string;
-  name: string;
-  address: string;
-  supplier_material?: RequireMaterial[];
-  manufacturer_product?: Rq_Product[];
-  validation?: boolean;
-}
 
 export interface Order {
   product: Product;
