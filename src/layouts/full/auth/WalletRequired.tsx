@@ -21,8 +21,6 @@ export default function WalletRequired(props: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		const jwt = getStoredJWT(address);
-		console.log(jwt);
-
 		if (jwt) {
 			if (!isTokenExpired(jwt)) {
 				dispatch(updateJWT(jwt));

@@ -35,14 +35,8 @@ import Image from "next/image";
 import img1 from "public/images/products/s4.jpg";
 import useSBTContract from "../../src/hooks/useSBTContract";
 import RequestCard from "../../src/modules/admin/RequestCard";
-import { getRequests } from "../../src/services/request";
-
-const TEST = [
-	{ image: "..." },
-	{ image: "..." },
-	{ image: "..." },
-	{ image: "..." },
-];
+import { getPendingRequests, getRequests } from "../../src/services/request";
+import WalletRequired from "../../src/layouts/full/auth/WalletRequired";
 
 const Register = () => {
 	const [finishedStep, setFinishedStep] = useState<number>(0);
@@ -67,7 +61,7 @@ const Register = () => {
 	};
 
 	useEffect(() => {
-		getRequests()
+		getPendingRequests()
 			.then((res) => setRequests(res.requests))
 			.catch((err) => console.log(err));
 	}, []);
@@ -78,9 +72,7 @@ const Register = () => {
 				{requests &&
 					requests.map((request: any) => (
 						<Grid item xs={3} p={1}>
-							<RequestCard
-								image={request.profileImage || "https://i.imgur.com/EYrkDIP"}
-							/>
+							<RequestCard _id={request._id} data={request} />
 						</Grid>
 					))}
 			</Grid>
@@ -91,5 +83,9 @@ const Register = () => {
 export default Register;
 
 Register.getLayout = function getLayout(page: ReactElement) {
-	return <FullLayout>{page}</FullLayout>;
+	return (
+		<FullLayout>
+			<WalletRequired>{page}</WalletRequired>
+		</FullLayout>
+	);
 };

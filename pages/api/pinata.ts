@@ -35,7 +35,7 @@ export default async function pinata(req: any, res: any) {
 			.then((response) => {
 				return res
 					.status(200)
-					.json({ message: "test", cid: response.IpfsHash });
+					.json({ message: "Successful", cid: response.IpfsHash });
 			})
 			.catch((err) => {
 				return res

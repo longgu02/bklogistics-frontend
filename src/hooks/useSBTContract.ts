@@ -18,9 +18,15 @@ export default function useSBTContract(signer: JsonRpcSigner, chainId: number) {
 		const _promise = contract.claimSBT(tokenURI);
 		return _promise;
 	};
+
+	const burn = (tokenId: Number) => {
+		const _promise = contract.burn(tokenId);
+		return _promise;
+	};
 	return {
 		issue,
 		claimSBT,
+		burn,
 		contract,
 	};
 }

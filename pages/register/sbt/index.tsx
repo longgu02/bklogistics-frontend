@@ -20,6 +20,11 @@ import HeaderLayout from "../../../src/layouts/header/HeaderLayout";
 const Register2 = () => {
 	const [network, setNetwork] = useState<Number>(5);
 	const [issuer, setIssuer] = useState<String>("BKLogistics");
+
+	const handleAutoRegister = () => {
+		
+	};
+
 	return (
 		<PageContainer title="Register" description="this is Register page">
 			<Box
@@ -130,9 +135,8 @@ const Register2 = () => {
 									color="primary"
 									variant="contained"
 									size="large"
+									onClick={handleAutoRegister}
 									fullWidth
-									component={Link}
-									href="/authentication/login"
 								>
 									Register
 								</Button>

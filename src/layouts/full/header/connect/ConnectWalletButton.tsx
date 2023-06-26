@@ -21,11 +21,14 @@ import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalance
 import LaunchIcon from "@mui/icons-material/Launch";
 import useNotify, { errorNotify } from "../../../../hooks/useNotify";
 import {
+	ethersAuthenticate,
 	formatAddress,
+	getNonce,
 	getSessionInfo,
 	getStoredJWT,
 	isTokenExpired,
 	removeSessionInfo,
+	storeJWT,
 	storeSession,
 } from "../../../../utils";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -45,7 +48,7 @@ import {
 } from "../../../../redux/connection/walletSlice";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import Link from "next/link";
-import { checkAdmin } from "../../../../services/auth";
+import { checkAdmin, login } from "../../../../services/auth";
 
 const modalStyle = {
 	position: "absolute" as "absolute",
@@ -70,6 +73,35 @@ export default function ConnectWalletButton() {
 	);
 	const [isOpen, setOpen] = React.useState<boolean>(false);
 	const dispatch = useAppDispatch();
+
+	const authenticate = async () => {
+		const nonce = getNonce();
+		if (signer) {
+			const signature = await ethersAuthenticate(
+				`I am signing my one time nonce:${nonce}`,
+				signer
+			);
+			login({
+				signature: signature.message,
+				nonce: nonce,
+				walletAddress: address,
+			})
+				.then((res) => {
+					dispatch(updateJWT(res.jwt));
+					storeJWT(address, res.jwt);
+					checkAdmin(res.jwt)
+						.then((response) => {
+							dispatch(updateAdmin(response.isAdmin));
+						})
+						.catch((err) => {
+							console.log(err);
+						});
+				})
+				.catch((err) => {
+					console.log(err);
+				});
+		}
+	};
 	const connect = async () => {
 		if (window.ethereum == undefined) {
 			errorNotify("Please download Metamask");
@@ -199,8 +231,6 @@ export default function ConnectWalletButton() {
 			window.ethereum.on("disconnect", _handleDisconnect);
 			window.ethereum.on("chainChanged", _handleChainChanged);
 			const jwt = getStoredJWT(address);
-			console.log(jwt);
-
 			if (jwt) {
 				if (!isTokenExpired(jwt)) {
 					dispatch(updateJWT(jwt));
@@ -320,6 +350,14 @@ export default function ConnectWalletButton() {
 								onClick={handleDisconnect}
 							>
 								Disconnect
+							</Button>
+							<Button
+								variant="contained"
+								color="primary"
+								sx={{ ml: "auto", mr: "auto" }}
+								onClick={authenticate}
+							>
+								Authenticate
 							</Button>
 						</DialogActions>
 					</Box>

@@ -90,22 +90,6 @@ const Menuitems = [
 		icon: IconCurrencyDollar,
 		href: "/pricing",
 	},
-	{
-		navlabel: true,
-		subheader: "Extra",
-	},
-	{
-		id: uniqueId(),
-		title: "Icons",
-		icon: IconMoodHappy,
-		href: "/icons",
-	},
-	{
-		id: uniqueId(),
-		title: "Sample Page",
-		icon: IconAperture,
-		href: "/sample-page",
-	},
 ];
 
 export default Menuitems;

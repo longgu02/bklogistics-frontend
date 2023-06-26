@@ -1,3 +1,5 @@
+import { ADDRESS } from "./address";
+
 export interface NetworksType {
 	[key: string]: {
 		chainId: number;
@@ -13,6 +15,7 @@ export interface NetworksType {
 			symbol: string;
 			decimals: number;
 		};
+		// openSeaURL: string;
 	};
 }
 
@@ -32,6 +35,7 @@ export const NETWORKS: NetworksType = {
 			symbol: "ETH",
 			decimals: 18,
 		},
+		// openSeaURL: `https://testnets.opensea.io/assets/goerli/${ADDRESS.GOERLI_TESTNET.SBT_CONTRACT_ADDRESS}/`, //:id
 	},
 	BSC_TESTNET: {
 		chainId: 97,
@@ -47,6 +51,7 @@ export const NETWORKS: NetworksType = {
 			symbol: "BNB",
 			decimals: 18,
 		},
+		// openSeaURL: `https://testnets.opensea.io/assets/goerli/${ADDRESS.GOERLI_TESTNET.SBT_CONTRACT_ADDRESS}/`, //:id
 	},
 };
 
