@@ -17,6 +17,7 @@ export const ADDRESS = {
     PRICING_CONTRACT_ADDRESS: "",
     SBT_CONTRACT_ADDRESS: "",
   },
+
 };
 
 export const getNetworkAddress = (chainId: number) => {

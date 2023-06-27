@@ -44,3 +44,23 @@ export const getRequests = async () => {
 		console.error(err);
 	}
 };
+
+export const getPendingRequests = async () => {
+	try {
+		const response = await testClient.get("/request/pending");
+		return response;
+	} catch (err) {
+		console.error(err);
+	}
+};
+
+export const updateRequests = async (requestId: String, status: string) => {
+	try {
+		const response = await testClient.put(`/request/update/${requestId}`, {
+			status: status,
+		});
+		return response;
+	} catch (err) {
+		console.error(err);
+	}
+};

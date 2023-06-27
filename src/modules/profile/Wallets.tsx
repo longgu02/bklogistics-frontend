@@ -195,7 +195,6 @@ const WalletBox = (props: { address: string; currentAddress: string }) => {
 
 function Wallets(props: AddressProps) {
 	const { wallets, currentAddress } = props;
-	// console.log(wallets, currentAddress);
 	const data = {
 		savedCards: 7,
 	};

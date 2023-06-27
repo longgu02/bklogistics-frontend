@@ -48,8 +48,6 @@ export default function RegisterFirstStep(props: RegisterFirstStepProps) {
 	};
 
 	useEffect(() => {
-		console.log("mount", isMount.current);
-
 		if (isMount.current == true) {
 			if (typeof companyName === undefined || companyName.trim() === "") {
 				setError((draft) => {
@@ -81,15 +79,9 @@ export default function RegisterFirstStep(props: RegisterFirstStepProps) {
 		}
 	}, [companyName, registerAddress]);
 
-	console.log("isValid: ", isValid);
-
-	// console.log(address, "is address: ", ethers.isAddress(address));
 	return (
 		<BaseStepper
 			isDisabled={
-				// typeof companyName === undefined ||
-				// companyName == "" ||
-				// !ethers.isAddress(registerAddress) ||
 				isDone ||
 				!(
 					error.companyName == undefined && error.registerAddress == undefined

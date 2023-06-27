@@ -28,31 +28,48 @@ import { getNetworkAddress } from "../../../src/constants/address";
 import { getProfile } from "../../../src/services/profile-api";
 import { Profile } from "../../../src/types";
 import HeaderLayout from "../../../src/layouts/header/HeaderLayout";
+import useNotify from "../../../src/hooks/useNotify";
+import WalletRequired from "../../../src/layouts/full/auth/WalletRequired";
 
 const Register2 = () => {
 	const [network, setNetwork] = useState<Number>(5);
 	const [issuer, setIssuer] = useState<String>("BKLogistics");
 	const [isDialogOpen, setDialogOpen] = useState<boolean>(false);
 	const [profile, setProfile] = useState<Profile>();
-
+	const [SBTID, setSBTID] = useState<Number>();
+	const { successNotify } = useNotify();
 	const { signer, address, chainId } = useAppSelector((state) => state.wallet);
-	const handleMint = () => {
-		if (signer) {
+
+	useEffect(() => {}, []);
+
+	const handleMint = async () => {
+		if (signer && profile) {
 			const info = {
-				companyName: "Bracalente Manufacturing Co, Inc.",
-				email: "info@bracalente.com",
-				phone: "0123456789",
-				website: "https://www.bracalente.com/",
-				image: "https://i.imgur.com/vxhgnye.jpg",
+				companyName: profile.companyName || "Bracalente Manufacturing Co, Inc.",
+				email: profile.email || "info@bracalente.com",
+				phone: profile.phoneNumber || "0123456789",
+				website: profile.website || "https://www.bracalente.com/",
+				image: profile.profileImage || "https://i.imgur.com/vxhgnye.jpg",
 				description:
+					profile.description ||
 					"Bracalente Mfg. Group has been serving the outsourced precision parts needs of all industries since 1950. We are a machine shop that specializes in the precision parts requirements of our customers. Our knowledgeable machine shop staff along with our qualified quality control staff assures that products are made to your specifications.",
 			};
 			getCID(info)
 				.then((res) => {
 					console.log(res);
-					const { claimSBT } = useSBTContract(signer, chainId);
-					claimSBT(res.cid);
-					setDialogOpen(true);
+					const { claimSBT, contract } = useSBTContract(signer, chainId);
+					claimSBT(res.cid)
+						.then((res) => {
+							console.log(res);
+							contract.on("Claim", (data) => {
+								console.log(data);
+								setSBTID(data);
+								setDialogOpen(true);
+								successNotify(`Soulbound Minted Successfully, ID: ${data}`);
+								contract.removeAllListeners();
+							});
+						})
+						.catch((err) => console.log(err));
 				})
 				.catch((err) => {
 					console.log(err);
@@ -177,6 +194,29 @@ const Register2 = () => {
 										>
 											Mint
 										</Button>
+										{/* <Button
+											variant="contained"
+											onClick={() => {
+												if (signer) {
+													const { burn, contract } = useSBTContract(
+														signer,
+														chainId
+													);
+													burn(2)
+														.then((res) => {
+															console.log(res);
+															contract.on("Transfer", (data) => {
+																console.log(data);
+															});
+														})
+														.catch((err) => {
+															console.error(err);
+														});
+												}
+											}}
+										>
+											Burn
+										</Button> */}
 									</Box>
 								</Card>
 							</Grid>
@@ -193,47 +233,25 @@ const Register2 = () => {
 								<span style={{ fontWeight: 600 }}>
 									Your Soulbound Token ID:{" "}
 								</span>
-								1
+								{String(SBTID)}
 							</Typography>
 							<Typography variant="subtitle1" mb="5px">
-								<span style={{ fontWeight: 600 }}>Network: </span>1
+								<span style={{ fontWeight: 600 }}>Network: </span>
+								{String(SBTID)}
 							</Typography>
 							<Link
 								href={`https://testnets.opensea.io/assets/goerli/${
 									getNetworkAddress(chainId).SBT_CONTRACT_ADDRESS
-								}/${1}`}
-							></Link>
-							{/* <Typography variant="subtitle1" mb="5px">
-						<span style={{ fontWeight: 600 }}>Company Name: </span>
-						Cong ty TNHH mot minh tao
-					</Typography>
-					<Typography variant="subtitle1" fontWeight={600} mb="5px">
-						<span style={{ fontWeight: 600 }}>Address: </span>
-					</Typography>
-					<Grid container>
-						<Grid item xs={6}>
-							<Typography variant="subtitle1" fontWeight={600} mb="5px">
-								<span style={{ fontWeight: 600 }}>Email: </span>
-							</Typography>
-						</Grid>
-						<Grid item xs={6}>
-							<Typography variant="subtitle1" fontWeight={600} mb="5px">
-								<span style={{ fontWeight: 600 }}>Tel: </span>
-							</Typography>
-						</Grid>
-					</Grid>
-					<Typography variant="subtitle1" fontWeight={600} mb="5px">
-						<span style={{ fontWeight: 600 }}>Delivery Address: </span>
-					</Typography>
-					<Typography variant="subtitle1" fontWeight={600} mb="5px">
-						<span style={{ fontWeight: 600 }}>Shipping Address: </span>
-					</Typography>
-					<Typography variant="subtitle1" fontWeight={600} mb="5px">
-						<span style={{ fontWeight: 600 }}>Description: </span>
-					</Typography> */}
+								}/${SBTID}`}
+								target="_blank"
+							>
+								View your Soulbound on OpenSea
+							</Link>
 						</DialogContent>
 						<DialogActions>
-							<Button variant="contained">Confirm</Button>
+							<Button variant="contained" onClick={() => setDialogOpen(false)}>
+								Confirm
+							</Button>
 						</DialogActions>
 					</Dialog>
 				</Box>
@@ -247,5 +265,9 @@ const Register2 = () => {
 export default Register2;
 
 Register2.getLayout = function getLayout(page: ReactElement) {
-	return <HeaderLayout>{page}</HeaderLayout>;
+	return (
+		<HeaderLayout>
+			<WalletRequired>{page}</WalletRequired>
+		</HeaderLayout>
+	);
 };

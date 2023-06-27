@@ -24,7 +24,7 @@ export default function CreateForm() {
 	const handleChangeOrder = (e: any) => {
 		setOrderInput(e.target.value);
 		const filteredOrder = ORDER.filter((order) => order.id == e.target.value);
-		setSuggestedOrder(filteredOrder);
+		setSuggestedOrder([...filteredOrder]);
 	};
 
 	return (
