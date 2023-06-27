@@ -13,8 +13,9 @@ import { MEMBER_ROLE } from "../../src/constants/role";
 import { errorNotify } from "../../src/hooks/useNotify";
 import { enqueueSnackbar } from "notistack";
 // import Wallet from "../../src/modules/profile/Wallets";
-import { Wallet } from "../../src/types";
+import { Profile, Wallet } from "../../src/types";
 import WalletRequired from "../../src/layouts/full/auth/WalletRequired";
+import { getProfile } from "../../src/services/profile-api";
 const user = {
 	name: "Bracalente Manufacturing Co, Inc.",
 	coverImg:
@@ -34,45 +35,59 @@ const addresses = [
 	"0xe7c58E20A32B2309B18549a43E6829D1126ADa2E",
 ];
 
-const Profile = () => {
+const ProfilePage = () => {
 	const { address, chainId, signer, provider } = useAppSelector(
 		(state) => state.wallet
 	);
+	const [profile, setProfile] = useState<Profile>();
+
+	useEffect(() => {
+		getProfile(address)
+			.then((response) => {
+				console.log(response);
+				setProfile(response.profile);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	}, [address]);
+
 	return (
 		<PageContainer title="Profile" description="this is Profile page">
-			<ProfileCover user={user} />
+			<ProfileCover user={profile} />
+			{/* <Locations />
 			<Grid
 				container
 				direction="row"
 				justifyContent="center"
 				alignItems="stretch"
 				spacing={3}
-			>
-				{/* <Grid item xs={12} md={8}> */}
-				{/* </Grid> */}
-				{/* <Grid item xs={12} md={4}>
+			> */}
+			{/* <Grid item xs={12} md={8}> */}
+			{/* </Grid> */}
+			{/* <Grid item xs={12} md={4}>
 					<RecentActivity />
 				</Grid> */}
-				{/* <Grid item xs={12} md={8}> */}
-				{/* <Feed /> */}
-				{/* </Grid> */}
-				{/* <Grid item xs={12} md={4}> */}
-				{/* <PopularTags /> */}
-				{/* </Grid> */}
-				<Grid item xs={12} md={7}>
-					<Wallets currentAddress={address} wallets={addresses} />
+			{/* <Grid item xs={12} md={8}> */}
+			{/* <Feed /> */}
+			{/* </Grid> */}
+			{/* <Grid item xs={12} md={4}> */}
+			{/* <PopularTags /> */}
+			{/* </Grid> */}
+			{/* <Grid item xs={12} md={7}>
 				</Grid>
 				<Grid item xs={12} md={5}>
-					<Locations />
+				<Locations />
 				</Grid>
-			</Grid>
+			</Grid> */}
+			<Wallets currentAddress={address} wallets={addresses} />
 		</PageContainer>
 	);
 };
 
-export default Profile;
+export default ProfilePage;
 
-Profile.getLayout = function getLayout(page: ReactElement) {
+ProfilePage.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<FullLayout>
 			<WalletRequired>{page}</WalletRequired>

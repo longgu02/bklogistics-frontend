@@ -7,6 +7,7 @@ import {
 	Stack,
 	TextField,
 	Container,
+	IconButton,
 	Paper,
 } from "@mui/material";
 import Link from "next/link";
@@ -18,14 +19,24 @@ import RegisterFirstStep from "../../src/modules/register/RegisterFirstStep";
 import RegisterSecondStep from "../../src/modules/register/RegisterSecondStep";
 import RegisterThirdStep from "../../src/modules/register/RegisterThirdStep";
 import { useAppSelector } from "../../src/redux/hooks";
+import HeaderLayout from "../../src/layouts/header/HeaderLayout";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import { redirect } from "next/dist/server/api-utils";
+import { useRouter } from "next/router";
 
 const Register = () => {
 	const [finishedStep, setFinishedStep] = useState<number>(0);
 	const { currentStep } = useAppSelector((state) => state.register);
-	const handleNext = () => {};
-	const handleStepClick = () => {};
+	const router = useRouter();
 	return (
 		<PageContainer title="Register" description="this is Register page">
+			<IconButton
+				onClick={() => {
+					router.push("/");
+				}}
+			>
+				<ArrowBackIosNewIcon />
+			</IconButton>
 			<Box sx={{ backgroundColor: "#F5F7FA" }}>
 				<Container maxWidth="lg">
 					<Box display="flex" alignItems="center" justifyContent="center">
@@ -47,8 +58,8 @@ const Register = () => {
 								"Additional Information",
 							]}
 							activeStep={currentStep - 1}
-							handleNext={handleNext}
-							handleStepClick={handleStepClick}
+							handleNext={() => {}}
+							handleStepClick={() => {}}
 							orientation="horizontal"
 						/>
 					</Box>
@@ -83,5 +94,5 @@ const Register = () => {
 export default Register;
 
 Register.getLayout = function getLayout(page: ReactElement) {
-	return <BlankLayout>{page}</BlankLayout>;
+	return <HeaderLayout>{page}</HeaderLayout>;
 };

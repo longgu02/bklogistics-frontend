@@ -15,10 +15,16 @@ import PageContainer from "../../../src/components/container/PageContainer";
 import Logo from "../../../src/layouts/full/shared/logo/Logo";
 import BlankLayout from "../../../src/layouts/blank/BlankLayout";
 import CustomTextField from "../../../src/components/forms/theme-elements/CustomTextField";
+import HeaderLayout from "../../../src/layouts/header/HeaderLayout";
 
 const Register2 = () => {
 	const [network, setNetwork] = useState<Number>(5);
 	const [issuer, setIssuer] = useState<String>("BKLogistics");
+
+	const handleAutoRegister = () => {
+		
+	};
+
 	return (
 		<PageContainer title="Register" description="this is Register page">
 			<Box
@@ -40,7 +46,7 @@ const Register2 = () => {
 					container
 					spacing={0}
 					justifyContent="center"
-					sx={{ height: "100vh" }}
+					sx={{ height: "90vh" }}
 				>
 					<Grid
 						item
@@ -129,9 +135,8 @@ const Register2 = () => {
 									color="primary"
 									variant="contained"
 									size="large"
+									onClick={handleAutoRegister}
 									fullWidth
-									component={Link}
-									href="/authentication/login"
 								>
 									Register
 								</Button>
@@ -147,5 +152,5 @@ const Register2 = () => {
 export default Register2;
 
 Register2.getLayout = function getLayout(page: ReactElement) {
-	return <BlankLayout>{page}</BlankLayout>;
+	return <HeaderLayout>{page}</HeaderLayout>;
 };

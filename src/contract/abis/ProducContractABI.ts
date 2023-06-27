@@ -95,7 +95,13 @@ export const ProductContractABI = [
 			},
 		],
 		name: "addMaterial",
-		outputs: [],
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "materialId",
+				type: "uint256",
+			},
+		],
 		stateMutability: "nonpayable",
 		type: "function",
 	},
@@ -108,7 +114,13 @@ export const ProductContractABI = [
 			},
 		],
 		name: "addProduct",
-		outputs: [],
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "productId",
+				type: "uint256",
+			},
+		],
 		stateMutability: "nonpayable",
 		type: "function",
 	},
@@ -243,7 +255,7 @@ export const ProductContractABI = [
 		outputs: [
 			{
 				internalType: "uint256",
-				name: "productQuantity",
+				name: "",
 				type: "uint256",
 			},
 		],

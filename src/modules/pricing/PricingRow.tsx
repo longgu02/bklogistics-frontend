@@ -79,7 +79,6 @@ export default function PricingRow(props: PricingRowProps) {
 	useEffect(() => {
 		if (signer) {
 			const { getPrice } = usePricingContract(signer, chainId);
-			console.log("hihi");
 			const receipt = getPrice(address, product.productId, product.type)
 				.then((res) => {
 					console.log("res", res);

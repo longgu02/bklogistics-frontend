@@ -8,8 +8,21 @@ import {
 	updateThirdStep,
 } from "../../redux/authentication/registerSlice";
 import { useAppDispatch } from "../../redux/hooks";
+import { useAppSelector } from "../../redux/hooks";
 import { useImmer } from "use-immer";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { uploadImgur } from "../../services/imgur-api";
+import {
+	convertBase64,
+	ethersAuthenticate,
+	getNonce,
+	storeJWT,
+} from "../../utils";
+import { sendRequest } from "../../services/request";
+import { updateAdmin, updateJWT } from "../../redux/connection/walletSlice";
+import { checkAdmin, login } from "../../services/auth";
+import useNotify, { errorNotify } from "../../hooks/useNotify";
+import { redirect } from "next/dist/server/api-utils";
 // import { imgurUpload } from "../../services/imgur";
 
 // const imgurUpload = async () => {
@@ -43,23 +56,101 @@ interface RegisterFirstStepProps {
 }
 
 interface ErrorAdditionalInfo {
-	profileImage?: string;
-	coverImage?: string;
+	image?: any;
 	description?: string;
 }
 
 export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 	const { isBlur, isDone } = props;
+	const [isLoading, setLoading] = useState<boolean>(false);
 	const [additionalInfo, setAdditionalInfo] = useImmer<AdditionalInfo>({
-		profileImage: "",
-		coverImage: "",
+		image: "",
 		description: "",
 	});
-
+	const {
+		walletAddress,
+		companyName,
+		email,
+		phoneNumber,
+		website,
+		deliveryAddress,
+		shippingAddress,
+		image,
+		description,
+	} = useAppSelector((state) => state.register);
+	const { chainId, address, signer } = useAppSelector((state) => state.wallet);
+	const { successNotify, errorNotify } = useNotify();
 	const [error, setError] = useImmer<ErrorAdditionalInfo>({});
 	const dispatch = useAppDispatch();
-	const handleConfirm = () => {
-		dispatch(updateThirdStep(additionalInfo));
+
+	const authenticate = async () => {
+		const nonce = getNonce();
+		if (signer) {
+			const signature = await ethersAuthenticate(
+				`I am signing my one time nonce:${nonce}`,
+				signer
+			);
+			login({
+				signature: signature.message,
+				nonce: nonce,
+				walletAddress: address,
+			})
+				.then((res) => {
+					dispatch(updateJWT(res.jwt));
+					storeJWT(address, res.jwt);
+					checkAdmin(res.jwt)
+						.then((response) => {
+							dispatch(updateAdmin(response.isAdmin));
+						})
+						.catch((err) => {
+							console.log(err);
+						});
+				})
+				.catch((err) => {
+					console.log(err);
+				});
+		}
+	};
+
+	const handleConfirm = async () => {
+		setLoading(true);
+		await uploadImgur(additionalInfo.image)
+			.then(async (res) => {
+				console.log(res);
+				dispatch(
+					updateThirdStep({
+						description: additionalInfo.description,
+						image: res.imageURL,
+					})
+				);
+				await authenticate();
+				await sendRequest({
+					companyName: companyName,
+					walletAddress: walletAddress,
+					email: email,
+					phone: phoneNumber,
+					website: website,
+					deliveryAddress: deliveryAddress,
+					shippingAddress: shippingAddress,
+					image: res.imageURL,
+					description: additionalInfo.description,
+					haveSBT: false,
+					chainId: chainId,
+				})
+					.then((res) => {
+						successNotify(
+							"Register request sent! Your request will be reviewed in 3 days"
+						);
+					})
+					.catch((err) => {
+						errorNotify("Error Occured: " + err.message);
+						console.log(err);
+					});
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+		setLoading(false);
 	};
 
 	useEffect(() => {
@@ -79,53 +170,22 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 		}
 	}, [additionalInfo]);
 
-	console.log(process.env.NODE_ENV);
 	const upload = async (e: any) => {
-		const imageData = e.target.files[0];
-		console.log(e.target.files[0]);
-		const formData = new FormData();
-		formData.append("image", imageData);
+		const file = e.target.files[0];
+		const base64 = await convertBase64(file);
+		setAdditionalInfo((draft) => {
+			draft.image = base64;
+		});
 	};
-
-	// const upload = (e: any) => {
-	// 	const client = new ImgurClient({
-	// 		clientId: process.env.CLIENT_ID,
-	// 		clientSecret: process.env.CLIENT_SECRET,
-	// 		refreshToken: process.env.REFRESH_TOKEN,
-	// 	});
-	// 	const fileInput = document.getElementById("file-input") as HTMLInputElement;
-	// 	const file = e.target.value;
-	// 	console.log(e.target.value);
-	// 	const reader = new FileReader();
-	// 	reader.readAsDataURL(file);
-
-	// 	return new Promise<string>((resolve, reject) => {
-	// 		reader.onloadend = async () => {
-	// 			const base64data = reader.result?.toString();
-
-	// 			try {
-	// 				const response = await client.upload({
-	// 					image: base64data,
-	// 					type: "base64",
-	// 				});
-	// 				resolve(response.data.link);
-	// 			} catch (error) {
-	// 				reject(error);
-	// 			}
-	// 		};
-	// 		reader.onerror = reject;
-	// 	});
-	// };
 
 	return (
 		<BaseStepper
 			isDisabled={
 				Object.keys(additionalInfo).some(
-					(key) =>
-						additionalInfo[key as keyof AdditionalInfo] === "" ||
-						typeof additionalInfo[key as keyof AdditionalInfo] === "undefined"
+					(key) => error[key as keyof ErrorAdditionalInfo] !== undefined
 				) || isDone
 			}
+			isLoading={isLoading}
 			isBlur={isBlur}
 			handleConfirm={handleConfirm}
 			isDone={isDone}
@@ -142,8 +202,6 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 					>
 						Profile Image
 					</Typography>
-					{/* <Button variant="contained" component="label" sx={{ mb: "5px" }}>
-						Upload File */}
 					<input
 						accept="image/*"
 						// style={{ display: "none" }}
@@ -153,30 +211,6 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 						onChange={(e) => upload(e)}
 						// hidden
 					/>
-					{/* </Button> */}
-					<Typography
-						variant="subtitle1"
-						fontWeight={600}
-						component="label"
-						htmlFor="email"
-						mb="5px"
-						mt="25px"
-					>
-						Cover Image
-					</Typography>
-					{/* <Button variant="contained" component="label" sx={{ mb: "5px" }}>
-						Upload File */}
-					{/* <input type="file" hidden /> */}
-					<input
-						accept="image/*"
-						// style={{ display: "none" }}
-						id="file-input"
-						// multiple
-						type="file"
-						onChange={(e) => upload(e)}
-						// hidden
-					/>
-					{/* </Button> */}
 					<Typography
 						variant="subtitle1"
 						fontWeight={600}

@@ -3,18 +3,16 @@ import {
 	Box,
 	Typography,
 	Card,
-	Tooltip,
 	Avatar,
 	CardMedia,
 	Button,
 	IconButton,
+	Skeleton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-
-import ArrowBackTwoToneIcon from "@mui/icons-material/ArrowBackTwoTone";
-import ArrowForwardTwoToneIcon from "@mui/icons-material/ArrowForwardTwoTone";
 import UploadTwoToneIcon from "@mui/icons-material/UploadTwoTone";
 import MoreHorizTwoToneIcon from "@mui/icons-material/MoreHorizTwoTone";
+import { Profile } from "../../types";
 
 const Input = styled("input")({
 	display: "none",
@@ -78,90 +76,111 @@ const CardCoverAction = styled(Box)(
 `
 );
 
-const ProfileCover = (props: any) => {
+const ProfileCover = (props: { user?: Profile }) => {
 	const { user } = props;
 	return (
 		<>
-			{/* <Box display="flex" mb={3}> */}
-			{/* <Tooltip arrow placement="top" title="Go back">
-					<IconButton color="primary" sx={{ p: 2, mr: 2 }}>
-						<ArrowBackTwoToneIcon />
-					</IconButton>
-				</Tooltip> */}
-			{/* <Box>
-					<Typography variant="h3" component="h3" gutterBottom>
-						Profile for {user.name}
-					</Typography>
-					<Typography variant="subtitle2">
-						This is a profile page. Easy to modify, always blazing fast
-					</Typography>
-				</Box> */}
-			{/* </Box> */}
-			<CardCover>
-				<CardMedia image={user.coverImg} />
-				<CardCoverAction>
-					<Input accept="image/*" id="change-cover" multiple type="file" />
-					<label htmlFor="change-cover">
-						<Button
-							startIcon={<UploadTwoToneIcon />}
-							variant="contained"
-							component="span"
+			{user ? (
+				<Box>
+					<CardCover>
+						<CardMedia
+							image={
+								"https://img.freepik.com/premium-vector/aesthetic-pastel-gradient-blue-purple-gradient-wallpaper-illustration-perfect-backdrop-wallpaper-background-banner-cover_565280-1124.jpg"
+							}
+						/>
+						<CardCoverAction>
+							<Input accept="image/*" id="change-cover" multiple type="file" />
+						</CardCoverAction>
+					</CardCover>
+					<AvatarWrapper>
+						<Avatar
+							variant="rounded"
+							alt={user.companyName}
+							src={user.profileImage}
+						/>
+						<ButtonUploadWrapper>
+							<Input
+								accept="image/*"
+								id="icon-button-file"
+								name="icon-button-file"
+								type="file"
+							/>
+							<label htmlFor="icon-button-file">
+								<IconButton component="span" color="primary">
+									<UploadTwoToneIcon />
+								</IconButton>
+							</label>
+						</ButtonUploadWrapper>
+					</AvatarWrapper>
+					<Box py={2} pl={2} mb={3}>
+						<Typography gutterBottom variant="h4">
+							{user.companyName}
+						</Typography>
+						<Typography variant="subtitle2">{user.description}</Typography>
+						<Typography sx={{ py: 2 }} variant="subtitle2" color="text.primary">
+							<span style={{ fontWeight: 600 }}>Email: </span> {user.email} |
+							<span style={{ fontWeight: 600 }}>Tel: </span>
+							{user.phoneNumber}
+						</Typography>
+						<Typography variant="subtitle2" color="text.primary">
+							<span style={{ fontWeight: 600 }}>Shipping Address: </span>
+							{user.shippingAddress}
+						</Typography>
+						<Typography sx={{ pb: 2 }} variant="subtitle2" color="text.primary">
+							<span style={{ fontWeight: 600 }}>Delivery Address: </span>
+							{user.deliveryAddress}
+						</Typography>
+						<Box
+							display={{ xs: "block", md: "flex" }}
+							alignItems="center"
+							justifyContent="space-between"
 						>
-							Change cover
-						</Button>
-					</label>
-				</CardCoverAction>
-			</CardCover>
-			<AvatarWrapper>
-				<Avatar variant="rounded" alt={user.name} src={user.avatar} />
-				<ButtonUploadWrapper>
-					<Input
-						accept="image/*"
-						id="icon-button-file"
-						name="icon-button-file"
-						type="file"
-					/>
-					<label htmlFor="icon-button-file">
-						<IconButton component="span" color="primary">
-							<UploadTwoToneIcon />
-						</IconButton>
-					</label>
-				</ButtonUploadWrapper>
-			</AvatarWrapper>
-			<Box py={2} pl={2} mb={3}>
-				<Typography gutterBottom variant="h4">
-					{user.name}
-				</Typography>
-				<Typography variant="subtitle2">{user.description}</Typography>
-				<Typography sx={{ py: 2 }} variant="subtitle2" color="text.primary">
-					{user.jobtitle} | {user.location} | {user.followers} followers
-				</Typography>
-				<Box
-					display={{ xs: "block", md: "flex" }}
-					alignItems="center"
-					justifyContent="space-between"
-				>
-					<Box>
-						<Button size="small" variant="contained">
-							Follow
-						</Button>
-						<Button size="small" sx={{ mx: 1 }} variant="outlined">
-							View website
-						</Button>
-						<IconButton color="primary" sx={{ p: 0.5 }}>
-							<MoreHorizTwoToneIcon />
-						</IconButton>
+							<Box>
+								<Button size="small" variant="outlined" href={user.website}>
+									View website
+								</Button>
+							</Box>
+						</Box>
 					</Box>
-					{/* <Button
-						sx={{ mt: { xs: 2, md: 0 } }}
-						size="small"
-						variant="text"
-						endIcon={<ArrowForwardTwoToneIcon />}
-					>
-						See all {user.followers} connections
-					</Button> */}
 				</Box>
-			</Box>
+			) : (
+				<Box>
+					<Skeleton
+						animation="wave"
+						variant="rectangular"
+						height={150}
+						width="100%"
+					/>
+					<Skeleton
+						animation="wave"
+						variant="circular"
+						width={200}
+						height={200}
+						sx={{ ml: 3, mt: -10 }}
+					/>
+					<Skeleton
+						animation="wave"
+						variant="rectangular"
+						height={80}
+						width="100%"
+						sx={{ mt: 2 }}
+					/>
+					<Skeleton
+						animation="wave"
+						variant="rectangular"
+						height={80}
+						width="50%"
+						sx={{ mt: 2 }}
+					/>
+					<Skeleton
+						animation="wave"
+						variant="rectangular"
+						height={80}
+						width="50%"
+						sx={{ mt: 2 }}
+					/>
+				</Box>
+			)}
 		</>
 	);
 };
