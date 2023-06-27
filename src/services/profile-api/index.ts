@@ -4,10 +4,15 @@ import { testClient } from "../client";
 interface CreateProfileBody {
 	walletAddress: string;
 	companyName: string;
+	profileImage: string;
+	description: string;
+	currentStep: number;
 	email: string;
+	phoneNumber: string;
+	website: string;
+	chainId: string;
 	deliveryAddress: string;
 	shippingAddress: string;
-	phoneNUmber: string;
 }
 
 export const createProfile = async (body: CreateProfileBody) => {

@@ -1,4 +1,4 @@
-import { Box, Button, Paper } from "@mui/material";
+import { Box, Button, CircularProgress, Paper } from "@mui/material";
 import React from "react";
 import {
 	nextStep,
@@ -10,12 +10,14 @@ interface BaseStepperProps {
 	isDisabled: boolean;
 	isBlur?: boolean;
 	isDone?: boolean;
+	isLoading?: boolean;
 	handleConfirm?: () => void;
 }
 
 export default function BaseStepper(props: BaseStepperProps) {
 	const dispatch = useAppDispatch();
-	const { children, isDisabled, handleConfirm, isBlur, isDone } = props;
+	const { children, isDisabled, handleConfirm, isBlur, isDone, isLoading } =
+		props;
 	const handleNext = () => {
 		dispatch(nextStep());
 		// Logic...
@@ -51,9 +53,13 @@ export default function BaseStepper(props: BaseStepperProps) {
 					<Button
 						variant="contained"
 						onClick={handleNext}
-						disabled={isDisabled || isBlur}
+						disabled={isDisabled || isBlur || isLoading}
 					>
-						Confirm
+						{isLoading ? (
+							<CircularProgress size={30} color="inherit" />
+						) : (
+							"Confirm"
+						)}
 					</Button>
 				</Box>
 			</Box>

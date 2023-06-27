@@ -10,7 +10,7 @@ import {
 import { useAppDispatch } from "../../redux/hooks";
 import { useAppSelector } from "../../redux/hooks";
 import { useImmer } from "use-immer";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { uploadImgur } from "../../services/imgur-api";
 import {
 	convertBase64,
@@ -21,6 +21,8 @@ import {
 import { sendRequest } from "../../services/request";
 import { updateAdmin, updateJWT } from "../../redux/connection/walletSlice";
 import { checkAdmin, login } from "../../services/auth";
+import useNotify, { errorNotify } from "../../hooks/useNotify";
+import { redirect } from "next/dist/server/api-utils";
 // import { imgurUpload } from "../../services/imgur";
 
 // const imgurUpload = async () => {
@@ -60,6 +62,7 @@ interface ErrorAdditionalInfo {
 
 export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 	const { isBlur, isDone } = props;
+	const [isLoading, setLoading] = useState<boolean>(false);
 	const [additionalInfo, setAdditionalInfo] = useImmer<AdditionalInfo>({
 		image: "",
 		description: "",
@@ -76,7 +79,7 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 		description,
 	} = useAppSelector((state) => state.register);
 	const { chainId, address, signer } = useAppSelector((state) => state.wallet);
-
+	const { successNotify, errorNotify } = useNotify();
 	const [error, setError] = useImmer<ErrorAdditionalInfo>({});
 	const dispatch = useAppDispatch();
 
@@ -110,7 +113,7 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 	};
 
 	const handleConfirm = async () => {
-		console.log(additionalInfo);
+		setLoading(true);
 		await uploadImgur(additionalInfo.image)
 			.then(async (res) => {
 				console.log(res);
@@ -121,7 +124,7 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 					})
 				);
 				await authenticate();
-				sendRequest({
+				await sendRequest({
 					companyName: companyName,
 					walletAddress: walletAddress,
 					email: email,
@@ -135,15 +138,19 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 					chainId: chainId,
 				})
 					.then((res) => {
-						console.log(res);
+						successNotify(
+							"Register request sent! Your request will be reviewed in 3 days"
+						);
 					})
 					.catch((err) => {
+						errorNotify("Error Occured: " + err.message);
 						console.log(err);
 					});
 			})
 			.catch((err) => {
 				console.log(err);
 			});
+		setLoading(false);
 	};
 
 	useEffect(() => {
@@ -163,11 +170,9 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 		}
 	}, [additionalInfo]);
 
-	console.log(process.env.NODE_ENV);
 	const upload = async (e: any) => {
 		const file = e.target.files[0];
 		const base64 = await convertBase64(file);
-		console.log(base64);
 		setAdditionalInfo((draft) => {
 			draft.image = base64;
 		});
@@ -180,6 +185,7 @@ export default function RegisterThirdStep(props: RegisterFirstStepProps) {
 					(key) => error[key as keyof ErrorAdditionalInfo] !== undefined
 				) || isDone
 			}
+			isLoading={isLoading}
 			isBlur={isBlur}
 			handleConfirm={handleConfirm}
 			isDone={isDone}

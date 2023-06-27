@@ -75,12 +75,12 @@ const ProfilePage = () => {
 			{/* <PopularTags /> */}
 			{/* </Grid> */}
 			{/* <Grid item xs={12} md={7}>
-					<Wallets currentAddress={address} wallets={addresses} />
 				</Grid>
 				<Grid item xs={12} md={5}>
-					<Locations />
+				<Locations />
 				</Grid>
 			</Grid> */}
+			<Wallets currentAddress={address} wallets={addresses} />
 		</PageContainer>
 	);
 };

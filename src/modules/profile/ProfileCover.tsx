@@ -93,7 +93,11 @@ const ProfileCover = (props: { user?: Profile }) => {
 						</CardCoverAction>
 					</CardCover>
 					<AvatarWrapper>
-						<Avatar variant="rounded" alt={user.companyName} src={user.image} />
+						<Avatar
+							variant="rounded"
+							alt={user.companyName}
+							src={user.profileImage}
+						/>
 						<ButtonUploadWrapper>
 							<Input
 								accept="image/*"
