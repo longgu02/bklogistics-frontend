@@ -9,6 +9,7 @@ import {
 } from "../../types/index";
 
 const initialState: Order = {
+  orderId: 0,
   product: {
     id: 0,
     name: "",
