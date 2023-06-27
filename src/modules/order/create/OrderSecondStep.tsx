@@ -35,7 +35,7 @@ import {
 import useProductContract from "../../../hooks/useProductContract";
 import FormDialog from "../component/FormDialog";
 import { getUnit } from "../../../utils";
-import { getAllProducts, getOrders } from "../../../services/order-api";
+import { getAllProducts, getOrders, getProductById } from "../../../services/order-api";
 type Name = {
 	inputValue?: string;
 	name: string;
@@ -46,163 +46,198 @@ type NameProduct = {
 	name: string;
 };
 export default function OrderSecondStep() {
-	const filter = createFilterOptions<Name>();
-	const filterProduct = createFilterOptions<NameProduct>();
-	const dispatch = useAppDispatch();
-	const finishedStep = useAppSelector(
-		(state) => state.orderCreate.finishedStep
-	);
-	const { signer, chainId } = useAppSelector((state) => state.wallet);
-	const { successNotify, errorNotify } = useNotify();
-	const [product, setProduct] = React.useState<Product | undefined>();
-	const [requiredMaterial, setRequiredMaterial] = React.useState<
-		RequireMaterial[] | undefined
-	>([]);
-	const [option, setOption] = React.useState<string>("");
-	const getProductList = (id: number[]) => {
-		let result: Product[] = [];
-		if (signer) {
-			const { getProduct } = useProductContract(signer, chainId);
-			try {
-				id.forEach(async (i) => {
-					const res = await getProduct(i);
-					result.push({
-						id: Number(res[0]),
-						name: String(res[1]),
-					});
-				});
-			} catch (err) {
-				console.log(err);
-			}
-		}
-		return result;
-	};
-	const pId: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-	const res = getAllProducts(5);
-	const productList: Product[] = [];
-	res.then((result) =>
-		result.forEach((i: any) =>
-			productList.push({
-				id: i["id"],
-				name: i["name"],
-			})
-		)
-	);
+  const filter = createFilterOptions<Name>();
+  const filterProduct = createFilterOptions<NameProduct>();
+  const dispatch = useAppDispatch();
+  const finishedStep = useAppSelector(
+    (state) => state.orderCreate.finishedStep
+  );
+  const { signer, chainId } = useAppSelector((state) => state.wallet);
+  const { successNotify, errorNotify } = useNotify();
+  const [product, setProduct] = React.useState<Product | undefined>();
+  const [requiredMaterial, setRequiredMaterial] = React.useState<
+    RequireMaterial[] | undefined
+  >([]);
+  const [option, setOption] = React.useState<string>("");
+  const getProductList = (id: number[]) => {
+    let result: Product[] = [];
+    if (signer) {
+      const { getProduct } = useProductContract(signer, chainId);
+      try {
+        id.forEach(async (i) => {
+          const res = await getProduct(i);
+          result.push({
+            id: Number(res[0]),
+            name: String(res[1]),
+          });
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    return result;
+  };
+  const pId: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  // const productList: Product[] = getProductList(pId);
+  const res = getAllProducts(5);
+  // console.log("🚀 ~ file: OrderSecondStep.tsx:83 ~ OrderSecondStep ~ res:", res)
+  const productList: Product[] = [];
+  res.then((result) => result.forEach((i : any) => productList.push({
+    id: i["productId"],
+    name : i["name"],
+  })));
+  
+  // console.log("🚀 ~ file: OrderSecondStep.tsx:84 ~ OrderSecondStep ~ productList:", productList)
+  const handleAddProduct = () => {
+    console.log(product);
+    console.log(requiredMaterial);
+    if (product && requiredMaterial) {
+      dispatch(_addProduct(product));
+      dispatch(addRequireMaterial(requiredMaterial));
+    }
+  };
+  const handGetRequireMaterial = async (id: number) => {
+    let result: RequireMaterial[] = [];
+    if (signer) {
+      const { getRequiredMaterial, getMaterial } = useProductContract(
+        signer,
+        chainId
+      );
+      try {
+        const res = await getRequiredMaterial(id);
+        for (const item of res) {
+          const response = await getMaterial(Number(item[0]));
+          result.push({
+            materialId: Number(item[0]),
+            name: String(response[1]),
+            quantity: Number(item[1]),
+            unit: Number(item[2]),
+          });
+        }
+        setRequiredMaterial(result);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
+  const getNumProducts = () => {
+    let num: number = 0;
+    if (signer) {
+      const { productCounter } = useProductContract(signer, chainId);
+      productCounter()
+        .then((res) => {
+          return Number(res);
+        })
+        .catch((err) => console.log(err));
+    }
+  };
+  const addProduct = async (_name: string) => {
+    if (signer) {
+      const { addProduct } = useProductContract(signer, chainId);
+      try {
+        const res = await addProduct(_name);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
+  const mID: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  const getMaterialList = (id: number[]) => {
+    let result: Material[] = [];
+    if (signer) {
+      const { getMaterial } = useProductContract(signer, chainId);
+      try {
+        id.forEach(async (i) => {
+          const res = await getMaterial(i);
+          result.push({
+            materialId: Number(res[0]),
+            name: String(res[1]),
+          });
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    return result;
+  };
+  const materialList: Material[] = [
+    {
+      materialId: 1,
+      name: "Material 1",
+    },
+    {
+      materialId: 2,
+      name: "Material 2",
+    },
+    {
+      materialId: 3,
+      name: "Material 3",
+    },
+    {
+      materialId: 4,
+      name: "Material 4",
+    },
+    {
+      materialId: 5,
+      name: "Material 5",
+    },
+    {
+      materialId: 6,
+      name: "Material 6",
+    },
+    {
+      materialId: 7,
+      name: "Material 7",
+    },
+    {
+      materialId: 8,
+      name: "Material 8",
+    },
+    {
+      materialId: 9,
+      name: "Material 9",
+    },
+    {
+      materialId: 10,
+      name: "Material 10",
+    },
+  ];
 
-	const handleAddProduct = () => {
-		console.log(product);
-		console.log(requiredMaterial);
-		if (product && requiredMaterial) {
-			dispatch(_addProduct(product));
-			dispatch(addRequireMaterial(requiredMaterial));
-		}
-	};
-	const handGetRequireMaterial = async (id: number) => {
-		let result: RequireMaterial[] = [];
-		if (signer) {
-			const { getRequiredMaterial, getMaterial } = useProductContract(
-				signer,
-				chainId
-			);
-			try {
-				const res = await getRequiredMaterial(id);
-				for (const item of res) {
-					const response = await getMaterial(Number(item[0]));
-					result.push({
-						materialId: Number(item[0]),
-						name: String(response[1]),
-						quantity: Number(item[1]),
-						unit: Number(item[2]),
-					});
-				}
-				setRequiredMaterial(result);
-			} catch (err) {
-				console.log(err);
-			}
-		}
-	};
-	const getNumProducts = () => {
-		let num: number = 0;
-		if (signer) {
-			const { productCounter } = useProductContract(signer, chainId);
-			productCounter()
-				.then((res) => {
-					return Number(res);
-				})
-				.catch((err) => console.log(err));
-		}
-	};
-	const addProduct = async (_name: string) => {
-		if (signer) {
-			const { addProduct } = useProductContract(signer, chainId);
-			try {
-				const res = await addProduct(_name);
-			} catch (err) {
-				console.log(err);
-			}
-		}
-	};
-	const mID: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-	const getMaterialList = (id: number[]) => {
-		let result: Material[] = [];
-		if (signer) {
-			const { getMaterial } = useProductContract(signer, chainId);
-			try {
-				id.forEach(async (i) => {
-					const res = await getMaterial(i);
-					result.push({
-						materialId: Number(res[0]),
-						name: String(res[1]),
-					});
-				});
-			} catch (err) {
-				console.log(err);
-			}
-		}
-		return result;
-	};
-	const materialList: Material[] = [
-		{
-			materialId: 1,
-			name: "Material 1",
-		},
-		{
-			materialId: 2,
-			name: "Material 2",
-		},
-		{
-			materialId: 3,
-			name: "Material 3",
-		},
-		{
-			materialId: 4,
-			name: "Material 4",
-		},
-		{
-			materialId: 5,
-			name: "Material 5",
-		},
-		{
-			materialId: 6,
-			name: "Material 6",
-		},
-		{
-			materialId: 7,
-			name: "Material 7",
-		},
-		{
-			materialId: 8,
-			name: "Material 8",
-		},
-		{
-			materialId: 9,
-			name: "Material 9",
-		},
-		{
-			materialId: 10,
-			name: "Material 10",
-		},
-	];
+  const Choose = () => {
+    return (
+      <>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-around",
+            marginY: 20,
+          }}
+        >
+          <Button variant="contained" onClick={() => setOption("opt1")}>
+            Select Product
+          </Button>
+          <Typography variant="h6">OR</Typography>
+          <Button variant="contained" onClick={() => setOption("opt2")}>
+            Create new Product
+          </Button>
+        </Box>
+      </>
+    );
+  };
+  const OPT1 = () => {
+    const handleProductChange = (
+      event: React.SyntheticEvent,
+      value: Product | null
+    ) => {
+      if (value) {
+        handGetRequireMaterial(value.id);
+        setProduct({
+          id: value.id,
+          name: value.name,
+        });
+        console.log(product);
+      }
+    };
 
 	const Choose = () => {
 		return (

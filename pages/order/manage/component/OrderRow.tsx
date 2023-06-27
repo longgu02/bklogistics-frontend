@@ -15,6 +15,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import React from "react";
 import { getOrders } from "../../../../src/services/order-api";
+import { getAllProductOnChain } from "../../../../src/services/product-api";
 interface TabPanelProps {
   children?: React.ReactNode;
   dir?: string;
@@ -49,7 +50,10 @@ const OrderRow = ({ obj } : any) => {
   const [value, setValue] = React.useState(0);
   const theme = useTheme();
   const handleChange = (event: unknown, newValue: number) => {
-    const res = getOrders();
+    let res : any[] = [];
+    getAllProductOnChain(5).then((results) => results.forEach((product : any) => res.push({
+      productId: Number(product["productId"]),
+    })));
     console.log(res);
     setValue(newValue);
   };
@@ -59,7 +63,7 @@ const OrderRow = ({ obj } : any) => {
   };
   return (
     <>
-      <TableRow hover={true}>
+      <TableRow hover={true} component={Paper} sx={{marginTop: 2}}>
         <TableCell>{id}</TableCell>
         <TableCell>{product}</TableCell>
         <TableCell align="center">{quantity}</TableCell>
