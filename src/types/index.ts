@@ -100,6 +100,7 @@ export interface RegisterRequest {
 	email: string;
 	phoneNumber: string;
 	website: string;
+	chainId: string;
 	deliveryAddress: string;
 	shippingAddress: string;
 }

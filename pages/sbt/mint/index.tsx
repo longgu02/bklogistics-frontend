@@ -29,6 +29,7 @@ import { getProfile } from "../../../src/services/profile-api";
 import { Profile } from "../../../src/types";
 import HeaderLayout from "../../../src/layouts/header/HeaderLayout";
 import useNotify from "../../../src/hooks/useNotify";
+import WalletRequired from "../../../src/layouts/full/auth/WalletRequired";
 
 const Register2 = () => {
 	const [network, setNetwork] = useState<Number>(5);
@@ -193,7 +194,7 @@ const Register2 = () => {
 										>
 											Mint
 										</Button>
-										<Button
+										{/* <Button
 											variant="contained"
 											onClick={() => {
 												if (signer) {
@@ -215,7 +216,7 @@ const Register2 = () => {
 											}}
 										>
 											Burn
-										</Button>
+										</Button> */}
 									</Box>
 								</Card>
 							</Grid>
@@ -264,5 +265,9 @@ const Register2 = () => {
 export default Register2;
 
 Register2.getLayout = function getLayout(page: ReactElement) {
-	return <HeaderLayout>{page}</HeaderLayout>;
+	return (
+		<HeaderLayout>
+			<WalletRequired>{page}</WalletRequired>
+		</HeaderLayout>
+	);
 };

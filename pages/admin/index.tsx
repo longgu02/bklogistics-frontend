@@ -40,7 +40,9 @@ import WalletRequired from "../../src/layouts/full/auth/WalletRequired";
 
 const Register = () => {
 	const [finishedStep, setFinishedStep] = useState<number>(0);
-	const { signer, address, chainId } = useAppSelector((state) => state.wallet);
+	const { signer, address, chainId, isAdmin } = useAppSelector(
+		(state) => state.wallet
+	);
 	const [requests, setRequests] = useState([]);
 	const [isOpen, setOpen] = useState<boolean>(false);
 	const handleClose = () => {
@@ -68,14 +70,20 @@ const Register = () => {
 
 	return (
 		<PageContainer title="Register" description="this is Register page">
-			<Grid container>
-				{requests &&
-					requests.map((request: any) => (
-						<Grid item xs={3} p={1}>
-							<RequestCard _id={request._id} data={request} />
-						</Grid>
-					))}
-			</Grid>
+			{isAdmin ? (
+				<Grid container>
+					{requests &&
+						requests.map((request: any) => (
+							<Grid item xs={3} p={1}>
+								<RequestCard _id={request._id} data={request} />
+							</Grid>
+						))}
+				</Grid>
+			) : (
+				<Typography variant="h4" sx={{ textAlign: "center", mb: 2 }}>
+					This feature is only available for Admin
+				</Typography>
+			)}
 		</PageContainer>
 	);
 };
