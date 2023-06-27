@@ -2,16 +2,15 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 export type RegisterState = {
-	walletAddress?: string;
-	companyName?: string;
-	email?: string;
-	phoneNumber?: string;
-	website?: string;
-	deliveryAddress?: string;
-	shippingAddress?: string;
-	profileImage?: string;
-	coverImage?: string;
-	description?: string;
+	walletAddress: string;
+	companyName: string;
+	email: string;
+	phoneNumber: string;
+	website: string;
+	deliveryAddress: string;
+	shippingAddress: string;
+	image: string;
+	description: string;
 	currentStep: number;
 };
 
@@ -29,8 +28,8 @@ export type ContactInfo = {
 };
 
 export type AdditionalInfo = {
-	profileImage: string;
-	coverImage: string;
+	// profileImage: string;
+	image: any;
 	description: string;
 };
 const initialState: RegisterState = {
@@ -41,8 +40,7 @@ const initialState: RegisterState = {
 	website: "",
 	deliveryAddress: "",
 	shippingAddress: "",
-	profileImage: "",
-	coverImage: "",
+	image: "",
 	description: "",
 	currentStep: 1,
 };
@@ -65,9 +63,10 @@ export const registerSlice = createSlice({
 			state.currentStep = 3;
 		},
 		updateThirdStep: (state, action: PayloadAction<AdditionalInfo>) => {
-			state.profileImage = action.payload.profileImage;
-			state.coverImage = action.payload.coverImage;
+			// state.profileImage = action.payload.profileImage;
+			state.image = action.payload.image;
 			state.description = action.payload.description;
+			state.currentStep = 4;
 		},
 		nextStep: (state) => {
 			if (state.currentStep) {

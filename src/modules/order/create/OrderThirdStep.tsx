@@ -38,6 +38,8 @@ import {
   RequireMaterial,
   Product,
 } from "../../../types";
+import useProductContract from "../../../hooks/useProductContract";
+import useSupplyChain from "../../../hooks/useSupplyChain";
 type Address = {
   address: string;
 };
@@ -51,7 +53,7 @@ const materialHolderList: ItemHolder[] = [
     id: 1,
     holderAddress: [
       {
-        address: "0x1234567890abcdef1234567890abcdef12345678",
+        address: "0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6",
       },
       {
         address: "0xabcdef1234567890abcdef1234567890abcdef12",
@@ -65,7 +67,7 @@ const materialHolderList: ItemHolder[] = [
     id: 2,
     holderAddress: [
       {
-        address: "0x9876543210fedcba9876543210fedcba98765432",
+        address: "0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6",
       },
       {
         address: "0xfedcba9876543210fedcba9876543210fedcba98",
@@ -82,7 +84,7 @@ const materialHolderList: ItemHolder[] = [
         address: "0xabcdef1234567890abcdef1234567890abcdef12",
       },
       {
-        address: "0x1234567890abcdef1234567890abcdef12345678",
+        address: "0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6",
       },
     ],
   },
@@ -118,7 +120,7 @@ const materialHolderList: ItemHolder[] = [
 
 const supplierList: Holder[] = [
   {
-    address: "0x1234567890abcdef1234567890abcdef12345678",
+    address: "0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6",
     item: [
       { id: 1, price: 2 },
       { id: 3, price: 1 },
@@ -199,7 +201,7 @@ const productHolderList: ItemHolder[] = [
     id: 1,
     holderAddress: [
       {
-        address: "0x1234567890abcdef1234567890abcdef12345678",
+        address: "0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6",
       },
       {
         address: "0xabcdef1234567890abcdef1234567890abcdef12",
@@ -377,7 +379,7 @@ export default function OrderThirdStep() {
   const { product, requireMaterial } = useAppSelector(
     (state) => state.orderData
   );
-  const {address} = useAppSelector((state) => state.wallet);
+  const {address, signer, chainId} = useAppSelector((state) => state.wallet);
   let suppliers: Holder[] = [];
   let manufacturer: Holder[] = [];
   const [sup, setSup] = useState<Holder[]>();
@@ -518,10 +520,24 @@ export default function OrderThirdStep() {
     setOpen(false);
   };
 
+  const handleCreateOrder = async (_productId : number, _customer: string, _supplier: string[], _manufacturer: string[]) => {
+    if(signer){
+      const {createOrder, contract} = useSupplyChain(signer, chainId);
+      await createOrder(_productId, _customer, _supplier, _manufacturer).then((response) => {
+        contract.on("OrderCreated", ()=> console.log("Order created"));
+      });
+    }
+  }
+
   const handleConfirm = () => {
     if (sup && manu) {
       dispatch(addSupplier(sup));
       dispatch(addManufacturer(manu));
+      let _supplier : string[] = [];
+      sup.forEach(supplier => _supplier.push(supplier.address));
+      let _manufacturer : string[] = [];
+      manu.forEach(manufacturer => _manufacturer.push(manufacturer.address));
+      handleCreateOrder(product.id, address, _supplier, _manufacturer);
       successNotify("Successfully added");
     } else {
       errorNotify("Failed to add");

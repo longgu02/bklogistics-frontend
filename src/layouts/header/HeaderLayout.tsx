@@ -1,0 +1,74 @@
+import React, { useState } from "react";
+import { styled, Container, Box } from "@mui/material";
+
+// import Header from "./header/Header";
+import Header from "../full/header/Header";
+// import Sidebar from "./sidebar/Sidebar";
+
+const MainWrapper = styled("div")(() => ({
+	display: "flex",
+	minHeight: "100vh",
+	width: "100%",
+}));
+
+const PageWrapper = styled("div")(() => ({
+	display: "flex",
+	flexGrow: 1,
+	paddingBottom: "60px",
+	flexDirection: "column",
+	zIndex: 1,
+	backgroundColor: "transparent",
+}));
+
+interface Props {
+	children: React.ReactNode;
+}
+
+const HeaderLayout: React.FC<Props> = ({ children }) => {
+	const [isSidebarOpen, setSidebarOpen] = useState(true);
+	const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+	// const lgUp = useMediaQuery((theme) => theme.breakpoints.up("lg"));
+
+	return (
+		<MainWrapper className="mainwrapper">
+			{/* ------------------------------------------- */}
+			{/* Sidebar */}
+			{/* ------------------------------------------- */}
+			{/* ------------------------------------------- */}
+			{/* Main Wrapper */}
+			{/* ------------------------------------------- */}
+			<PageWrapper className="page-wrapper" sx={{ backgroundColor: "#F5F7FA" }}>
+				{/* ------------------------------------------- */}
+				{/* Header */}
+				{/* ------------------------------------------- */}
+				<Header toggleMobileSidebar={() => setMobileSidebarOpen(true)} />
+				{/* ------------------------------------------- */}
+				{/* PageContent */}
+				{/* ------------------------------------------- */}
+				<Container
+					maxWidth="xl"
+					// sx={{
+					// 	paddingTop: "20px",
+					// 	maxWidth: "1200px",
+					// }}
+				>
+					{/* ------------------------------------------- */}
+					{/* Page Route */}
+					{/* ------------------------------------------- */}
+					<Box
+						sx={{
+							minHeight: "calc(100vh - 170px)",
+						}}
+					>
+						{children}
+					</Box>
+					{/* ------------------------------------------- */}
+					{/* End Page */}
+					{/* ------------------------------------------- */}
+				</Container>
+			</PageWrapper>
+		</MainWrapper>
+	);
+};
+
+export default HeaderLayout;

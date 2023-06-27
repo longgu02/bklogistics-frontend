@@ -18,6 +18,7 @@ import RegisterFirstStep from "../../src/modules/register/RegisterFirstStep";
 import RegisterSecondStep from "../../src/modules/register/RegisterSecondStep";
 import RegisterThirdStep from "../../src/modules/register/RegisterThirdStep";
 import { useAppSelector } from "../../src/redux/hooks";
+import HeaderLayout from "../../src/layouts/header/HeaderLayout";
 
 const Register = () => {
 	const [finishedStep, setFinishedStep] = useState<number>(0);
@@ -83,5 +84,5 @@ const Register = () => {
 export default Register;
 
 Register.getLayout = function getLayout(page: ReactElement) {
-	return <BlankLayout>{page}</BlankLayout>;
+	return <HeaderLayout>{page}</HeaderLayout>;
 };

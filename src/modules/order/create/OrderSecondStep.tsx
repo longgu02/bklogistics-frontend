@@ -35,7 +35,7 @@ import {
 import useProductContract from "../../../hooks/useProductContract";
 import FormDialog from "../component/FormDialog";
 import { getUnit } from "../../../utils";
-import { getAllProducts, getOrders } from "../../../services/order-api";
+import { getAllProducts, getOrders, getProductById } from "../../../services/order-api";
 type Name = {
   inputValue?: string;
   name: string;
@@ -83,7 +83,7 @@ export default function OrderSecondStep() {
   // console.log("🚀 ~ file: OrderSecondStep.tsx:83 ~ OrderSecondStep ~ res:", res)
   const productList: Product[] = [];
   res.then((result) => result.forEach((i : any) => productList.push({
-    id: i["id"],
+    id: i["productId"],
     name : i["name"],
   })));
   
@@ -96,7 +96,6 @@ export default function OrderSecondStep() {
       dispatch(addRequireMaterial(requiredMaterial));
     }
   };
-  console.log(getOrders());
   const handGetRequireMaterial = async (id: number) => {
     let result: RequireMaterial[] = [];
     if (signer) {
@@ -232,7 +231,10 @@ export default function OrderSecondStep() {
     ) => {
       if (value) {
         handGetRequireMaterial(value.id);
-        setProduct(value);
+        setProduct({
+          id: value.id,
+          name: value.name,
+        });
         console.log(product);
       }
     };
