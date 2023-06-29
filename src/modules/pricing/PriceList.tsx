@@ -48,10 +48,10 @@ export default function PriceList(props: PriceListProps) {
 			</Box>
 			<Box>
 				<Stack spacing={1}>
-					{products.map((product) => (
-						// <Box key={product}>
-						<PricingRow product={product} />
-						// </Box>
+					{products.map((product, index) => (
+						<Box key={index}>
+							<PricingRow product={product} />
+						</Box>
 					))}
 				</Stack>
 			</Box>

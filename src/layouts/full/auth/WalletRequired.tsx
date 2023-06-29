@@ -27,7 +27,6 @@ export default function WalletRequired(props: { children: React.ReactNode }) {
 				checkAdmin(jwt)
 					.then((response) => {
 						dispatch(updateAdmin(response.isAdmin));
-						console.log(response);
 					})
 					.catch((err) => {
 						console.log(err);
@@ -70,8 +69,6 @@ export default function WalletRequired(props: { children: React.ReactNode }) {
 				});
 		}
 	};
-
-	console.log(authentication);
 
 	return (
 		<Box>
