@@ -1,40 +1,54 @@
-import { Box, Alert } from "@mui/material";
+import { Box, Alert, Button } from "@mui/material";
 import { useAppSelector } from "../../../redux/hooks";
 import useRolesContract from "../../../hooks/useRolesContract";
 import { MEMBER_ROLE } from "../../../constants/role";
 import * as React from "react";
 import { useAppDispatch } from "../../../redux/hooks";
-import { setNextDisabled } from "../../../redux/order/orderCreateSlice";
+import {
+	nextStep,
+	setNextDisabled,
+} from "../../../redux/order/orderCreateSlice";
 import { NETWORKS } from "../../../constants/chain";
+import BaseStepper from "../../../components/stepper/BaseStepper";
+import useNotify from "../../../hooks/useNotify";
 
 export default function OrderFirstStep() {
 	const { address, signer, chainId } = useAppSelector((state) => state.wallet);
-	const { finishedStep } = useAppSelector((state) => state.orderCreate);
+	const { currentStep, finishedStep, selectedStep, isNextDisabled } =
+		useAppSelector((state) => state.orderCreate);
 	const [isValid, setValid] = React.useState<boolean>(false);
 	const dispatch = useAppDispatch();
+	const { errorNotify } = useNotify();
+
+	const handleNext = () => {
+		dispatch(nextStep());
+		// Logic...
+		dispatch(setNextDisabled(true));
+	};
 
 	React.useEffect(() => {
-		if (
-			chainId == NETWORKS.GOERLI_TESTNET.chainId
-			// ||
-			// chainId == NETWORKS.BSC_TESTNET.chainId
-		) {
-			if (signer && address) {
-				const { hasRole } = useRolesContract(signer, chainId);
-				const _promise = hasRole(MEMBER_ROLE, address);
-				console.log(_promise);
-				_promise
-					.then((res) => {
-						console.log(res);
-						console.log(address);
-						setValid(res);
-					})
-					.catch((err) => {
-						console.log(err);
-					});
+		if (finishedStep == 0) {
+			if (
+				chainId === NETWORKS.GOERLI_TESTNET.chainId
+				// ||
+				// chainId == NETWORKS.BSC_TESTNET.chainId
+			) {
+				if (signer && address) {
+					const { hasRole } = useRolesContract(signer, chainId);
+					const _promise = hasRole(MEMBER_ROLE, address);
+					_promise
+						.then((res) => {
+							setValid(res);
+						})
+						.catch((err) => {
+							errorNotify(err);
+						});
+				}
+			} else {
+				setValid(false);
 			}
 		}
-	}, [address]);
+	}, [address, chainId]);
 
 	const renderResult = () => {
 		if (finishedStep == 0) {
@@ -73,8 +87,19 @@ export default function OrderFirstStep() {
 					);
 				}
 			}
+		} else {
+			return (
+				<Alert severity="success" sx={{ backgroundColor: "#EDF7ED" }}>
+					Your wallet is verified
+				</Alert>
+			);
 		}
 	};
-
-	return <Box>{renderResult()}</Box>;
+	return (
+		<BaseStepper
+			isDisabled={selectedStep != 1 || !isValid || finishedStep != 0}
+		>
+			<Box>{renderResult()}</Box>
+		</BaseStepper>
+	);
 }

@@ -1,18 +1,41 @@
-export const NETWORKS = {
+import { ADDRESS } from "./address";
+
+export interface NetworksType {
+	[key: string]: {
+		chainId: number;
+		hexChainId: string;
+		blockExplorerUrls: Array<string>;
+		metadata: {
+			chainName: string;
+			shortName: string;
+			image: string;
+		};
+		nativeCurrency: {
+			name: string;
+			symbol: string;
+			decimals: number;
+		};
+		// openSeaURL: string;
+	};
+}
+
+export const NETWORKS: NetworksType = {
 	GOERLI_TESTNET: {
 		chainId: 5,
 		hexChainId: "0x38",
 		blockExplorerUrls: ["https://goerli.etherscan.io/"],
 		metadata: {
 			chainName: "Goerli Testnet",
-			shortName: "BSC",
-			// image: BSC,
+			shortName: "GoerliETH",
+			image:
+				"https://assets-global.website-files.com/5f973c970bea5548ad4287ef/61e70d05f3c7146ab79e66bb_ethereum-eth.svg",
 		},
 		nativeCurrency: {
 			name: "ETH",
 			symbol: "ETH",
 			decimals: 18,
 		},
+		// openSeaURL: `https://testnets.opensea.io/assets/goerli/${ADDRESS.GOERLI_TESTNET.SBT_CONTRACT_ADDRESS}/`, //:id
 	},
 	BSC_TESTNET: {
 		chainId: 97,
@@ -20,14 +43,15 @@ export const NETWORKS = {
 		blockExplorerUrls: ["https://bscscan.com/"],
 		metadata: {
 			chainName: "BSC Testnet",
-			shortName: "FTM",
-			// image: FTM,
+			shortName: "BSC",
+			image: "https://umbria.network/assets/images/icon/bsclogo.png?v1",
 		},
 		nativeCurrency: {
 			name: "BNB",
 			symbol: "BNB",
 			decimals: 18,
 		},
+		// openSeaURL: `https://testnets.opensea.io/assets/goerli/${ADDRESS.GOERLI_TESTNET.SBT_CONTRACT_ADDRESS}/`, //:id
 	},
 };
 
@@ -35,5 +59,6 @@ export const getNetworkInfo = (chainId: number) => {
 	if (chainId == NETWORKS.GOERLI_TESTNET.chainId)
 		return NETWORKS.GOERLI_TESTNET;
 	else if (chainId == NETWORKS.BSC_TESTNET.chainId) return NETWORKS.BSC_TESTNET;
-	else throw Error("Invalid network");
+	// else throw Error("Invalid network");
+	return undefined;
 };

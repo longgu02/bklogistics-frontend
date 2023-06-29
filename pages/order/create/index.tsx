@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import FullLayout from "../../../src/layouts/full/FullLayout";
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import PageContainer from "../../../src/components/container/PageContainer";
 import DashboardCard from "../../../src/components/shared/DashboardCard";
 import CustomStepper from "../../../src/components/stepper";
@@ -14,6 +14,7 @@ import {
 	selectStep,
 	setNextDisabled,
 } from "../../../src/redux/order/orderCreateSlice";
+import WalletRequired from "../../../src/layouts/full/auth/WalletRequired";
 
 const CreateOrder = () => {
 	const { currentStep, finishedStep, selectedStep, isNextDisabled } =
@@ -44,24 +45,25 @@ const CreateOrder = () => {
 
 	return (
 		<PageContainer title="Create Order" description="Create Order page">
-			<DashboardCard title="Create Order">
-				<Box>
-					<CustomStepper
-						steps={[
-							"Check wallet address validation",
-							"Choose product and order's note",
-							"Add Suppliers and Manufacturers",
-							"Deposit",
-						]}
-						activeStep={finishedStep}
-						handleNext={handleNext}
-						handleStepClick={handleStepClick}
-						isNextDisabled={isNextDisabled}
-					>
-						<Box>{renderStep(selectedStep)}</Box>
-					</CustomStepper>
-				</Box>
-			</DashboardCard>
+			{/* <DashboardCard title="Create Order"> */}
+			<Box>
+				<CustomStepper
+					steps={[
+						"Check wallet address validation",
+						"Choose product and order's note",
+						"Add Suppliers and Manufacturers",
+						"Deposit",
+					]}
+					activeStep={finishedStep}
+					handleNext={handleNext}
+					handleStepClick={handleStepClick}
+					isNextDisabled={isNextDisabled}
+					orientation="vertical"
+				>
+					<Box>{renderStep(selectedStep)}</Box>
+				</CustomStepper>
+			</Box>
+			{/* </DashboardCard> */}
 		</PageContainer>
 	);
 };
@@ -69,5 +71,9 @@ const CreateOrder = () => {
 export default CreateOrder;
 
 CreateOrder.getLayout = function getLayout(page: ReactElement) {
-	return <FullLayout>{page}</FullLayout>;
+	return (
+		<FullLayout>
+			<WalletRequired>{page}</WalletRequired>
+		</FullLayout>
+	);
 };

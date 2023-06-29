@@ -1,5 +1,4 @@
 import type { ReactElement, ReactNode } from "react";
-
 import type { NextPage } from "next";
 import Head from "next/head";
 import { AppProps } from "next/app";
@@ -35,7 +34,7 @@ const MyApp = (props: MyAppProps) => {
 			<Provider store={store}>
 				<Head>
 					<meta name="viewport" content="initial-scale=1, width=device-width" />
-					<title>Modernize NextJs Free Admin template</title>
+					<title>BKLogistics - Supply Chain Management</title>
 				</Head>
 				<ThemeProvider theme={theme}>
 					<SnackbarProvider>

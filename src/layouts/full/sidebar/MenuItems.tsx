@@ -6,6 +6,9 @@ import {
 	IconMoodHappy,
 	IconTypography,
 	IconUserPlus,
+	IconUser,
+	IconCurrencyDollar,
+	IconUserCheck,
 } from "@tabler/icons-react";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import SourceIcon from "@mui/icons-material/Source";
@@ -15,6 +18,19 @@ import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import { uniqueId } from "lodash";
 
 const Menuitems = [
+	{
+		navlabel: true,
+		subheader: "Manage",
+		isAdmin: true,
+	},
+
+	{
+		id: uniqueId(),
+		title: "Request Monitoring",
+		icon: IconUserCheck,
+		href: "/admin",
+		isAdmin: true,
+	},
 	{
 		navlabel: true,
 		subheader: "Home",
@@ -60,35 +76,19 @@ const Menuitems = [
 	},
 	{
 		navlabel: true,
-		subheader: "Auth",
-	},
-	{
-		id: uniqueId(),
-		title: "Login",
-		icon: IconLogin,
-		href: "/authentication/login",
+		subheader: "Personal",
 	},
 	{
 		id: uniqueId(),
 		title: "Register",
 		icon: IconUserPlus,
-		href: "/authentication/register",
-	},
-	{
-		navlabel: true,
-		subheader: "Extra",
+		href: "/register",
 	},
 	{
 		id: uniqueId(),
-		title: "Icons",
-		icon: IconMoodHappy,
-		href: "/icons",
-	},
-	{
-		id: uniqueId(),
-		title: "Sample Page",
-		icon: IconAperture,
-		href: "/sample-page",
+		title: "Pricing",
+		icon: IconCurrencyDollar,
+		href: "/pricing",
 	},
 ];
 
