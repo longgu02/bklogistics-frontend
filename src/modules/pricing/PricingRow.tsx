@@ -40,6 +40,7 @@ import usePricingContract, {
 import { useAppSelector } from "../../redux/hooks";
 import { ethers } from "ethers";
 import useNotify from "../../hooks/useNotify";
+import useProductContract from "../../hooks/useProductContract";
 interface PricingRowProps {
 	product: {
 		productId: Number;
@@ -61,11 +62,11 @@ export default function PricingRow(props: PricingRowProps) {
 	const { product } = props;
 	const { chainId, signer, address } = useAppSelector((state) => state.wallet);
 	const [isOpen, setOpen] = useState<boolean>(false);
-	const [isListed, setListed] = useState<boolean>(false);
-	const [newListed, setNewListed] = useState<boolean>(false);
 	const [newPrice, setNewPrice] = useState<String>("0");
 	const [newUnit, setNewUnit] = useState<String>("0");
 	const [isLoading, setLoading] = useState<boolean>(false);
+	const [isListed, setListed] = useState<boolean>(false);
+	const [newListed, setNewListed] = useState<boolean>(false);
 	const { errorNotify, successNotify } = useNotify();
 	const [price, setPrice] = useState<{
 		id: Number;
@@ -81,7 +82,6 @@ export default function PricingRow(props: PricingRowProps) {
 			const { getPrice } = usePricingContract(signer, chainId);
 			const receipt = getPrice(address, product.productId, product.type)
 				.then((res) => {
-					console.log("res", res);
 					setPrice({
 						id: Number(res[0]),
 						price: ethers.formatEther(res[1]),
@@ -96,7 +96,6 @@ export default function PricingRow(props: PricingRowProps) {
 		}
 	}, [signer, address, chainId]);
 
-	console.log(price);
 	const handleClose = () => {
 		setOpen(false);
 	};
@@ -110,11 +109,11 @@ export default function PricingRow(props: PricingRowProps) {
 			case Unit.METER:
 				return `Meter`;
 			case Unit.NONE:
-				return `None`;
+				return `Pc`;
 		}
 	};
 
-	const updatedListener = () => {
+	const updatedListener = (contract: ethers.Contract) => {
 		setPrice({
 			id: product.productId,
 			price: newPrice,
@@ -126,12 +125,17 @@ export default function PricingRow(props: PricingRowProps) {
 		);
 		setLoading(false);
 		setOpen(false);
+		contract.removeAllListeners();
 	};
 
-	const handleUpdate = () => {
+	const handleUpdate = async () => {
 		if (signer && newPrice) {
 			setLoading(true);
 			const { modifyPrice, contract } = usePricingContract(signer, chainId);
+			// const { getProduct, contract } = useProductContract(signer, chainId);
+			// await contract.productCounter().then((res) => {
+			// 	console.log("res: ", res);
+			// });
 			const receipt = modifyPrice(
 				product.productId,
 				ethers.parseUnits(String(newPrice), "ether"),
@@ -140,8 +144,7 @@ export default function PricingRow(props: PricingRowProps) {
 				Number(newUnit)
 			)
 				.then((res) => {
-					contract.on("PriceUpdated", () => updatedListener());
-					contract.removeListener("PriceUpdated", () => updatedListener());
+					contract.on("PriceUpdated", () => updatedListener(contract));
 				})
 				.catch((error) => {
 					if (error.code == "ACTION_REJECTED") {
