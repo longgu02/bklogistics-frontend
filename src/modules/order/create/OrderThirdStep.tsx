@@ -18,28 +18,26 @@ import {
   Checkbox,
   Divider,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
 import Autocomplete, {
   AutocompleteChangeReason,
 } from "@mui/material/Autocomplete";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { styled } from "@mui/material/styles";
 import BaseStepper from "../../../components/stepper/BaseStepper";
 import FormDialog from "../component/FormDialog";
 import { formatAddress } from "../../../utils";
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import useNotify, { errorNotify } from "../../../hooks/useNotify";
-import { addSupplier, addManufacturer } from "../../../redux/order/orderSlice";
 import {
-  Holder,
-  Item,
-  RequireMaterial,
-  Product,
-} from "../../../types";
-import useProductContract from "../../../hooks/useProductContract";
+  addSupplier,
+  addManufacturer,
+  addOrderId,
+  addTotal,
+} from "../../../redux/order/orderSlice";
+import { Holder, Item, RequireMaterial, Product } from "../../../types";
 import useSupplyChain from "../../../hooks/useSupplyChain";
+import usePricingContract from "../../../hooks/usePricingContract";
+import { PricingType } from "../../../hooks/usePricingContract";
 type Address = {
   address: string;
 };
@@ -122,9 +120,9 @@ const supplierList: Holder[] = [
   {
     address: "0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6",
     item: [
-      { id: 1, price: 2 },
-      { id: 3, price: 1 },
-      { id: 5, price: 1 },
+      { id: 1, price: 0.002 },
+      { id: 2, price: 0.001 },
+      { id: 3, price: 0.001 },
     ],
   },
   {
@@ -167,8 +165,8 @@ const supplierList: Holder[] = [
 
 const manufacturerList: Holder[] = [
   {
-    address: "0x1234567890abcdef1234567890abcdef12345678",
-    item: [{ id: 1, price: 1 }],
+    address: "0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6",
+    item: [{ id: 1, price: 0.001 }],
   },
   {
     address: "0xabcdef1234567890abcdef1234567890abcdef12",
@@ -269,101 +267,6 @@ type RowProps = {
   rqMaterial?: RequireMaterial[];
   product?: Product;
 };
-function Row(props: RowProps) {
-  const { name, address, role, validation, holder, rqMaterial, product } =
-    props;
-  const [open, setOpen] = useState(false);
-
-  const total = () => {
-    let _total = 0;
-    if (role === "Supplier") {
-      holder.item.forEach((material) =>
-        rqMaterial?.forEach((rq) => {
-          if (rq.materialId === material.id)
-            _total += rq.quantity * material.price;
-        })
-      );
-    } else holder.item.forEach((material) => (_total += material.price));
-    return _total;
-  };
-
-  const RenderItem = (item: Item, rq: RequireMaterial[]) => {
-    const index = rq.findIndex((rq) => rq.materialId === item.id);
-    return (
-      <>
-        <TableRow key={rq[index].materialId}>
-          <TableCell>{rq[index].name}</TableCell>
-          <TableCell>{item.price}</TableCell>
-          <TableCell>{rq[index].quantity}</TableCell>
-          <TableCell>{rq[index].unit}</TableCell>
-          <TableCell>{rq[index].quantity * item.price}</TableCell>
-        </TableRow>
-      </>
-    );
-  };
-  return (
-    <>
-      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
-        <TableCell>
-          <IconButton
-            aria-label="expand row"
-            size="small"
-            onClick={() => setOpen(!open)}
-          >
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
-        </TableCell>
-        <TableCell>{formatAddress(holder.address, 5)}</TableCell>
-        <TableCell style={{ color: validation ? "green" : "red" }}>
-          {validation ? "Verified" : "Not Verified"}
-        </TableCell>
-        <TableCell>{role}</TableCell>
-        <TableCell>{total()}</TableCell>
-      </TableRow>
-      <TableCell sx={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
-        <Collapse in={open} timeout="auto" unmountOnExit>
-          <Box sx={{ margin: 1 }}>
-            <Typography variant="h6" gutterBottom component="div">
-              Details Information
-            </Typography>
-            <Typography variant="body1" gutterBottom component="div">
-              Name: {name}
-            </Typography>
-            <Typography variant="body1" gutterBottom component="div">
-              Address: {address}
-            </Typography>
-            <Table size="small" aria-label="purchases">
-              <TableHead>
-                <TableRow>
-                  <TableCell>
-                    {role === "Supplier" ? "Material" : "Product"}
-                  </TableCell>
-                  <TableCell>Price</TableCell>
-                  <TableCell>Quantity</TableCell>
-                  {role === "Supplier" && <TableCell>Unit</TableCell>}
-                  <TableCell>Subtotal</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {role === "Supplier" ? (
-                  rqMaterial &&
-                  holder.item.map((i) => RenderItem(i, rqMaterial))
-                ) : (
-                  <TableRow key={holder.item[0].id}>
-                    <TableCell>{product?.name}</TableCell>
-                    <TableCell>{holder.item[0].price}</TableCell>
-                    <TableCell>1</TableCell>
-                    <TableCell>{holder.item[0].price * 1}</TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </Box>
-        </Collapse>
-      </TableCell>
-    </>
-  );
-}
 
 type CheckRowProps = {
   id: number;
@@ -379,7 +282,7 @@ export default function OrderThirdStep() {
   const { product, requireMaterial } = useAppSelector(
     (state) => state.orderData
   );
-  const {address, signer, chainId} = useAppSelector((state) => state.wallet);
+  const { address, signer, chainId } = useAppSelector((state) => state.wallet);
   let suppliers: Holder[] = [];
   let manufacturer: Holder[] = [];
   const [sup, setSup] = useState<Holder[]>();
@@ -391,6 +294,105 @@ export default function OrderThirdStep() {
     });
     return temp;
   };
+  function Row(props: RowProps) {
+    const { name, address, role, validation, holder, rqMaterial, product } =
+      props;
+    const [open, setOpen] = useState(false);
+
+    const total = () => {
+      let _total = 0;
+      if (role === "Supplier") {
+        holder.item.forEach((material) =>
+          rqMaterial?.forEach((rq) => {
+            if (rq.materialId === material.id) {
+              _total += rq.quantity * material.price;
+            }
+          })
+        );
+      } else
+        holder.item.forEach((material) => {
+          _total += material.price;
+        });
+      return _total;
+    };
+
+    const RenderItem = (item: Item, rq: RequireMaterial[]) => {
+      const index = rq.findIndex((rq) => rq.materialId === item.id);
+      return (
+        <>
+          <TableRow key={rq[index].materialId}>
+            <TableCell>{rq[index].name}</TableCell>
+            <TableCell>{item.price}</TableCell>
+            <TableCell>{rq[index].quantity}</TableCell>
+            <TableCell>{rq[index].unit}</TableCell>
+            <TableCell>{rq[index].quantity * item.price}</TableCell>
+          </TableRow>
+        </>
+      );
+    };
+    return (
+      <>
+        <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
+          <TableCell>
+            <IconButton
+              aria-label="expand row"
+              size="small"
+              onClick={() => setOpen(!open)}
+            >
+              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+          </TableCell>
+          <TableCell>{formatAddress(holder.address, 5)}</TableCell>
+          <TableCell style={{ color: validation ? "green" : "red" }}>
+            {validation ? "Verified" : "Not Verified"}
+          </TableCell>
+          <TableCell>{role}</TableCell>
+          <TableCell>{total()}</TableCell>
+        </TableRow>
+        <TableCell sx={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+                Details Information
+              </Typography>
+              <Typography variant="body1" gutterBottom component="div">
+                Name: {name}
+              </Typography>
+              <Typography variant="body1" gutterBottom component="div">
+                Address: {address}
+              </Typography>
+              <Table size="small" aria-label="purchases">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      {role === "Supplier" ? "Material" : "Product"}
+                    </TableCell>
+                    <TableCell>Price</TableCell>
+                    <TableCell>Quantity</TableCell>
+                    {role === "Supplier" && <TableCell>Unit</TableCell>}
+                    <TableCell>Subtotal</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {role === "Supplier" ? (
+                    rqMaterial &&
+                    holder.item.map((i) => RenderItem(i, rqMaterial))
+                  ) : (
+                    <TableRow key={holder.item[0].id}>
+                      <TableCell>{product?.name}</TableCell>
+                      <TableCell>{holder.item[0].price}</TableCell>
+                      <TableCell>1</TableCell>
+                      <TableCell>{holder.item[0].price * 1}</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </>
+    );
+  }
   function CheckRow(props: CheckRowProps) {
     const { id, itemsHolder, title, role } = props;
     const addressWallet: Address[] = handleSearch(id, itemsHolder);
@@ -443,7 +445,6 @@ export default function OrderThirdStep() {
           });
         setPrevAddress(value);
       }
-      console.log(suppliers);
     };
     const handleAddressChange2 = (
       event: React.SyntheticEvent,
@@ -502,8 +503,8 @@ export default function OrderThirdStep() {
               checked={check}
               onChange={() => {
                 setCheck(!check);
-                if(!check) setPrevAddress({ address: address });
-                else setPrevAddress({ address: ''});
+                if (!check) setPrevAddress({ address: address });
+                else setPrevAddress({ address: "" });
               }}
             />
           }
@@ -520,24 +521,59 @@ export default function OrderThirdStep() {
     setOpen(false);
   };
 
-  const handleCreateOrder = async (_productId : number, _customer: string, _supplier: string[], _manufacturer: string[]) => {
-    if(signer){
-      const {createOrder, contract} = useSupplyChain(signer, chainId);
-      await createOrder(_productId, _customer, _supplier, _manufacturer).then((response) => {
-        contract.on("OrderCreated", ()=> console.log("Order created"));
-      });
-    }
-  }
-
-  const handleConfirm = () => {
-    if (sup && manu) {
-      dispatch(addSupplier(sup));
-      dispatch(addManufacturer(manu));
-      let _supplier : string[] = [];
-      sup.forEach(supplier => _supplier.push(supplier.address));
-      let _manufacturer : string[] = [];
-      manu.forEach(manufacturer => _manufacturer.push(manufacturer.address));
-      handleCreateOrder(product.id, address, _supplier, _manufacturer);
+  const handleConfirm = async () => {
+    let _address: string[] = [];
+    let _productIds: number[] = [];
+    let _price: number[] = [];
+    let _qty: number[] = [];
+    let index: number = 0;
+    if (signer) {
+      const {
+        createOrder,
+        contract,
+        viewOrder,
+        addPrice,
+        getTotalPrice,
+        deposit,
+        payOrder,
+      } = useSupplyChain(signer, chainId);
+      const { getPrice } = usePricingContract(signer, chainId);
+      if (sup && manu && product.id) {
+        dispatch(addSupplier(sup));
+        dispatch(addManufacturer(manu));
+        let _supplier: string[] = [];
+        sup.forEach((supplier) => {
+          _supplier.push(supplier.address);
+          supplier.item.forEach(async (i) => {
+            _address.push(supplier.address);
+            _productIds.push(i.id);
+            await getPrice(supplier.address, i.id, PricingType.MATERIAL).then(
+              (res) => _price.push(Number(res[1]))
+            );
+          });
+        });
+        requireMaterial.forEach((i) => _qty.push(Number(i.quantity)));
+        let _manufacturer: string[] = [];
+        manu.forEach((manufacturer) => {
+          _manufacturer.push(manufacturer.address);
+          manufacturer.item.forEach(async (i) => {
+            _address.push(manufacturer.address);
+            _productIds.push(i.id);
+            await getPrice(
+              manufacturer.address,
+              i.id,
+              PricingType.PRODUCT
+            ).then((res) => _price.push(Number(res[1])));
+            _qty.push(1);
+          });
+        });
+        await createOrder(product.id, address, _supplier, _manufacturer).then(
+          (response) => {
+            contract.on("OrderCreated", async (data) => {
+              await addPrice(Number(data), _address, _productIds, _price, _qty).then(() => dispatch(addOrderId(Number(data))));
+            });
+          });
+      }
       successNotify("Successfully added");
     } else {
       errorNotify("Failed to add");
@@ -607,7 +643,7 @@ export default function OrderThirdStep() {
               Manufacturer{" "}
             </Typography>
             <CheckRow
-              id={product.id}
+              id={Number(product.id)}
               title={product.name}
               role={false}
               itemsHolder={productHolderList}

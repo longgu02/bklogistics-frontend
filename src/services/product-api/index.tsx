@@ -14,7 +14,7 @@ export const getAllProductOnChain = async (_chainId: number) => {
 
 export const getProductById = async (_chainId: number, _productId: number) => {
   const res = await client
-    .get(`/products/${_chainId}/${_productId}`)
+    .get(`/products/${_chainId}/${_productId}/`)
     .then((results) => {
       return results;
     })

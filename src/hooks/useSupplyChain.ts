@@ -24,8 +24,8 @@ export default function useSupplyChain(signer: JsonRpcSigner, chainId: number) {
     );
     return _promise;
   };
-  const addPrice = async (orderId: number, account: string, price: number) => {
-    const _promise = contract.addPrice(orderId, account, price);
+  const addPrice = async (orderId: number, account: string[], productId: number[] ,price: number[], quantity: number[]) => {
+    const _promise = contract.addPrice(orderId, account, productId , price, quantity);
     return _promise;
   };
   const confirmOrder = async (orderId: number) => {
@@ -44,12 +44,12 @@ export default function useSupplyChain(signer: JsonRpcSigner, chainId: number) {
     const _promise = contract.getTotalPrice(orderId);
     return _promise;
   };
-  const payOrder = async (orderId: number) => {
-    const _promise = contract.payOrder(orderId);
+  const payOrder = async (orderId: number, value: number) => {
+    const _promise = contract.payOrder(orderId, {value: value});
     return _promise;
   };
-  const deposit = async (orderId: number) => {
-    const _promise = contract.deposit(orderId);
+  const deposit = async (orderId: number, value: number) => {
+    const _promise = contract.deposit(orderId, {value: value});
     return _promise;
   };
   return {

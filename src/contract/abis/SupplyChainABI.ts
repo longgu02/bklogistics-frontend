@@ -857,7 +857,7 @@ export const SupplyChainABI = [
 		outputs: [
 			{
 				internalType: "uint256",
-				name: "id",
+				name: "orderId",
 				type: "uint256",
 			},
 			{
