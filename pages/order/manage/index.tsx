@@ -18,6 +18,7 @@ import orderSlice from "../../../src/redux/order/orderSlice";
 import OrderRow from "./component/OrderRow";
 import React from "react";
 import WalletRequired from "../../../src/layouts/full/auth/WalletRequired";
+import { getAllProductOnChain } from "../../../src/services/product-api";
 interface Order {
 	id: number;
 	product: string;
@@ -63,7 +64,6 @@ const DataTable = () => {
 const ManageOrder = () => {
 	return (
 		<PageContainer title="Manage Order" description="this is Sample page">
-			<DashboardCard title="Manage Order">
 				<TableContainer>
 					<Table stickyHeader aria-label="sticky table">
 						<TableHead>
@@ -73,6 +73,7 @@ const ManageOrder = () => {
 								<TableCell>Quantity</TableCell>
 								<TableCell>Status</TableCell>
 								<TableCell>Date</TableCell>
+								<TableCell></TableCell>
 							</TableRow>
 						</TableHead>
 						<TableBody>
@@ -80,7 +81,6 @@ const ManageOrder = () => {
 						</TableBody>
 					</Table>
 				</TableContainer>
-			</DashboardCard>
 		</PageContainer>
 	);
 };

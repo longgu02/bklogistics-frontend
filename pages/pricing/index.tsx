@@ -20,7 +20,6 @@ import {
 import FullLayout from "../../src/layouts/full/FullLayout";
 import { useEffect, useState, type ReactElement } from "react";
 import PageContainer from "../../src/components/container/PageContainer";
-import DashboardCard from "../../src/components/shared/DashboardCard";
 import PriceList from "../../src/modules/pricing/PriceList";
 import { PricingType } from "../../src/hooks/usePricingContract";
 import WalletRequired from "../../src/layouts/full/auth/WalletRequired";
