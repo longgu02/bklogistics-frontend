@@ -1,12 +1,24 @@
 import { Box, Grid, Stack } from "@mui/material";
 import OrderRow from "./OrderRow";
-import { Order } from "../../../types";
-type OrderListProps = {
-  orderList: Order[];
-};
+import { getProductById } from "../../../services/product-api";
+import { useAppSelector } from "../../../redux/hooks";
+interface OrderListProps {
+  orderList: Array<{
+    orderId: number;
+    productId: number;
+    customer: string;
+    suppliers: string[];
+    manufacturers: string[];
+    createDate: number;
+    status: number;
+    isPaid: boolean;
+    deposited: number;
+  }>;
+}
 
 export default function OrderList(props: OrderListProps) {
   const { orderList } = props;
+  orderList.map(async (order) => console.log("1", order));
   return (
     <Box>
       <Box

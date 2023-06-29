@@ -18,6 +18,7 @@ import { formatAddress } from "../../../utils";
 import React from "react";
 import { Holder, RequireMaterial } from "../../../types";
 import useProductContract from "../../../hooks/useProductContract";
+import useSupplyChain from "../../../hooks/useSupplyChain";
 interface DATA {
   addressWallet: string;
   material: string[];
@@ -51,6 +52,21 @@ export default function OrderFourthStep() {
     throw new Error("Function not implemented.");
   };
   const { signer, chainId } = useAppSelector((state) => state.wallet);
+  const {orderId} = useAppSelector((state) => state.orderData);
+  const getPrice = async() => {
+    if (signer && orderId !== 0) {
+      const { getTotalPrice, deposit, viewOrder } = useSupplyChain(signer, chainId);
+      const d = Number(await getTotalPrice(orderId));
+      const t = (d*20)/100;
+      await deposit(orderId, t).then(async () =>
+        console.log(
+          "🚀 ~ file: OrderFourthStep.tsx:61 ~ getPrice ~ await viewOrder(orderId):",
+          await viewOrder(orderId)
+        )
+      );
+    }  
+  }
+
   const getName = (id: number, rqMaterial: RequireMaterial[]) => {
     let name: string = "";
     rqMaterial?.forEach((rq) => {
@@ -112,7 +128,7 @@ export default function OrderFourthStep() {
     return `${p}% (${d} ETH)`;
   };
   return (
-    <BaseStepper isDisabled={false}>
+    <BaseStepper isDisabled={false} handleConfirm={getPrice}>
       <TableContainer>
         <Table>
           <TableHead>

@@ -16,6 +16,8 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import React from "react";
 import { getOrders } from "../../../../src/services/order-api";
 import { getAllProductOnChain } from "../../../../src/services/product-api";
+import useSupplyChain from "../../../../src/hooks/useSupplyChain";
+import { useAppSelector } from "../../../../src/redux/hooks";
 interface TabPanelProps {
   children?: React.ReactNode;
   dir?: string;
@@ -48,16 +50,24 @@ const OrderRow = ({ obj } : any) => {
   const {id, product, quantity, status, date} = obj;
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(0);
+  const { chainId, signer, address } = useAppSelector((state) => state.wallet);
   const theme = useTheme();
   const handleChange = (event: unknown, newValue: number) => {
     let res : any[] = [];
     getAllProductOnChain(5).then((results) => results.forEach((product : any) => res.push({
       productId: Number(product["productId"]),
     })));
-    console.log(res);
     setValue(newValue);
   };
-
+  const getOrder = async (orderId: number) => {
+    if (signer) {
+      const { viewOrder } = useSupplyChain(signer, chainId);
+      console.log(
+        "🚀 ~ file: OrderRow.tsx:73 ~ getStatus ~ await viewOrder(orderId):",
+        await viewOrder(orderId)
+      );
+    }
+  };
   const handleChangeIndex = (index: number) => {
     setValue(index);
   };

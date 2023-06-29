@@ -50,7 +50,7 @@ export interface Item {
 
 export interface Product {
 	inputValue?: string;
-	id: number;
+	id?: number;
 	name: string;
 	description?: string; // Change the type to an array of Unit or null
 }
@@ -63,6 +63,7 @@ export interface RequireMaterial {
 }
 
 export interface Order {
+	orderId: number;
 	product: Product;
 	requireMaterial: RequireMaterial[];
 	status: Status;
@@ -71,6 +72,8 @@ export interface Order {
 	customer_address: string;
 	suppliers: Holder[];
 	manufacturer: Holder[];
+	totalPrice: number;
+	productQty: number;
 }
 
 export interface Holder {

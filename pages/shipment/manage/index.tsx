@@ -2,7 +2,9 @@ import { Box, Typography } from "@mui/material";
 import FullLayout from "../../../src/layouts/full/FullLayout";
 import type { ReactElement } from "react";
 import PageContainer from "../../../src/components/container/PageContainer";
-import DashboardCard from "../../../src/components/shared/DashboardCard";
+import { useAppSelector } from "../../../src/redux/hooks";
+import useSupplyChain from "../../../src/hooks/useSupplyChain";
+
 
 const ManageShipment = () => {
 	return (
