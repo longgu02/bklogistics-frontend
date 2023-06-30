@@ -80,7 +80,7 @@ const ProfilePage = () => {
 				<Locations />
 				</Grid>
 			</Grid> */}
-			<Wallets currentAddress={address} wallets={addresses} />
+			{/* <Wallets currentAddress={address} wallets={addresses} /> */}
 		</PageContainer>
 	);
 };

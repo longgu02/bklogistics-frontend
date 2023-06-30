@@ -66,6 +66,7 @@ export default function RequestCard(props: RequestCardProps) {
 						successNotify(
 							`Member ${formatAddress(data.walletAddress, 3)} Added`
 						);
+						setLoadingConfirm(false);
 						roleContract.removeAllListeners();
 					});
 					updateRequests(_id, "verified")
@@ -91,8 +92,8 @@ export default function RequestCard(props: RequestCardProps) {
 										3
 									)}`
 								);
-								SBTContract.removeAllListeners();
 								setLoadingConfirm(false);
+								SBTContract.removeAllListeners();
 							})
 								.then((issueRes) => {
 									successNotify(
