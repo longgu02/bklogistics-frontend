@@ -172,7 +172,7 @@ export default function CheckRow(props: CheckRowProps) {
             checked={check}
             onChange={() => {
               setCheck(!check);
-              if (!check) handleIDo();
+              if (!check) setPrevAddress({ address: address, price: 0 });
               else setPrevAddress({ address: "", price: 0 });
             }}
           />

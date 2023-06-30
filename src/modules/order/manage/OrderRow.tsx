@@ -95,7 +95,7 @@ export default function OrderRow(props: OrderRowProps) {
   const handlePayOrder = async()=>{
     if(signer){
       const {payOrder, getTotalPrice, contract} = useSupplyChain(signer, chainId);
-      const totalPrice = Number(await getTotalPrice(order.orderId));
+      const totalPrice = Number(await getTotalPrice(order.orderId)) - order.deposited;
       await payOrder(order.orderId, totalPrice);
     }
   }
@@ -174,6 +174,10 @@ export default function OrderRow(props: OrderRowProps) {
           <Typography sx={{ mt: 1 }}>
             {/* {String(getProductName(5))} */}
             Customer : {order.customer}
+          </Typography>
+          <Typography sx={{ mt: 1 }}>
+            {/* {String(getProductName(5))} */}
+            Total Price : {ethers.formatEther(order.deposited * 100/20)} ETH
           </Typography>
           <Typography sx={{ mt: 1 }}>
             {/* {String(getProductName(5))} */}
