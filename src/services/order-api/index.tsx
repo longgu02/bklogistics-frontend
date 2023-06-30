@@ -8,4 +8,20 @@ export const getOrders = async () => {
   }
 };
 
+export const getAllOrderOnChain = async(_chainId : number) => {
+  try {
+    const response = await client.get(`/update/onchain/${_chainId}/order`);
+    return response;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
+export const getAllOrderOnChainByAddress = async (_chainId: number, address: string) => {
+  try {
+    const response = await client.get(`/orders/${_chainId}/${address}`);
+    return response;
+  } catch (error) {
+    console.error(error);
+  }
+};

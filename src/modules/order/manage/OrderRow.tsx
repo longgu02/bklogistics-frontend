@@ -12,11 +12,13 @@ import {
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import React from "react";
+import React, { useEffect } from "react";
 import { useAppSelector } from "../../../redux/hooks";
 import { getProductById } from "../../../services/product-api";
 import { getStatus } from "../../../utils";
 import { ethers } from "ethers";
+import useSupplyChain from "../../../hooks/useSupplyChain";
+import useNotify from "../../../hooks/useNotify";
 interface OrderRowProps {
   order: {
     orderId: number;
@@ -60,13 +62,12 @@ function a11yProps(index: any) {
 }
 export default function OrderRow(props: OrderRowProps) {
   const { order } = props;
-  // console.log(
-  //   "🚀 ~ file: OrderRow.tsx:62 ~ OrderRow ~ order:",
-  //   order["productId"]
-  // );
-  const { chainId } = useAppSelector((state) => state.wallet);
-
+  const { signer ,chainId, address } = useAppSelector((state) => state.wallet);
+  const [isCus, setIsCus] = React.useState<boolean>(false);
+  const [isSup, setIsSup] = React.useState<boolean>(false);
+  const [isManu, setIsManu] = React.useState<boolean>(false);
   const [isOpen, setOpen] = React.useState<boolean>(false);
+  const { successNotify, errorNotify } = useNotify();
   const [value, setValue] = React.useState(0);
   const theme = useTheme();
   const [productName, setProductName] = React.useState<string>("");
@@ -74,21 +75,36 @@ export default function OrderRow(props: OrderRowProps) {
     const res = getProductById(chainId, productId);
     console.log("🚀 ~ file: OrderRow.tsx:76 ~ getProductName ~ res:", res);
     res.then((PromiseResult) => {
-      console.log("🚀 ~ file: OrderRow.tsx:77 ~ getProductName ~ PromiseResult:", PromiseResult[0]["name"]);
       setProductName(String(PromiseResult[0]["name"]));
-    })
-    // return name;
-    console.log("🚀 ~ file: OrderRow.tsx:79 ~ getProductName ~ name:", name);
+    });
   };
   const handleChange = (event: unknown, newValue: number) => {
     setValue(newValue);
   };
-  // setProductName(getProductName(order.productId));
-  // console.log(
-  //   "🚀 ~ file: OrderRow.tsx:78 ~ OrderRow ~ productName:",
-  //   productName
-  // );
   getProductName(order.productId);
+  useEffect(() => {
+    if (address === order.customer) setIsCus(true);
+    order.suppliers.forEach((supplier) => {
+      if (address === supplier) setIsSup(true);
+    });
+    order.manufacturers.forEach((manufacturer) => {
+      if (address === manufacturer) setIsManu(true);
+    });
+  }, []);
+
+  const handlePayOrder = async()=>{
+    if(signer){
+      const {payOrder, getTotalPrice, contract} = useSupplyChain(signer, chainId);
+      const totalPrice = Number(await getTotalPrice(order.orderId));
+      await payOrder(order.orderId, totalPrice);
+    }
+  }
+  const handleConfirmOrder = async()=>{
+    if(signer){
+      const {confirmOrder, contract} = useSupplyChain(signer, chainId);
+      await confirmOrder(order.orderId);
+    }
+  }
   return (
     <>
       <Paper sx={{ p: 2 }}>
@@ -117,7 +133,13 @@ export default function OrderRow(props: OrderRowProps) {
             <Grid item xs={2}>
               <Typography sx={{ mt: 1 }}>
                 {/* {String(getProductName(5))} */}
-                {new Date(order.createDate*1000).toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit"})}
+                {new Date(order.createDate * 1000).toLocaleDateString("en-us", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
                 {/* {order.createDate} */}
               </Typography>
             </Grid>
@@ -157,6 +179,13 @@ export default function OrderRow(props: OrderRowProps) {
             {/* {String(getProductName(5))} */}
             Deposited : {ethers.formatEther(order.deposited)} ETH
           </Typography>
+          <br />
+          {order.isPaid ||
+            (isCus && (
+              <Button variant="contained" onClick={() => handlePayOrder()}>
+                Confirm
+              </Button>
+            ))}
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
           <Typography sx={{ mt: 1 }}>
@@ -169,6 +198,12 @@ export default function OrderRow(props: OrderRowProps) {
               {`         ${supplier}: not sign`}
             </Typography>
           ))}
+          <br />
+          {isSup && (
+            <Button variant="contained" onClick={() => handleConfirmOrder()}>
+              Confirm
+            </Button>
+          )}
         </TabPanel>
         <TabPanel value={value} index={2} dir={theme.direction}>
           <Typography sx={{ mt: 1 }}>
@@ -182,7 +217,11 @@ export default function OrderRow(props: OrderRowProps) {
             </Typography>
           ))}
           <br />
-          <Button variant="contained">Confirm</Button>
+          {isManu && (
+            <Button variant="contained" onClick={() => handleConfirmOrder()}>
+              Confirm
+            </Button>
+          )}
         </TabPanel>
       </Collapse>
     </>

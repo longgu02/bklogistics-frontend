@@ -1,7 +1,5 @@
 import { Box, Grid, Stack } from "@mui/material";
 import OrderRow from "./OrderRow";
-import { getProductById } from "../../../services/product-api";
-import { useAppSelector } from "../../../redux/hooks";
 interface OrderListProps {
   orderList: Array<{
     orderId: number;
@@ -37,7 +35,7 @@ export default function OrderList(props: OrderListProps) {
             Product
           </Grid>
           <Grid item xs={2}>
-            Quantity
+            Is Paid
           </Grid>
           <Grid item xs={2}>
             Status

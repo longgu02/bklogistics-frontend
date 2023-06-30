@@ -37,13 +37,6 @@ import useNotify from "../../src/hooks/useNotify";
 
 // Get services -> Get on sale products
 
-const TEST_PRODUCT = [
-	{ productId: 1, name: "Cowhide", type: PricingType.MATERIAL },
-	{ productId: 2, name: "Silver Necklace", type: PricingType.PRODUCT },
-	{ productId: 5, name: "Yamaha Guitar", type: PricingType.PRODUCT },
-	{ productId: 6, name: "Xbox Gamepad", type: PricingType.PRODUCT },
-];
-
 const ManageShipment = () => {
 	const { address, chainId, signer } = useAppSelector((state) => state.wallet);
 	const { successNotify, errorNotify } = useNotify();
@@ -104,20 +97,6 @@ const ManageShipment = () => {
 			.catch((err) => {
 				console.error(err);
 			});
-		// getMaterial(chainId)
-		// 	.then((res) => {
-		// 		setAllMaterials(res.materials);
-		// 	})
-		// 	.catch((err) => {
-		// 		console.log(err);
-		// 	});
-		// getProduct(chainId)
-		// 	.then((res) => {
-		// 		setAllProducts(res.products);
-		// 	})
-		// 	.catch((err) => {
-		// 		console.log(err);
-		// 	});
 		getProductAndMaterial(chainId).then((res: any) => {
 			setAllProducts(res);
 		});

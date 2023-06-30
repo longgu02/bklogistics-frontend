@@ -19,6 +19,7 @@ import React from "react";
 import { Holder, RequireMaterial } from "../../../types";
 import useProductContract from "../../../hooks/useProductContract";
 import useSupplyChain from "../../../hooks/useSupplyChain";
+import { ethers } from "ethers";
 interface DATA {
   addressWallet: string;
   material: string[];
@@ -124,7 +125,7 @@ export default function OrderFourthStep() {
       return _total;
     });
     const deposit = (p: number) => {
-    let d = (p / 100) * total;
+    let d = ethers.formatEther(String((p / 100) * total));
     return `${p}% (${d} ETH)`;
   };
   return (
@@ -145,7 +146,7 @@ export default function OrderFourthStep() {
                   {formatAddress(row.addressWallet, 5)}
                 </StyledTableCell>
                 <StyledTableCell>{row.material.join(", ")}</StyledTableCell>
-                <StyledTableCell>{row.total}</StyledTableCell>
+                <StyledTableCell>{ethers.formatEther(String(row.total))}</StyledTableCell>
               </StyledTableRow>
             ))}
           </TableBody>
@@ -155,7 +156,7 @@ export default function OrderFourthStep() {
         <Typography variant="h6" sx={{ display: "flex" }}>
           Total:
           <Typography variant="body1" sx={{ marginLeft: 2 }}>
-            {total} ETH
+            {ethers.formatEther(String(total))} ETH
           </Typography>
         </Typography>
         <Typography variant="h6" sx={{ display: "flex", marginTop: 2 }}>
