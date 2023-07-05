@@ -133,7 +133,7 @@ export default function RegisterSecondStep(props: RegisterFirstStepProps) {
 						mb="5px"
 						mt="25px"
 					>
-						Website (optional)
+						Website
 					</Typography>
 					<CustomTextField
 						id="website"
