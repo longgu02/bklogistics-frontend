@@ -133,7 +133,15 @@ export default function CreateForm() {
   const handleConfirm = async () => {
     await checkCarrier().then((res) => {
       if (res) {
+        console.log(
+          "🚀 ~ file: CreateForm.tsx:136 ~ awaitcheckCarrier ~ res:",
+          res
+        );
         const _to: boolean = handleCheck(to);
+        console.log(
+          "🚀 ~ file: CreateForm.tsx:141 ~ awaitcheckCarrier ~ _to:",
+          _to
+        );
         if (_to) {
           handleCreate();
         } else {

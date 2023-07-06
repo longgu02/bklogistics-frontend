@@ -9,7 +9,7 @@ export interface shipment {
 }
 export const createShipment = async (shipment: shipment) => {
   try {
-    const res = await client.post("/shipments/", { body: shipment });
+    const res = await client.post("/shipments/", shipment );
     return res;
   } catch (error) {
     console.error(error);
