@@ -600,6 +600,30 @@ export const SupplyChainABI = [
 	{
 		inputs: [
 			{
+				internalType: "uint256",
+				name: "_orderId",
+				type: "uint256",
+			},
+			{
+				internalType: "address",
+				name: "_account",
+				type: "address",
+			},
+		],
+		name: "hasSigned",
+		outputs: [
+			{
+				internalType: "bool",
+				name: "",
+				type: "bool",
+			},
+		],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
 				internalType: "address",
 				name: "_account",
 				type: "address",
@@ -857,7 +881,7 @@ export const SupplyChainABI = [
 		outputs: [
 			{
 				internalType: "uint256",
-				name: "orderId",
+				name: "id",
 				type: "uint256",
 			},
 			{
