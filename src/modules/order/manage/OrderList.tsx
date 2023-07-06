@@ -48,8 +48,8 @@ export default function OrderList(props: OrderListProps) {
       </Box>
       <Box>
         <Stack spacing={1}>
-          {orderList.map((order) => (
-            <OrderRow order={order} />
+          {orderList.map((order, index) => (
+            <OrderRow order={order} key={order.orderId + index}/>
           ))}
         </Stack>
       </Box>

@@ -260,7 +260,7 @@ export default function OrderRow(props: OrderRowProps) {
                     flexWrap: "wrap",
                     justifyContent: "start",
                   }}
-                  key={supplier}
+                  key={supplier + index}
                 >
                   <Typography sx={{ mt: 1 }}>{supplier} : </Typography>
                   <Chip
@@ -303,6 +303,7 @@ export default function OrderRow(props: OrderRowProps) {
                     flexWrap: "wrap",
                     justifyContent: "start",
                   }}
+                  key={manufacturer + index}
                 >
                   <Typography sx={{ mt: 1 }}>{manufacturer} : </Typography>
                   <Chip
