@@ -112,7 +112,7 @@ export default function OrderRow(props: OrderRowProps) {
   };
   const handleConfirmOrder = async () => {
     if (signer) {
-      const { confirmOrder} = useSupplyChain(signer, chainId);
+      const { confirmOrder } = useSupplyChain(signer, chainId);
       await confirmOrder(order.orderId);
     }
   };
@@ -253,37 +253,41 @@ export default function OrderRow(props: OrderRowProps) {
           </Typography>
           {order.suppliers.map((supplier, index) => {
             return (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  justifyContent: "start",
-                }}
-                key={supplier}
-              >
-                <Typography sx={{ mt: 1 }}>{supplier} : </Typography>
-                <Chip
-                  label={supplierSign[index] ? "Signed" : "Not Sign"}
-                  size="small"
+              <>
+                <Box
                   sx={{
-                    mt: 1,
-                    px: "4px",
-                    color: "#fff",
-                    backgroundColor: supplierSign[index]
-                      ? "#4EB09B"
-                      : "#E17A8D",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "start",
                   }}
-                />
-              </Box>
+                  key={supplier}
+                >
+                  <Typography sx={{ mt: 1 }}>{supplier} : </Typography>
+                  <Chip
+                    label={supplierSign[index] ? "Signed" : "Not Sign"}
+                    size="small"
+                    sx={{
+                      mt: 1,
+                      px: "4px",
+                      color: "#fff",
+                      backgroundColor: supplierSign[index]
+                        ? "#4EB09B"
+                        : "#E17A8D",
+                    }}
+                  />
+                </Box>
+                <br />
+                {isSup && !supplierSign[index] && (
+                  <Button
+                    variant="contained"
+                    onClick={() => handleConfirmOrder()}
+                  >
+                    Confirm
+                  </Button>
+                )}
+              </>
             );
           })}
-
-          <br />
-          {isSup && (
-            <Button variant="contained" onClick={() => handleConfirmOrder()}>
-              Confirm
-            </Button>
-          )}
         </TabPanel>
         <TabPanel value={value} index={2} dir={theme.direction}>
           <Typography sx={{ mt: 1 }}>
@@ -292,35 +296,40 @@ export default function OrderRow(props: OrderRowProps) {
           </Typography>
           {order.manufacturers.map((manufacturer, index) => {
             return (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  justifyContent: "start",
-                }}
-              >
-                <Typography sx={{ mt: 1 }}>{manufacturer} : </Typography>
-                <Chip
-                  label={manufacturerSign[index] ? "Signed" : "Not Sign"}
-                  size="small"
+              <>
+                <Box
                   sx={{
-                    mt: 1,
-                    px: "4px",
-                    color: "#fff",
-                    backgroundColor: manufacturerSign[index]
-                      ? "#4EB09B"
-                      : "#E17A8D",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "start",
                   }}
-                />
-              </Box>
+                >
+                  <Typography sx={{ mt: 1 }}>{manufacturer} : </Typography>
+                  <Chip
+                    label={manufacturerSign[index] ? "Signed" : "Not Sign"}
+                    size="small"
+                    sx={{
+                      mt: 1,
+                      px: "4px",
+                      color: "#fff",
+                      backgroundColor: manufacturerSign[index]
+                        ? "#4EB09B"
+                        : "#E17A8D",
+                    }}
+                  />
+                </Box>
+                <br />
+                {isManu && !manufacturerSign[index] && (
+                  <Button
+                    variant="contained"
+                    onClick={() => handleConfirmOrder()}
+                  >
+                    Confirm
+                  </Button>
+                )}
+              </>
             );
           })}
-          <br />
-          {isManu && (
-            <Button variant="contained" onClick={() => handleConfirmOrder()}>
-              Confirm
-            </Button>
-          )}
         </TabPanel>
         <TabPanel value={value} index={3} dir={theme.direction}>
           <Typography sx={{ mt: 1 }}>
