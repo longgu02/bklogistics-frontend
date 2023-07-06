@@ -7,44 +7,50 @@ import OrderList from "../../../src/modules/order/manage/OrderList";
 import { useAppSelector } from "../../../src/redux/hooks";
 import useSupplyChain from "../../../src/hooks/useSupplyChain";
 import React, { useState } from "react";
-import { getAllOrderOnChain } from "../../../src/services/order-api";
+import {
+  getAllOrderOnChain,
+  getAllOrderOnChainByAddress,
+} from "../../../src/services/order-api";
 
 const ManageOrder = () => {
   const { chainId, signer, address } = useAppSelector((state) => state.wallet);
   const [orderList, setOrderList] = React.useState<any>([]);
   const [state, setState] = useState<boolean>(true);
+
   React.useEffect(() => {
     let order: any = [];
     if (signer) {
       const { viewOrder } = useSupplyChain(signer, chainId);
-      getAllOrderOnChain(5).then((response) => {
-        if (response !== undefined) {
-          response.data.map(async (d: any) => {
-            await viewOrder(d.order_id).then((res) => {
-              let suppliers: any = [];
-              let manufacturers: any = [];
-              res[3].map((i: any) => suppliers.push(String(i)));
-              res[4].map((i: any) => manufacturers.push(String(i)));
-              order.push({
-                orderId: Number(res[0]),
-                productId: Number(res[1]),
-                customer: String(res[2]),
-                suppliers: suppliers,
-                manufacturers: manufacturers,
-                createDate: Number(res[5]),
-                status: Number(res[6]),
-                isPaid: Boolean(res[7]),
-                deposited: Number(res[8]),
+      Promise.all([getAllOrderOnChainByAddress(5, address)]).then(
+        (response) => {
+          if (response !== undefined) {
+            response[0].data.map(async (d: any) => {
+              await viewOrder(d.order_id).then((res) => {
+                let suppliers: any = [];
+                let manufacturers: any = [];
+                res[3].map((i: any) => suppliers.push(String(i)));
+                res[4].map((i: any) => manufacturers.push(String(i)));
+                order.push({
+                  orderId: Number(res[0]),
+                  productId: Number(res[1]),
+                  customer: String(res[2]),
+                  suppliers: suppliers,
+                  manufacturers: manufacturers,
+                  createDate: Number(res[5]),
+                  status: Number(res[6]),
+                  isPaid: Boolean(res[7]),
+                  deposited: Number(res[8]),
+                });
               });
             });
-          });
+            setTimeout(() => {
+              setState(false);
+              setOrderList(order);
+            }, 500);
+          }
         }
-      });
+      );
     }
-    setTimeout(() => {
-      setState(false);
-      setOrderList(order);
-    }, 15000);
     // setOrderList(getOrder()
   }, []);
 
