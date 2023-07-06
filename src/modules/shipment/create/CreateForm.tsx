@@ -14,16 +14,14 @@ import {
   setCarrier,
   setOrderId,
   setTo,
-  setShipmentId,
 } from "../../../redux/shipment/shipmentSlice";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import useSupplyChain from "../../../hooks/useSupplyChain";
 import useNotify from "../../../hooks/useNotify";
-import { JsonRpcSigner } from "ethers";
 import useShippingContract from "../../../hooks/useShippingContract";
-
+import useRolesContract from "../../../hooks/useRolesContract";
+import { createShipment, shipment } from "../../../services/shipment-api";
 export default function CreateForm() {
-  const [suggestedOrder, setSuggestedOrder] = useState([]);
   const { orderId, pickupDate, carrier, to } = useAppSelector(
     (state) => state.shipment
   );
@@ -32,7 +30,6 @@ export default function CreateForm() {
   const [receiver, setReceiver] = useState<string>("");
   const { chainId, signer, address } = useAppSelector((state) => state.wallet);
   const { successNotify, errorNotify } = useNotify();
-  // const [check, setCheck] = useState<boolean>(false);
   const [orderDetail, setOrderDetail] = useState<{
     orderId: number;
     productId: number;
@@ -66,35 +63,35 @@ export default function CreateForm() {
     let order: any = [];
     if (signer) {
       const { viewOrder } = useSupplyChain(signer, chainId);
-      await viewOrder(orderId).then((result) => {
-        let suppliers: string[] = [];
-        let manufacturers: string[] = [];
-        result[3].map((i: any) => suppliers.push(String(i)));
-        result[4].map((i: any) => manufacturers.push(String(i)));
-        order.push({
-          orderId: Number(result[0]),
-          productId: Number(result[1]),
-          customer: String(result[2]),
-          suppliers: suppliers,
-          manufacturers: manufacturers,
-          createDate: Number(result[5]),
-          status: Number(result[6]),
-          isPaid: Boolean(result[7]),
-          deposited: Number(result[8]),
-        });
-      });
+      await viewOrder(orderId)
+        .then((result) => {
+          let suppliers: string[] = [];
+          let manufacturers: string[] = [];
+          result[3].map((i: any) => suppliers.push(String(i)));
+          result[4].map((i: any) => manufacturers.push(String(i)));
+          order.push({
+            orderId: Number(result[0]),
+            productId: Number(result[1]),
+            customer: String(result[2]),
+            suppliers: suppliers,
+            manufacturers: manufacturers,
+            createDate: Number(result[5]),
+            status: Number(result[6]),
+            isPaid: Boolean(result[7]),
+            deposited: Number(result[8]),
+          });
+        })
+        .catch((err) => console.log(err));
     }
     return order;
   };
   useEffect(() => {
     if (orderId) {
       getOrder(orderId).then((result) => setOrderDetail(result[0]));
+    } else {
+      setOrderDetail(undefined);
     }
   }, [orderId]);
-  console.log(
-    "🚀 ~ file: CreateForm.tsx:31 ~ CreateForm ~ orderDetail:",
-    orderDetail
-  );
   const handleCheck = (value: string | null) => {
     let check = false;
     if (value && orderDetail) {
@@ -108,29 +105,44 @@ export default function CreateForm() {
     }
     return check;
   };
-  const handleCreate = async() =>{
+  const checkCarrier = async () => {
     if (signer) {
-      const { createShipment, contract } = useShippingContract(signer, chainId);
-      const res = await createShipment(
-        orderId,
-        address,
-        carrier,
-        to,
-        Number(pickupDate)
-      );
-      contract.on("ShippingOrderCreated", () => {
-        dispatch(setShipmentId(Number(res)));
-        successNotify("Shipment Created");
+      const { isCarrier } = useRolesContract(signer, chainId);
+      const t = await isCarrier(carrier).then((result) => {
+        return result;
       });
+      return t;
     }
-  }
-  const handleConfirm = () => {
-    if (handleCheck(to)) {
-      handleCreate();
+  };
+  const handleCreate = async () => {
+    if (orderDetail) {
+      const newShipment: shipment = {
+        orderId: orderDetail.orderId,
+        sender: address,
+        carrier: carrier,
+        receiver: to,
+        chainId: chainId,
+        create_date: Number(pickupDate),
+      };
+
+      await createShipment(newShipment)
+        .then((res) => successNotify("Shipment Created Successfully!"))
+        .catch((err) => console.error(err));
     }
-    else {
-      errorNotify('Address not in Orders!')
-    }
+  };
+  const handleConfirm = async () => {
+    await checkCarrier().then((res) => {
+      if (res) {
+        const _to: boolean = handleCheck(to);
+        if (_to) {
+          handleCreate();
+        } else {
+          errorNotify("Address not in Orders!");
+        }
+      } else {
+        errorNotify("Address not in Carrier!");
+      }
+    });
   };
   return (
     <Box>
@@ -197,23 +209,27 @@ export default function CreateForm() {
           value={_carrier}
           onChange={(e: any) => setCarr(e.target.value)}
         />
-        <Typography
-          variant="subtitle1"
-          fontWeight={600}
-          component="label"
-          htmlFor="address"
-        >
-          Receiver
-        </Typography>
-        <CustomTextField
-          type="address"
-          variant="outlined"
-          fullWidth
-          value={receiver}
-          onChange={(e: any) => {
-            setReceiver(e.target.value);
-          }}
-        />
+        {orderDetail && (
+          <>
+            <Typography
+              variant="subtitle1"
+              fontWeight={600}
+              component="label"
+              htmlFor="address"
+            >
+              Receiver
+            </Typography>
+            <CustomTextField
+              type="address"
+              variant="outlined"
+              fullWidth
+              value={receiver}
+              onChange={(e: any) => {
+                setReceiver(e.target.value);
+              }}
+            />
+          </>
+        )}
         {/* <Typography
           variant="subtitle1"
           fontWeight={600}
@@ -224,7 +240,11 @@ export default function CreateForm() {
         </Typography>
         <CustomTextField type="address" variant="outlined" fullWidth /> */}
       </Stack>
-      <Button variant="contained" sx={{ marginLeft: 53, mt: 2 }} onClick={()=>handleConfirm()}>
+      <Button
+        variant="contained"
+        sx={{ marginLeft: 53, mt: 8 }}
+        onClick={() => handleConfirm()}
+      >
         Confirm
       </Button>
     </Box>

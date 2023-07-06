@@ -9,6 +9,7 @@ import {
   Tab,
   Grid,
   useTheme,
+  Chip,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -62,7 +63,7 @@ function a11yProps(index: any) {
 }
 export default function OrderRow(props: OrderRowProps) {
   const { order } = props;
-  const { signer ,chainId, address } = useAppSelector((state) => state.wallet);
+  const { signer, chainId, address } = useAppSelector((state) => state.wallet);
   const [isCus, setIsCus] = React.useState<boolean>(false);
   const [isSup, setIsSup] = React.useState<boolean>(false);
   const [isManu, setIsManu] = React.useState<boolean>(false);
@@ -70,10 +71,16 @@ export default function OrderRow(props: OrderRowProps) {
   const { successNotify, errorNotify } = useNotify();
   const [value, setValue] = React.useState(0);
   const theme = useTheme();
+  const color: string[] = [
+    "#2a2d34",
+    "#009ddc",
+    "#f26430",
+    "#6761a8",
+    "#009b72",
+  ];
   const [productName, setProductName] = React.useState<string>("");
   const getProductName = (productId: number) => {
     const res = getProductById(chainId, productId);
-    console.log("🚀 ~ file: OrderRow.tsx:76 ~ getProductName ~ res:", res);
     res.then((PromiseResult) => {
       setProductName(String(PromiseResult[0]["name"]));
     });
@@ -92,19 +99,54 @@ export default function OrderRow(props: OrderRowProps) {
     });
   }, []);
 
-  const handlePayOrder = async()=>{
-    if(signer){
-      const {payOrder, getTotalPrice, contract} = useSupplyChain(signer, chainId);
-      const totalPrice = Number(await getTotalPrice(order.orderId)) - order.deposited;
+  const handlePayOrder = async () => {
+    if (signer) {
+      const { payOrder, getTotalPrice, contract } = useSupplyChain(
+        signer,
+        chainId
+      );
+      const totalPrice =
+        Number(await getTotalPrice(order.orderId)) - order.deposited;
       await payOrder(order.orderId, totalPrice);
     }
-  }
-  const handleConfirmOrder = async()=>{
-    if(signer){
-      const {confirmOrder, contract} = useSupplyChain(signer, chainId);
+  };
+  const handleConfirmOrder = async () => {
+    if (signer) {
+      const { confirmOrder} = useSupplyChain(signer, chainId);
       await confirmOrder(order.orderId);
     }
-  }
+  };
+  const isSigned = async (_address: string) => {
+    if (signer) {
+      const { hasSigned } = useSupplyChain(signer, chainId);
+      const t = await hasSigned(order.orderId, _address).then((result) => {
+        return result;
+      });
+      return t;
+    }
+  };
+  const [supplierSign, setSupplierData] = React.useState<boolean[]>([]);
+  const [manufacturerSign, setManufacturerSign] = React.useState<boolean[]>([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const supplierData: boolean[] = await Promise.all(
+        order.suppliers.map((supplier) => isSigned(supplier))
+      );
+      setSupplierData(supplierData);
+    };
+
+    fetchData();
+  }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      const manufacturerData: boolean[] = await Promise.all(
+        order.manufacturers.map((manufacturer) => isSigned(manufacturer))
+      );
+      setManufacturerSign(manufacturerData);
+    };
+
+    fetchData();
+  }, []);
   return (
     <>
       <Paper sx={{ p: 2 }}>
@@ -119,16 +161,28 @@ export default function OrderRow(props: OrderRowProps) {
               <Typography sx={{ mt: 1 }}>{productName}</Typography>
             </Grid>
             <Grid item xs={2}>
-              <Typography sx={{ mt: 1, paddingLeft: 2 }}>
-                {/* {String(getProductName(5))} */}
-                {order.isPaid ? "Yes" : "Not"}
-              </Typography>
+              <Chip
+                label={order.isPaid ? "Yes" : "No"}
+                size="small"
+                sx={{
+                  mt: 1,
+                  px: "4px",
+                  color: "#fff",
+                  backgroundColor: order.isPaid ? "#4EB09B" : "#E17A8D",
+                }}
+              />
             </Grid>
             <Grid item xs={2}>
-              <Typography sx={{ mt: 1 }}>
-                {/* {String(getProductName(5))} */}
-                {String(getStatus(order.status))}
-              </Typography>
+              <Chip
+                label={String(getStatus(order.status))}
+                size="small"
+                sx={{
+                  mt: 1,
+                  px: "4px",
+                  color: "#fff",
+                  backgroundColor: color[order.status],
+                }}
+              />
             </Grid>
             <Grid item xs={2}>
               <Typography sx={{ mt: 1 }}>
@@ -169,6 +223,7 @@ export default function OrderRow(props: OrderRowProps) {
           <Tab label="Information" {...a11yProps(0)} />
           <Tab label="Supplier" {...a11yProps(1)} />
           <Tab label="Manufacturer" {...a11yProps(2)} />
+          <Tab label="Shipments" {...a11yProps(3)} />
         </Tabs>
         <TabPanel value={value} index={0} dir={theme.direction}>
           <Typography sx={{ mt: 1 }}>
@@ -177,7 +232,7 @@ export default function OrderRow(props: OrderRowProps) {
           </Typography>
           <Typography sx={{ mt: 1 }}>
             {/* {String(getProductName(5))} */}
-            Total Price : {ethers.formatEther(order.deposited * 100/20)} ETH
+            Total Price : {ethers.formatEther((order.deposited * 100) / 20)} ETH
           </Typography>
           <Typography sx={{ mt: 1 }}>
             {/* {String(getProductName(5))} */}
@@ -196,12 +251,33 @@ export default function OrderRow(props: OrderRowProps) {
             {/* {String(getProductName(5))} */}
             Suppliers:
           </Typography>
-          {order.suppliers.map((supplier) => (
-            <Typography sx={{ mt: 1 }}>
-              {/* {String(getProductName(5))} */}
-              {`         ${supplier}: not sign`}
-            </Typography>
-          ))}
+          {order.suppliers.map((supplier, index) => {
+            return (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  justifyContent: "start",
+                }}
+                key={supplier}
+              >
+                <Typography sx={{ mt: 1 }}>{supplier} : </Typography>
+                <Chip
+                  label={supplierSign[index] ? "Signed" : "Not Sign"}
+                  size="small"
+                  sx={{
+                    mt: 1,
+                    px: "4px",
+                    color: "#fff",
+                    backgroundColor: supplierSign[index]
+                      ? "#4EB09B"
+                      : "#E17A8D",
+                  }}
+                />
+              </Box>
+            );
+          })}
+
           <br />
           {isSup && (
             <Button variant="contained" onClick={() => handleConfirmOrder()}>
@@ -214,18 +290,42 @@ export default function OrderRow(props: OrderRowProps) {
             {/* {String(getProductName(5))} */}
             Manufacturers:
           </Typography>
-          {order.manufacturers.map((manufacturer) => (
-            <Typography sx={{ mt: 1 }}>
-              {/* {String(getProductName(5))} */}
-              {"    " + `         ${manufacturer}: not sign`}
-            </Typography>
-          ))}
+          {order.manufacturers.map((manufacturer, index) => {
+            return (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  justifyContent: "start",
+                }}
+              >
+                <Typography sx={{ mt: 1 }}>{manufacturer} : </Typography>
+                <Chip
+                  label={manufacturerSign[index] ? "Signed" : "Not Sign"}
+                  size="small"
+                  sx={{
+                    mt: 1,
+                    px: "4px",
+                    color: "#fff",
+                    backgroundColor: manufacturerSign[index]
+                      ? "#4EB09B"
+                      : "#E17A8D",
+                  }}
+                />
+              </Box>
+            );
+          })}
           <br />
           {isManu && (
             <Button variant="contained" onClick={() => handleConfirmOrder()}>
               Confirm
             </Button>
           )}
+        </TabPanel>
+        <TabPanel value={value} index={3} dir={theme.direction}>
+          <Typography sx={{ mt: 1 }}>
+            Shipments of Order : {order.customer}
+          </Typography>
         </TabPanel>
       </Collapse>
     </>

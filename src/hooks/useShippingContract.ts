@@ -25,10 +25,15 @@ export default function useShippingContract(
         const _promise = contract.viewShipment(shipmentId);
         return _promise;
     };
+    const shipmentOfOrder = async (orderId : number) => {
+        const _promise = contract.shipmentOfOrder(orderId);
+        return _promise;
+    };
     return {
         contract,
         createShipment,
         updateShipment,
-        viewShipment
+        viewShipment,
+        shipmentOfOrder,
     };
 }

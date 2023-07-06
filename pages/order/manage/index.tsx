@@ -8,7 +8,6 @@ import { useAppSelector } from "../../../src/redux/hooks";
 import useSupplyChain from "../../../src/hooks/useSupplyChain";
 import React, { useState } from "react";
 import {
-  getAllOrderOnChain,
   getAllOrderOnChainByAddress,
 } from "../../../src/services/order-api";
 
@@ -16,42 +15,42 @@ const ManageOrder = () => {
   const { chainId, signer, address } = useAppSelector((state) => state.wallet);
   const [orderList, setOrderList] = React.useState<any>([]);
   const [state, setState] = useState<boolean>(true);
-
-  React.useEffect(() => {
-    let order: any = [];
+  const getData = async () => {
     if (signer) {
       const { viewOrder } = useSupplyChain(signer, chainId);
-      Promise.all([getAllOrderOnChainByAddress(5, address)]).then(
-        (response) => {
-          if (response !== undefined) {
-            response[0].data.map(async (d: any) => {
-              await viewOrder(d.order_id).then((res) => {
-                let suppliers: any = [];
-                let manufacturers: any = [];
-                res[3].map((i: any) => suppliers.push(String(i)));
-                res[4].map((i: any) => manufacturers.push(String(i)));
-                order.push({
-                  orderId: Number(res[0]),
-                  productId: Number(res[1]),
-                  customer: String(res[2]),
-                  suppliers: suppliers,
-                  manufacturers: manufacturers,
-                  createDate: Number(res[5]),
-                  status: Number(res[6]),
-                  isPaid: Boolean(res[7]),
-                  deposited: Number(res[8]),
-                });
-              });
+      const response = await getAllOrderOnChainByAddress(5, address);
+      if (response !== undefined) {
+        const ordersLength = response.data.length;
+        const order: any = [];
+        for (let i = 0; i < ordersLength; i += 30) {
+          const orderIds = response.data
+            .slice(i, i + 30)
+            .map((d: any) => d.order_id);
+          const req = orderIds.map(async (orderId: any) => {
+            const res = await viewOrder(orderId);
+            let suppliers = res[3].map((i : any) => String(i));
+            let manufacturers = res[4].map((i : any) => String(i));
+            order.push({
+              orderId: Number(res[0]),
+              productId: Number(res[1]),
+              customer: String(res[2]),
+              suppliers,
+              manufacturers,
+              createDate: Number(res[5]),
+              status: Number(res[6]),
+              isPaid: Boolean(res[7]),
+              deposited: Number(res[8]),
             });
-            setTimeout(() => {
-              setState(false);
-              setOrderList(order);
-            }, 500);
-          }
+          });
+          await Promise.all(req).catch((e) => console.log(e));
         }
-      );
+        setState(false);
+        setOrderList(order);
+      }
     }
-    // setOrderList(getOrder()
+  };
+  React.useEffect(() => {
+    getData();
   }, []);
 
   // getOrder();
