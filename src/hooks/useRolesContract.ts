@@ -34,6 +34,10 @@ export default function useRolesContract(
 		const _promise = await contract.renounceCarrier(account);
 		return _promise;
 	};
+	const isCarrier = async (account : string) => {
+		const _promise = await contract.isCarrier(account);
+		return _promise;
+	};
 	return {
 		contract,
 		hasRole,
@@ -41,5 +45,6 @@ export default function useRolesContract(
 		renounceMember,
 		addCarrier,
 		renounceCarrier,
+		isCarrier,
 	};
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   TextField,
@@ -13,7 +13,6 @@ import {
   IconButton,
   Collapse,
   Typography,
-  FormGroup,
   FormControlLabel,
   Checkbox,
   Divider,
@@ -25,7 +24,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import BaseStepper from "../../../components/stepper/BaseStepper";
 import FormDialog from "../component/FormDialog";
-import { formatAddress } from "../../../utils";
+import { formatAddress, getUnit } from "../../../utils";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import useNotify, { errorNotify } from "../../../hooks/useNotify";
 import {
@@ -38,227 +37,22 @@ import { Holder, Item, RequireMaterial, Product } from "../../../types";
 import useSupplyChain from "../../../hooks/useSupplyChain";
 import usePricingContract from "../../../hooks/usePricingContract";
 import { PricingType } from "../../../hooks/usePricingContract";
-type Address = {
+import {
+  getSuppliersByMaterialId,
+  getManufacturersByProductId,
+} from "../../../services/profile-api";
+import CheckRow from "../component/CheckRow";
+import { ethers } from "ethers";
+interface Address {
   address: string;
-};
-type ItemHolder = {
+  price: number;
+}
+interface ItemHolder {
   id: number;
   holderAddress: Address[];
-};
+}
 
-const materialHolderList: ItemHolder[] = [
-  {
-    id: 1,
-    holderAddress: [
-      {
-        address: "0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6",
-      },
-      {
-        address: "0xabcdef1234567890abcdef1234567890abcdef12",
-      },
-      {
-        address: "0x4567890abcdef1234567890abcdef1234567890ab",
-      },
-    ],
-  },
-  {
-    id: 2,
-    holderAddress: [
-      {
-        address: "0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6",
-      },
-      {
-        address: "0xfedcba9876543210fedcba9876543210fedcba98",
-      },
-      {
-        address: "0x567890abcdef1234567890abcdef1234567890ab",
-      },
-    ],
-  },
-  {
-    id: 3,
-    holderAddress: [
-      {
-        address: "0xabcdef1234567890abcdef1234567890abcdef12",
-      },
-      {
-        address: "0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6",
-      },
-    ],
-  },
-  {
-    id: 4,
-    holderAddress: [
-      {
-        address: "0xabcdef1234567890abcdef1234567890abcdef12",
-      },
-      {
-        address: "0x4567890abcdef1234567890abcdef1234567890ab",
-      },
-      {
-        address: "0x9876543210fedcba9876543210fedcba98765432",
-      },
-      {
-        address: "0xfedcba9876543210fedcba9876543210fedcba98",
-      },
-    ],
-  },
-  {
-    id: 5,
-    holderAddress: [
-      {
-        address: "0x1234567890abcdef1234567890abcdef12345678",
-      },
-      {
-        address: "0x567890abcdef1234567890abcdef1234567890ab",
-      },
-    ],
-  },
-];
-
-const supplierList: Holder[] = [
-  {
-    address: "0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6",
-    item: [
-      { id: 1, price: 0.002 },
-      { id: 2, price: 0.001 },
-      { id: 3, price: 0.001 },
-    ],
-  },
-  {
-    address: "0xabcdef1234567890abcdef1234567890abcdef12",
-    item: [
-      { id: 1, price: 3 },
-      { id: 3, price: 2 },
-      { id: 4, price: 3 },
-    ],
-  },
-  {
-    address: "0x4567890abcdef1234567890abcdef1234567890ab",
-    item: [
-      { id: 1, price: 1 },
-      { id: 4, price: 3 },
-    ],
-  },
-  {
-    address: "0x9876543210fedcba9876543210fedcba98765432",
-    item: [
-      { id: 2, price: 2 },
-      { id: 4, price: 2 },
-    ],
-  },
-  {
-    address: "0xfedcba9876543210fedcba9876543210fedcba98",
-    item: [
-      { id: 2, price: 1 },
-      { id: 4, price: 2 },
-    ],
-  },
-  {
-    address: "0x567890abcdef1234567890abcdef1234567890ab",
-    item: [
-      { id: 2, price: 3 },
-      { id: 5, price: 3 },
-    ],
-  },
-];
-
-const manufacturerList: Holder[] = [
-  {
-    address: "0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6",
-    item: [{ id: 1, price: 0.001 }],
-  },
-  {
-    address: "0xabcdef1234567890abcdef1234567890abcdef12",
-    item: [
-      { id: 1, price: 1 },
-      { id: 3, price: 2 },
-    ],
-  },
-  {
-    address: "0x4567890abcdef1234567890abcdef1234567890ab",
-    item: [
-      { id: 2, price: 2 },
-      { id: 4, price: 1 },
-    ],
-  },
-  {
-    address: "0x9876543210fedcba9876543210fedcba98765432",
-    item: [
-      { id: 2, price: 1 },
-      { id: 5, price: 3 },
-    ],
-  },
-  {
-    address: "0xfedcba9876543210fedcba9876543210fedcba98",
-    item: [{ id: 2, price: 2 }],
-  },
-];
-const productHolderList: ItemHolder[] = [
-  {
-    id: 1,
-    holderAddress: [
-      {
-        address: "0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6",
-      },
-      {
-        address: "0xabcdef1234567890abcdef1234567890abcdef12",
-      },
-    ],
-  },
-  {
-    id: 2,
-    holderAddress: [
-      {
-        address: "0x4567890abcdef1234567890abcdef1234567890ab",
-      },
-      {
-        address: "0x9876543210fedcba9876543210fedcba98765432",
-      },
-      {
-        address: "0xfedcba9876543210fedcba9876543210fedcba98",
-      },
-    ],
-  },
-  {
-    id: 3,
-    holderAddress: [
-      {
-        address: "0x567890abcdef1234567890abcdef1234567890ab",
-      },
-      {
-        address: "0xabcdef1234567890abcdef1234567890abcdef12",
-      },
-      {
-        address: "0x1234567890abcdef1234567890abcdef12345678",
-      },
-    ],
-  },
-  {
-    id: 4,
-    holderAddress: [
-      {
-        address: "0xabcdef1234567890abcdef1234567890abcdef12",
-      },
-      {
-        address: "0x4567890abcdef1234567890abcdef1234567890ab",
-      },
-    ],
-  },
-  {
-    id: 5,
-    holderAddress: [
-      {
-        address: "0x9876543210fedcba9876543210fedcba98765432",
-      },
-      {
-        address: "0xfedcba9876543210fedcba9876543210fedcba98",
-      },
-    ],
-  },
-];
-
-type RowProps = {
+interface RowProps {
   holder: Holder;
   name?: string;
   role: string;
@@ -266,34 +60,71 @@ type RowProps = {
   address?: string;
   rqMaterial?: RequireMaterial[];
   product?: Product;
-};
-
-type CheckRowProps = {
-  id: number;
-  title: string;
-  itemsHolder: ItemHolder[];
-  role: boolean;
-};
+}
 
 export default function OrderThirdStep() {
   const dispatch = useAppDispatch();
   const { successNotify, errorNotify } = useNotify();
   const [open, setOpen] = useState(false);
-  const { product, requireMaterial } = useAppSelector(
+  const [manufacturersHolderList, setManufacturerHolderList] =
+    useState<Address[]>();
+  const [suppliersHolderList, setSuppliersHolderList] =
+    useState<ItemHolder[]>();
+  const { product, requireMaterial, productQty } = useAppSelector(
     (state) => state.orderData
   );
   const { address, signer, chainId } = useAppSelector((state) => state.wallet);
-  let suppliers: Holder[] = [];
-  let manufacturer: Holder[] = [];
+  useEffect(() => {
+    let _suppliersHolderList: ItemHolder[] = [];
+    let _manufacturersHolderList: Address[] = [];
+    if (product.id && signer) {
+      const { getPrice } = usePricingContract(signer, chainId);
+      getManufacturersByProductId(product.id).then(async (result) => {
+        result.manufacturers.map(
+          async (r: any) =>
+            await getPrice(
+              String(r),
+              Number(product.id),
+              PricingType.PRODUCT
+            ).then((res) => {
+              _manufacturersHolderList.push({
+                address: String(r),
+                price: Number(res[1]),
+              });
+            })
+        );
+      });
+      requireMaterial.forEach((material) => {
+        let tmp: Array<{
+          address: string;
+          price: number;
+        }> = [];
+        getSuppliersByMaterialId(material.materialId).then((result) => {
+          result.suppliers.forEach(async (r: any) => {
+            await getPrice(
+              String(r),
+              material.materialId,
+              PricingType.MATERIAL
+            ).then((res) => {
+              tmp.push({
+                address: String(r),
+                price: Number(res[1]),
+              });
+            });
+          });
+        });
+        _suppliersHolderList.push({
+          id: material.materialId,
+          holderAddress: tmp,
+        });
+      });
+      setManufacturerHolderList(_manufacturersHolderList);
+      setSuppliersHolderList(_suppliersHolderList);
+    }
+  }, []);
   const [sup, setSup] = useState<Holder[]>();
   const [manu, setManu] = useState<Holder[]>();
-  const handleSearch = (id: number, itemHolder: ItemHolder[]) => {
-    let temp: Address[] = [];
-    itemHolder.forEach((item) => {
-      if (item.id === id) temp = item.holderAddress;
-    });
-    return temp;
-  };
+
   function Row(props: RowProps) {
     const { name, address, role, validation, holder, rqMaterial, product } =
       props;
@@ -305,13 +136,13 @@ export default function OrderThirdStep() {
         holder.item.forEach((material) =>
           rqMaterial?.forEach((rq) => {
             if (rq.materialId === material.id) {
-              _total += rq.quantity * material.price;
+              _total += material.price * rq.quantity * productQty;
             }
           })
         );
       } else
         holder.item.forEach((material) => {
-          _total += material.price;
+          _total += material.price * productQty;
         });
       return _total;
     };
@@ -322,10 +153,17 @@ export default function OrderThirdStep() {
         <>
           <TableRow key={rq[index].materialId}>
             <TableCell>{rq[index].name}</TableCell>
-            <TableCell>{item.price}</TableCell>
-            <TableCell>{rq[index].quantity}</TableCell>
-            <TableCell>{rq[index].unit}</TableCell>
-            <TableCell>{rq[index].quantity * item.price}</TableCell>
+            <TableCell>
+              {ethers.formatUnits(String(item.price), "ether")} ETH
+            </TableCell>
+            <TableCell>{rq[index].quantity * productQty}</TableCell>
+            <TableCell>{getUnit(rq[index].unit)}</TableCell>
+            <TableCell>
+              {ethers.formatEther(
+                String(rq[index].quantity * item.price * productQty)
+              )}{" "}
+              ETH
+            </TableCell>
           </TableRow>
         </>
       );
@@ -347,7 +185,7 @@ export default function OrderThirdStep() {
             {validation ? "Verified" : "Not Verified"}
           </TableCell>
           <TableCell>{role}</TableCell>
-          <TableCell>{total()}</TableCell>
+          <TableCell>{ethers.formatEther(String(total()))} ETH</TableCell>
         </TableRow>
         <TableCell sx={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
           <Collapse in={open} timeout="auto" unmountOnExit>
@@ -380,9 +218,16 @@ export default function OrderThirdStep() {
                   ) : (
                     <TableRow key={holder.item[0].id}>
                       <TableCell>{product?.name}</TableCell>
-                      <TableCell>{holder.item[0].price}</TableCell>
-                      <TableCell>1</TableCell>
-                      <TableCell>{holder.item[0].price * 1}</TableCell>
+                      <TableCell>
+                        {ethers.formatEther(String(holder.item[0].price))} ETH
+                      </TableCell>
+                      <TableCell>{productQty}</TableCell>
+                      <TableCell>
+                        {ethers.formatEther(
+                          String(holder.item[0].price * productQty)
+                        )}{" "}
+                        ETH
+                      </TableCell>
                     </TableRow>
                   )}
                 </TableBody>
@@ -391,125 +236,6 @@ export default function OrderThirdStep() {
           </Collapse>
         </TableCell>
       </>
-    );
-  }
-  function CheckRow(props: CheckRowProps) {
-    const { id, itemsHolder, title, role } = props;
-    const addressWallet: Address[] = handleSearch(id, itemsHolder);
-    const [prevAddress, setPrevAddress] = useState<Address>({ address: "" });
-    const [check, setCheck] = useState<boolean>(false);
-    const getPrice = (id: number, address: String) => {
-      let temp: Holder[] = [];
-      let price: number = 0;
-      if (role) temp = supplierList;
-      else temp = manufacturerList;
-      temp.forEach((item) => {
-        if (item.address === address) {
-          item.item.forEach((i) => {
-            if (i.id === id) price = i.price;
-          });
-        }
-      });
-      return price;
-    };
-    const handleAddressChange1 = (
-      event: React.SyntheticEvent,
-      value: Address | null
-    ) => {
-      if (value) {
-        if (suppliers.length > 0 && prevAddress.address !== "") {
-          let index = suppliers.findIndex(
-            (e) => e.address === prevAddress.address
-          );
-          if (suppliers[index].item.length === 1) suppliers.splice(index, 1);
-          else if (suppliers[index].item.length > 1) {
-            let indexItem = suppliers[index].item.findIndex((e) => e.id === id);
-            suppliers[index].item.splice(indexItem, 1);
-          }
-        }
-        let index = suppliers.findIndex((e) => e.address === value.address);
-        if (index !== -1) {
-          suppliers[index].item.push({
-            id: id,
-            price: getPrice(id, value.address),
-          });
-        } else
-          suppliers.push({
-            address: value.address,
-            item: [
-              {
-                id: id,
-                price: getPrice(id, value.address),
-              },
-            ],
-          });
-        setPrevAddress(value);
-      }
-    };
-    const handleAddressChange2 = (
-      event: React.SyntheticEvent,
-      value: Address | null
-    ) => {
-      if (value) {
-        manufacturer = [
-          {
-            address: value.address,
-            item: [
-              {
-                id: id,
-                price: getPrice(id, value.address),
-              },
-            ],
-          },
-        ];
-        setPrevAddress(value);
-      }
-      console.log(manufacturer);
-    };
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: 2,
-          marginLeft: 2,
-        }}
-      >
-        <Typography variant="body1" sx={{ width: 150 }}>
-          {title}
-        </Typography>
-        <Autocomplete
-          isOptionEqualToValue={(option, value) =>
-            option.address == value.address
-          }
-          options={addressWallet}
-          getOptionLabel={(r) => `${r.address}`}
-          value={prevAddress}
-          onChange={role ? handleAddressChange1 : handleAddressChange2}
-          disabled={check}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Address"
-              required
-              sx={{ width: 300 }}
-            />
-          )}
-        />
-        <FormControlLabel
-          label="I do"
-          control={
-            <Checkbox
-              checked={check}
-              onChange={() => {
-                setCheck(!check);
-                if (!check) setPrevAddress({ address: address });
-                else setPrevAddress({ address: "" });
-              }}
-            />
-          }
-        />
-      </Box>
     );
   }
 
@@ -526,60 +252,59 @@ export default function OrderThirdStep() {
     let _productIds: number[] = [];
     let _price: number[] = [];
     let _qty: number[] = [];
-    let index: number = 0;
     if (signer) {
-      const {
-        createOrder,
-        contract,
-        viewOrder,
-        addPrice,
-        getTotalPrice,
-        deposit,
-        payOrder,
-      } = useSupplyChain(signer, chainId);
-      const { getPrice } = usePricingContract(signer, chainId);
+      const { createOrder, contract, addPrice } = useSupplyChain(
+        signer,
+        chainId
+      );
       if (sup && manu && product.id) {
         dispatch(addSupplier(sup));
         dispatch(addManufacturer(manu));
         let _supplier: string[] = [];
         sup.forEach((supplier) => {
           _supplier.push(supplier.address);
-          supplier.item.forEach(async (i) => {
+          supplier.item.forEach((i) => {
             _address.push(supplier.address);
             _productIds.push(i.id);
-            await getPrice(supplier.address, i.id, PricingType.MATERIAL).then(
-              (res) => _price.push(Number(res[1]))
-            );
+            requireMaterial.forEach((r) => {
+              if(r.materialId === i.id){
+                _qty.push(Number(r.quantity * productQty));
+                _price.push(i.price * r.quantity * productQty);
+              }
+            });
           });
         });
-        requireMaterial.forEach((i) => _qty.push(Number(i.quantity)));
         let _manufacturer: string[] = [];
         manu.forEach((manufacturer) => {
           _manufacturer.push(manufacturer.address);
-          manufacturer.item.forEach(async (i) => {
+          manufacturer.item.forEach((i) => {
             _address.push(manufacturer.address);
             _productIds.push(i.id);
-            await getPrice(
-              manufacturer.address,
-              i.id,
-              PricingType.PRODUCT
-            ).then((res) => _price.push(Number(res[1])));
-            _qty.push(1);
+            _price.push(i.price * productQty);
+            _qty.push(productQty);
           });
         });
         await createOrder(product.id, address, _supplier, _manufacturer).then(
           (response) => {
             contract.on("OrderCreated", async (data) => {
-              await addPrice(Number(data), _address, _productIds, _price, _qty).then(() => dispatch(addOrderId(Number(data))));
+              await addPrice(
+                Number(data),
+                _address,
+                _productIds,
+                _price,
+                _qty
+              ).then(() => dispatch(addOrderId(Number(data))));
             });
-          });
+          }
+        );
       }
       successNotify("Successfully added");
     } else {
       errorNotify("Failed to add");
     }
   };
-
+  const suppliers: Holder[] = [];
+  const manufacturer: Holder[] = [];
   const next = () => {
     setSup(suppliers);
     setManu(manufacturer);
@@ -610,6 +335,7 @@ export default function OrderThirdStep() {
       </>
     );
   };
+
   return (
     <>
       <Button sx={{ marginBottom: 2 }} variant="contained" onClick={handleOpen}>
@@ -642,26 +368,34 @@ export default function OrderThirdStep() {
               {" "}
               Manufacturer{" "}
             </Typography>
-            <CheckRow
-              id={Number(product.id)}
-              title={product.name}
-              role={false}
-              itemsHolder={productHolderList}
-            />
+            {manufacturersHolderList && (
+              <CheckRow
+                id={Number(product.id)}
+                title={product.name}
+                role={false}
+                suppliers={suppliers}
+                manufacturers={manufacturer}
+                addressWallet={manufacturersHolderList}
+              />
+            )}
             <Divider sx={{ marginBottom: 2 }} />
             <Typography variant="h6" sx={{ marginBottom: 2 }}>
               {" "}
               Supplier
             </Typography>
-            {requireMaterial.map((item) => (
+            {requireMaterial.map((item, index) => (
               <>
-                <CheckRow
-                  id={item.materialId}
-                  title={item.name}
-                  role={true}
-                  itemsHolder={materialHolderList}
-                  key={item.materialId}
-                />
+                {suppliersHolderList && (
+                  <CheckRow
+                    id={item.materialId}
+                    title={item.name}
+                    role={true}
+                    suppliers={suppliers}
+                    manufacturers={manufacturer}
+                    addressWallet={suppliersHolderList[index].holderAddress}
+                    key={item.materialId}
+                  />
+                )}
               </>
             ))}
           </Box>

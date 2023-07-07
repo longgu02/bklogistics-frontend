@@ -52,6 +52,10 @@ export default function useSupplyChain(signer: JsonRpcSigner, chainId: number) {
     const _promise = contract.deposit(orderId, {value: value});
     return _promise;
   };
+  const hasSigned = async (orderId: number, address: string) => {
+    const _promise = contract.hasSigned(orderId, address);
+    return _promise;
+  }
   return {
     contract,
     createOrder,
@@ -62,5 +66,6 @@ export default function useSupplyChain(signer: JsonRpcSigner, chainId: number) {
     getTotalPrice,
     payOrder,
     deposit,
+    hasSigned,
   };
 }

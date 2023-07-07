@@ -5,11 +5,11 @@ export enum Unit {
 	LITRE = 3,
 }
 export enum Status {
-	PENDING = "pending",
-	IN_PROGRESS = "progress",
-	SUCCESS = "success",
-	FAILED = "failed",
-	CANCELED = "cancelled",
+	PENDING = "Pending",
+	IN_PROGRESS = "Progress",
+	SUCCESS = "Success",
+	FAILED = "Failed",
+	CANCELED = "Cancelled",
 }
 export enum Role {
 	supplier = "Supplier",

@@ -37,6 +37,7 @@ import useSBTContract from "../../src/hooks/useSBTContract";
 import RequestCard from "../../src/modules/admin/RequestCard";
 import { getPendingRequests, getRequests } from "../../src/services/request";
 import WalletRequired from "../../src/layouts/full/auth/WalletRequired";
+import useRolesContract from "../../src/hooks/useRolesContract";
 
 const Register = () => {
 	const [finishedStep, setFinishedStep] = useState<number>(0);
@@ -55,6 +56,17 @@ const Register = () => {
 		if (signer) {
 			const { issue } = useSBTContract(signer, chainId);
 			await issue("0xA10cF1b64fAFCD75ED18A905F96408f38f570fa6")
+				.then((res) => {
+					console.log(res);
+				})
+				.catch((err) => console.log(err));
+		}
+	};
+
+	const handleAddCarrier = () => {
+		if (signer) {
+			const { contract, addCarrier } = useRolesContract(signer, chainId);
+			addCarrier("0x32a51182E649f974a8e4749b4bDCc2A320A995E3")
 				.then((res) => {
 					console.log(res);
 				})

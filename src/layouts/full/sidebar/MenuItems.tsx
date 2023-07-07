@@ -18,78 +18,85 @@ import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import { uniqueId } from "lodash";
 
 const Menuitems = [
-	{
-		navlabel: true,
-		subheader: "Manage",
-		isAdmin: true,
-	},
+  {
+    navlabel: true,
+    subheader: "Manage",
+    isAdmin: true,
+  },
 
-	{
-		id: uniqueId(),
-		title: "Request Monitoring",
-		icon: IconUserCheck,
-		href: "/admin",
-		isAdmin: true,
-	},
-	{
-		navlabel: true,
-		subheader: "Home",
-	},
+  {
+    id: uniqueId(),
+    title: "Request Monitoring",
+    icon: IconUserCheck,
+    href: "/admin",
+    isAdmin: true,
+  },
+  {
+    navlabel: true,
+    subheader: "Home",
+  },
 
-	{
-		id: uniqueId(),
-		title: "Dashboard",
-		icon: IconLayoutDashboard,
-		href: "/",
-	},
-	{
-		navlabel: true,
-		subheader: "Order",
-	},
-	{
-		id: uniqueId(),
-		title: "Create Order",
-		icon: ListAltIcon,
-		href: "/order/create",
-	},
-	{
-		id: uniqueId(),
-		title: "Manage Order",
-		icon: SourceIcon,
-		href: "/order/manage",
-	},
-	{
-		navlabel: true,
-		subheader: "Shipment",
-	},
-	{
-		id: uniqueId(),
-		title: "Create Shipment",
-		icon: NoteAddIcon,
-		href: "/shipment/create",
-	},
-	{
-		id: uniqueId(),
-		title: "Manage Shipment",
-		icon: LocalShippingIcon,
-		href: "/shipment/manage",
-	},
-	{
-		navlabel: true,
-		subheader: "Personal",
-	},
-	{
-		id: uniqueId(),
-		title: "Register",
-		icon: IconUserPlus,
-		href: "/register",
-	},
-	{
-		id: uniqueId(),
-		title: "Pricing",
-		icon: IconCurrencyDollar,
-		href: "/pricing",
-	},
+  {
+    id: uniqueId(),
+    title: "Dashboard",
+    icon: IconLayoutDashboard,
+    href: "/",
+  },
+  {
+    navlabel: true,
+    subheader: "Order",
+  },
+  {
+    id: uniqueId(),
+    title: "Create Order",
+    icon: ListAltIcon,
+    href: "/order/create",
+  },
+  {
+    id: uniqueId(),
+    title: "Manage Order",
+    icon: SourceIcon,
+    href: "/order/manage",
+  },
+  {
+    navlabel: true,
+    subheader: "Shipment",
+  },
+  {
+    id: uniqueId(),
+    title: "Create Shipment",
+    icon: NoteAddIcon,
+    href: "/shipment/create",
+  },
+  {
+    id: uniqueId(),
+    title: "Manage Shipment",
+    icon: LocalShippingIcon,
+    href: "/shipment/manage",
+  },
+  {
+    id: uniqueId(),
+    title: "Request Shipment",
+    icon: LocalShippingIcon,
+    href: "/shipment/request-shipment",
+    isCarrier: true,
+  },
+  {
+    navlabel: true,
+    subheader: "Personal",
+  },
+  {
+    id: uniqueId(),
+    title: "Register",
+    icon: IconUserPlus,
+    href: "/register",
+  },
+  {
+    id: uniqueId(),
+    title: "Pricing",
+    icon: IconCurrencyDollar,
+    href: "/pricing",
+  },
 ];
 
 export default Menuitems;

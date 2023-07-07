@@ -4,6 +4,7 @@ import orderSlice from "./order/orderSlice";
 import walletReducer from "./connection/walletSlice";
 import userReducer from "./connection/userSlice";
 import registerReducer from "./authentication/registerSlice";
+import shipmentCreateReducer from "./shipment/shipmentSlice";
 export const store = configureStore({
 	reducer: {
 		orderCreate: orderCreateReducer,
@@ -11,6 +12,7 @@ export const store = configureStore({
 		wallet: walletReducer,
 		user: userReducer,
 		register: registerReducer,
+		shipment: shipmentCreateReducer,
 	},
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({

@@ -306,11 +306,11 @@ export const ShippingContractABI = [
 		outputs: [
 			{
 				internalType: "uint256[]",
-				name: "orderIds",
+				name: "",
 				type: "uint256[]",
 			},
 		],
-		stateMutability: "nonpayable",
+		stateMutability: "view",
 		type: "function",
 	},
 	{

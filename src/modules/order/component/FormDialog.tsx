@@ -77,7 +77,7 @@ export interface DialogProps {
 }
 
 export default function FromDialog(props: DialogProps) {
-  const { open, handleClose, title, children, confirm, isDisabled, transition } = props;
+  const { open, handleClose, title, children, confirm, isDisabled} = props;
   return (
     <>
       <BootstrapDialog onClose={handleClose} open={open} maxWidth='xl'>
