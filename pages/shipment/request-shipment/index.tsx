@@ -5,22 +5,32 @@ import PageContainer from "../../../src/components/container/PageContainer";
 import { useAppSelector } from "../../../src/redux/hooks";
 import useSupplyChain from "../../../src/hooks/useSupplyChain";
 import { getShipmentOnChainByAddress } from "../../../src/services/shipment-api";
-
-const ManageShipment = () => {
+import React from "react";
+const RequestShipment = () => {
   const { signer, chainId, address } = useAppSelector((state) => state.wallet);
-  const res = getShipmentOnChainByAddress(chainId, address);
-  console.log("🚀 ~ file: index.tsx:12 ~ ManageShipment ~ res:", res);
+  const [shipmentRequestList, setShipmentRequest] = React.useState<any>([]);
+  const getData = async () => {
+    const response = await getShipmentOnChainByAddress(5, address);
+    if (response! == undefined) {
+      // response.data
+      // console.log(
+      //   "🚀 ~ file: index.tsx:16 ~ getData ~ response.data:",
+      //   response.data
+      // );
+    }
+  };
+  getData();
   return (
     <PageContainer title="Manage Shipment" description="Manage Shipment page">
       <Typography variant="h4" sx={{ mb: 3 }}>
-        Manage Shipment
+        Request Shipment
       </Typography>
     </PageContainer>
   );
 };
 
-export default ManageShipment;
+export default RequestShipment;
 
-ManageShipment.getLayout = function getLayout(page: ReactElement) {
+RequestShipment.getLayout = function getLayout(page: ReactElement) {
   return <FullLayout>{page}</FullLayout>;
 };
